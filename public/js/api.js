@@ -172,7 +172,8 @@
       metrics: r.metrics || {},
       highlights: r.highlights || [],
       featured: r.featured,
-      order: r.sort_order
+      order: r.sort_order,
+      createdAt: r.created_at
     };
   }
 

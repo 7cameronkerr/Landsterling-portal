@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activate Your Access | Land Sterling Investment Portal</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<style>
+  :root{--bg:#F7F5F1;--navy:#1A1F2E;--red:#C0272D;--text:#1A1A1A;--sec:#6B6560;--border:#E0DBD5;--green:#2C6E49;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--navy);color:var(--text);
+       min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;}
+  .card{background:var(--bg);max-width:560px;width:100%;padding:44px 42px;margin:auto;border-radius:2px;}
+  .lbl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);text-align:center;margin-bottom:6px;}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.55rem;text-align:center;margin-bottom:6px;letter-spacing:.02em;}
+  .rule{width:32px;height:1px;background:var(--red);margin:14px auto 20px;}
+  p.sub{font-size:13px;color:var(--sec);line-height:1.7;text-align:center;margin-bottom:22px;}
+  .step-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);font-weight:500;margin:22px 0 10px;}
+  .nda-box{height:200px;overflow-y:auto;border:1px solid var(--border);background:#fff;padding:16px 18px;font-size:12.5px;line-height:1.6;color:#333;border-radius:2px;}
+  .nda-box h4{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1rem;margin:12px 0 6px;}
+  .nda-box p{margin-bottom:9px;}
+  .review-flag{background:#fff7e6;border:1px solid #f0d9a8;color:#8a5a00;font-size:11.5px;padding:8px 12px;border-radius:3px;margin-top:8px;}
+  label.chk{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:#333;margin:14px 0;line-height:1.5;}
+  label.chk input{margin-top:2px;accent-color:var(--red);flex-shrink:0;}
+  input[type=text],input[type=password]{width:100%;border:1px solid var(--border);background:#fff;padding:13px 15px;
+       font-size:16px;border-radius:2px;outline:none;margin-bottom:11px;font-family:inherit;}
+  input:focus{border-color:var(--red);}
+  .field-label{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--sec);margin-bottom:5px;display:block;}
+  button.submit{width:100%;padding:14px;background:var(--red);color:#fff;font-size:11px;font-weight:500;letter-spacing:.12em;
+       text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;margin-top:8px;}
+  button.submit:hover{background:#a02025;} button.submit:disabled{opacity:.55;cursor:default;}
+  .msg{font-size:12.5px;margin-top:12px;line-height:1.6;text-align:center;}
+  .err{color:var(--red);} .ok{color:var(--green);}
+  a{color:var(--red);}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="lbl">Land Sterling</div>
+    <h1>Activate Your Access</h1>
+    <div class="rule"></div>
+    <div id="content"><p class="sub">Verifying your link…</p></div>
+  </div>
+
+<script>
+(async function () {
+  const content = document.getElementById('content');
+  if (!LS_API.configured) { content.innerHTML = '<p class="sub err">The portal backend is not connected yet (see SETUP.md).</p>'; return; }
+
+  // supabase-js reads the invite/recovery token from the URL; give it a moment.
+  let session = await LS_API.getSession();
+  if (!session) { await new Promise(r => setTimeout(r, 800)); session = await LS_API.getSession(); }
+  if (!session) {
+    content.innerHTML = '<p class="sub err">This link is invalid or has expired. Please request a new one, or contact us.</p><p class="sub"><a href="index.html">Back to sign in</a></p>';
+    return;
+  }
+
+  const NDA_VERSION = 'v1-draft';
+  content.innerHTML =
+    '<p class="sub">Welcome. To access the Asset Library, please review and sign the confidentiality agreement and set a password — in one step.</p>' +
+    '<div class="step-label">1 · Non-Disclosure Agreement</div>' +
+    '<div class="nda-box" id="ndaBox">' +
+      '<h4>Confidentiality &amp; Non-Disclosure Agreement</h4>' +
+      '<p>This Agreement is entered into between Land Sterling Investment Advisory ("Discloser") and the undersigned recipient ("Recipient") in connection with access to confidential real estate investment opportunities and related materials (the "Confidential Information").</p>' +
+      '<p>1. The Recipient agrees to keep all Confidential Information strictly confidential and to use it solely for the purpose of evaluating a potential investment.</p>' +
+      '<p>2. The Recipient shall not disclose, reproduce or distribute the Confidential Information to any third party without the prior written consent of the Discloser.</p>' +
+      '<p>3. Confidential Information excludes information that is or becomes public through no breach by the Recipient, or is lawfully obtained from another source.</p>' +
+      '<p>4. The Confidential Information is provided without warranty as to accuracy or completeness and does not constitute an offer or financial advice.</p>' +
+      '<p>5. This Agreement shall be governed by the applicable laws of the Emirate of Dubai, United Arab Emirates. [Wording to be confirmed by legal.]</p>' +
+      '<div class="review-flag">⚠ Placeholder NDA wording — Land Sterling to replace with the final, legally-approved agreement.</div>' +
+    '</div>' +
+    '<label class="field-label" style="margin-top:14px;">Full legal name (your electronic signature)</label>' +
+    '<input type="text" id="signName" placeholder="Type your full name" autocomplete="name">' +
+    '<label class="chk"><input type="checkbox" id="ndaAgree"> I have read and agree to the Non-Disclosure Agreement, and I understand typing my name constitutes my electronic signature.</label>' +
+    '<div class="step-label">2 · Create your password</div>' +
+    '<input type="password" id="pw1" placeholder="New password (min. 8 characters)" minlength="8" autocomplete="new-password">' +
+    '<input type="password" id="pw2" placeholder="Confirm password" minlength="8" autocomplete="new-password">' +
+    '<button class="submit" id="go">Sign &amp; Activate Access</button>' +
+    '<div class="msg" id="msg"></div>';
+
+  document.getElementById('go').addEventListener('click', async function () {
+    const name = document.getElementById('signName').value.trim();
+    const agree = document.getElementById('ndaAgree').checked;
+    const pw1 = document.getElementById('pw1').value, pw2 = document.getElementById('pw2').value;
+    const msg = document.getElementById('msg'); const btn = this; msg.className = 'msg';
+    if (!name)            { msg.className='msg err'; msg.textContent='Please type your full name to sign.'; return; }
+    if (!agree)          { msg.className='msg err'; msg.textContent='Please confirm you agree to the NDA.'; return; }
+    if (pw1.length < 8)  { msg.className='msg err'; msg.textContent='Password must be at least 8 characters.'; return; }
+    if (pw1 !== pw2)     { msg.className='msg err'; msg.textContent='Passwords do not match.'; return; }
+    btn.disabled = true; btn.textContent = 'Activating…';
+    try {
+      const result = await LS_API.activateAccount({ password: pw1, ndaName: name, ndaVersion: NDA_VERSION });
+      if (result.error) throw result.error;
+      msg.className = 'msg ok';
+      msg.textContent = 'Access activated. Redirecting to the portal…';
+      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    } catch (err) {
+      msg.className = 'msg err';
+      msg.textContent = err.message || 'Could not activate. Please try again.';
+      btn.disabled = false; btn.textContent = 'Sign & Activate Access';
+    }
+  });
+})();
+</script>
+</body>
+</html>

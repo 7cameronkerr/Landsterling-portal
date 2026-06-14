@@ -1,0 +1,2767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Land Sterling Investment Portal | UAE Real Estate Investment Opportunities</title>
+<meta name="description" content="Curated UAE real estate investment opportunities across income-producing assets, value-add strategies and development-led acquisitions by Land Sterling Investment Advisory.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<!-- Backend: Supabase SDK + portal config + API layer -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/seed-data.js"></script>
+<script src="js/api.js"></script>
+<style>
+/* ============================================================
+   VARIABLES
+   ============================================================ */
+:root {
+  --bg:          #F7F5F1;
+  --card-bg:     #F2EEE9;
+  --white:       #FFFFFF;
+  --text:        #1A1A1A;
+  --text-sec:    #6B6560;
+  --red:         #C0272D;
+  --navy:        #1A1F2E;
+  --navy-card:   #2C3340;
+  --divider:     #D0CBC4;
+  --border:      #E0DBD5;
+  --amber:       #B45309;
+
+  --font-serif:     'Cormorant Garamond', Georgia, serif;
+  --font-sans:      'DM Sans', system-ui, sans-serif;
+  --font-mono:      'Montserrat', 'DM Sans', sans-serif;
+  --font-wordmark:  'Montserrat', 'DM Sans', system-ui, sans-serif;
+
+  --radius:      2px;
+  --shadow:      0 1px 4px rgba(26,31,46,0.07), 0 4px 16px rgba(26,31,46,0.05);
+  --transition:  0.2s ease;
+
+  --max-w:       1280px;
+  --nav-h:       68px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+ul { list-style: none; }
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+h1,h2,h3,h4,h5 { font-family: var(--font-serif); font-weight: 400; line-height: 1.15; color: var(--text); }
+h1 { font-size: clamp(2.8rem, 5vw, 4.5rem); letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.9rem, 3vw, 2.8rem); }
+h3 { font-size: clamp(1.3rem, 2vw, 1.7rem); }
+h4 { font-size: 1.15rem; }
+
+.label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-sec);
+}
+.mono { font-family: var(--font-mono); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.container { max-width: var(--max-w); margin: 0 auto; padding: 0 32px; }
+.page { display: none; min-height: calc(100vh - var(--nav-h)); padding-top: var(--nav-h); }
+.page.active { display: block; }
+
+/* Red rule decoration */
+.section-rule {
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--red);
+  margin-bottom: 20px;
+}
+.section-rule.center { margin: 0 auto 20px; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--red);
+  color: #fff;
+}
+.btn-primary:hover { background: #a02025; }
+.btn-secondary {
+  border: 1px solid var(--text);
+  color: var(--text);
+}
+.btn-secondary:hover { background: var(--text); color: #fff; }
+.btn-outline-white {
+  border: 1px solid rgba(255,255,255,0.5);
+  color: #fff;
+}
+.btn-outline-white:hover { background: rgba(255,255,255,0.1); }
+.btn-sm { padding: 9px 18px; font-size: 11px; }
+
+/* ============================================================
+   EMAIL GATE
+   ============================================================ */
+#gate {
+  position: fixed;
+  inset: 0;
+  background: var(--navy);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;            /* scroll when the form is taller than the screen */
+  -webkit-overflow-scrolling: touch;
+}
+.gate-card {
+  background: var(--bg);
+  max-width: 560px;
+  width: 100%;
+  padding: 56px 52px;
+  text-align: center;
+  margin: auto;               /* vertical centering that still allows scroll */
+}
+.gate-logo-img {
+  height: 40px;
+  width: auto;
+  margin: 0 auto 16px;
+  display: block;
+}
+.gate-logo {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.gate-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--text);
+  margin-bottom: 20px;
+  letter-spacing: 0.04em;
+}
+.gate-rule { width: 32px; height: 1px; background: var(--red); margin: 0 auto 24px; }
+.gate-desc {
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.gate-form { display: flex; flex-direction: column; gap: 12px; }
+.gate-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gate-form input[type="email"],
+.gate-form input[type="text"],
+.gate-form input[type="tel"] {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--white);
+  padding: 13px 16px;
+  font-size: 13px;
+  color: var(--text);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.gate-form input[type="email"]:focus,
+.gate-form input[type="text"]:focus,
+.gate-form input[type="tel"]:focus { border-color: var(--red); }
+.gate-checkbox-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+}
+.gate-checkbox-wrap input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--red); }
+.gate-checkbox-wrap label { font-size: 11.5px; color: var(--text-sec); line-height: 1.5; }
+.gate-submit {
+  width: 100%;
+  padding: 14px;
+  background: var(--red);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+.gate-submit:hover { background: #a02025; }
+.gate-error { font-size: 12px; color: var(--red); text-align: left; display: none; }
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+#nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--divider);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+}
+.nav-inner {
+  max-width: var(--max-w);
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+.nav-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  line-height: 1.1;
+}
+.nav-logo-img {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+.nav-logo-name {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 500;
+}
+.nav-logo-sub {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-sec);
+  font-weight: 400;
+  border-left: 1px solid var(--divider);
+  padding-left: 12px;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+}
+.nav-link {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-sec);
+  transition: color var(--transition);
+  cursor: pointer;
+}
+.nav-link:hover, .nav-link.active { color: var(--text); }
+.nav-cta { flex-shrink: 0; }
+.nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+.nav-hamburger span {
+  display: block; width: 22px; height: 1.5px;
+  background: var(--text); margin: 5px 0;
+  transition: var(--transition);
+}
+
+/* ============================================================
+   HERO — cinematic full-bleed skyline
+   ============================================================ */
+.hero {
+  position: relative;
+  padding: 170px 0 150px;
+  text-align: center;
+  background: var(--navy);
+  border-bottom: none;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute;
+  inset: -48px;
+  background: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=2400&q=85') center 32% / cover no-repeat;
+  animation: heroZoom 30s ease-out forwards;
+  will-change: transform;
+}
+@keyframes heroZoom {
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(16,20,31,0.66) 0%,
+    rgba(16,20,31,0.52) 45%,
+    rgba(16,20,31,0.80) 100%);
+}
+.hero .container { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg { animation: none; }
+}
+.hero-label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 24px;
+}
+.hero h1 { color: #fff; margin-bottom: 12px; }
+.hero h1 span {
+  font-family: var(--font-wordmark);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 24px rgba(16,20,31,0.4);
+}
+.hero-portal {
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  color: rgba(255,255,255,0.78);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  margin-bottom: 32px;
+  display: block;
+}
+.hero-rule { width: 40px; height: 2px; background: var(--red); margin: 0 auto 32px; }
+.hero-tagline {
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  color: rgba(255,255,255,0.82);
+
+  max-width: 560px;
+  margin: 0 auto 20px;
+}
+.hero-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.58);
+  max-width: 620px;
+  margin: 0 auto 48px;
+  line-height: 1.8;
+}
+.hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.hero .btn-secondary {
+  border-color: rgba(255,255,255,0.4);
+  color: #fff;
+  background: transparent;
+}
+.hero .btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.7);
+}
+
+/* ============================================================
+   METRICS PANEL
+   ============================================================ */
+.metrics-section {
+  background: var(--navy);
+  padding: 60px 0;
+}
+.metrics-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.metrics-header .label { color: rgba(255,255,255,0.45); margin-bottom: 8px; display: block; }
+.metrics-header h2 { color: #fff; font-size: 1.5rem; font-weight: 300; }
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.08);
+}
+.metric-card {
+  background: var(--navy);
+  padding: 32px 28px;
+  border-top: 2px solid var(--red);
+  transition: background var(--transition);
+}
+.metric-card:hover { background: rgba(255,255,255,0.03); }
+.metric-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 12px;
+  display: block;
+}
+.metric-value {
+  font-family: var(--font-mono);
+  font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+  color: #fff;
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 10px;
+  display: block;
+}
+.metric-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   PORTAL INTRO
+   ============================================================ */
+.intro-section { padding: 96px 0; border-bottom: 1px solid var(--divider); }
+.intro-inner { display: grid; grid-template-columns: 1fr 2fr; gap: 80px; align-items: start; }
+.intro-left .label { display: block; margin-bottom: 16px; }
+.intro-left h2 { font-size: 2rem; font-weight: 300; color: var(--navy); line-height: 1.2; }
+.intro-right p {
+  font-size: 14px;
+  color: var(--text-sec);
+  line-height: 1.85;
+  margin-bottom: 20px;
+}
+.intro-right p:last-child { margin-bottom: 0; }
+
+/* ============================================================
+   SECTION HEADERS
+   ============================================================ */
+.section-header { margin-bottom: 48px; }
+.section-header .label { display: block; margin-bottom: 12px; }
+.section-header h2 { color: var(--navy); }
+.section-header p { font-size: 14px; color: var(--text-sec); margin-top: 12px; max-width: 600px; }
+.section-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+
+/* ============================================================
+   OPPORTUNITY GRID
+   ============================================================ */
+.opps-section { padding: 96px 0; }
+.opps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* ============================================================
+   OPPORTUNITY CARD
+   ============================================================ */
+.opp-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.opp-card:hover { box-shadow: 0 4px 24px rgba(26,31,46,0.12); transform: translateY(-2px); }
+.card-image {
+  aspect-ratio: 16/9;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.card-image-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.opp-card:hover .card-image-photo { transform: scale(1.06); }
+.card-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(16,20,31,0.38) 0%, transparent 38%, transparent 70%, rgba(16,20,31,0.30) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-image-photo, .opp-card:hover .card-image-photo { transition: none; transform: none; }
+}
+.card-image-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-image-bg.commercial { background: linear-gradient(135deg, #1A1F2E 0%, #2C3340 100%); }
+.card-image-bg.residential { background: linear-gradient(135deg, #2C3340 0%, #3d4555 100%); }
+.card-image-bg.land { background: linear-gradient(135deg, #3a3530 0%, #554e47 100%); }
+.card-image-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 20px,
+    rgba(255,255,255,0.02) 20px,
+    rgba(255,255,255,0.02) 21px
+  );
+}
+.card-image-label {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 16px;
+}
+.card-image-label .location-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.06em;
+}
+.card-image-label .building-icon {
+  font-size: 2rem;
+  opacity: 0.15;
+  display: block;
+  margin-bottom: 8px;
+}
+.card-profile-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 4px 10px;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  border-radius: 1px;
+}
+.badge-stabilised { background: var(--navy); }
+.badge-value-add { background: var(--red); }
+.badge-development { background: var(--text-sec); }
+
+.card-status-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  padding: 4px 10px;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 1px;
+}
+.status-under-offer { background: var(--amber); color: #fff; }
+.status-sold { background: #555; color: #fff; }
+
+.card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+.card-name {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--navy);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.card-location { font-size: 12px; color: var(--text-sec); margin-bottom: 14px; }
+.card-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--divider);
+}
+.card-meta-item { font-size: 10.5px; color: var(--text-sec); letter-spacing: 0.03em; }
+.card-meta-item span { color: var(--text); font-weight: 500; }
+.card-price {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.card-yields {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+.card-yield-item { font-size: 11px; color: var(--text-sec); }
+.card-yield-item strong { font-family: var(--font-mono); color: var(--text); font-weight: 400; }
+.card-angle {
+  font-size: 12.5px;
+  color: var(--text-sec);
+
+  line-height: 1.6;
+  margin-bottom: 20px;
+  flex: 1;
+}
+.card-cta { margin-top: auto; }
+
+/* ============================================================
+   FILTERS
+   ============================================================ */
+.filter-bar {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  padding: 20px 0 32px;
+  border-bottom: 1px solid var(--divider);
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+.filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.filter-label-text {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-sec);
+  white-space: nowrap;
+  margin-right: 4px;
+}
+.filter-btn {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--text-sec);
+  border: 1px solid var(--border);
+  background: var(--white);
+  border-radius: 1px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+.filter-btn:hover { border-color: var(--text); color: var(--text); }
+.filter-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+.filter-divider { width: 1px; height: 24px; background: var(--divider); }
+
+/* Track record contextual note */
+.track-record-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 10px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--divider);
+  border-left: 3px solid var(--navy);
+}
+.track-record-note span {
+  font-size: 12px;
+  color: var(--text-sec);
+  line-height: 1.5;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 80px 24px;
+  display: none;
+}
+.empty-state p { font-size: 14px; color: var(--text-sec); max-width: 400px; margin: 0 auto; }
+
+/* ============================================================
+   CTA SECTION
+   ============================================================ */
+.cta-section {
+  background: var(--navy);
+  padding: 96px 0;
+  text-align: center;
+}
+.cta-section .label { color: rgba(255,255,255,0.4); display: block; margin-bottom: 16px; }
+.cta-section h2 { color: #fff; margin-bottom: 16px; font-weight: 300; }
+.cta-section p { color: rgba(255,255,255,0.55); font-size: 14px; max-width: 520px; margin: 0 auto 40px; line-height: 1.8; }
+.cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* ============================================================
+   OPPORTUNITY DETAIL PAGE
+   ============================================================ */
+.detail-hero {
+  background: var(--navy);
+  padding: 80px 0 64px;
+  position: relative;
+  overflow: hidden;
+}
+.detail-hero-bg {
+  position: absolute;
+  inset: 0;
+  background-position: center 35%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.22;
+  filter: saturate(0.8);
+}
+.detail-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(26,31,46,0.2) 0%, rgba(26,31,46,0.75) 100%);
+}
+.detail-hero .container { position: relative; z-index: 1; }
+.detail-breadcrumb {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.06em;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.detail-breadcrumb a { color: rgba(255,255,255,0.4); cursor: pointer; }
+.detail-breadcrumb a:hover { color: rgba(255,255,255,0.7); }
+.detail-badges { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.detail-badge {
+  padding: 5px 12px;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 1px;
+}
+.detail-badge.type { border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
+.detail-badge.tenure { border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
+.detail-name {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  color: #fff;
+  font-weight: 300;
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+.detail-location {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 32px;
+  letter-spacing: 0.03em;
+}
+.detail-price-row {
+  display: flex;
+  gap: 48px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.detail-price-item {}
+.detail-price-label { font-size: 9.5px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+.detail-price-value { font-family: var(--font-mono); font-size: 1.4rem; color: #fff; }
+.detail-price-value.large { font-size: 1.8rem; }
+.detail-cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Detail sections */
+.detail-body { padding: 80px 0; }
+.detail-grid { display: grid; grid-template-columns: 1fr 380px; gap: 64px; align-items: start; }
+
+.metrics-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 36px;
+  position: sticky;
+  top: calc(var(--nav-h) + 24px);
+}
+.metrics-panel h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--navy);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--divider);
+}
+.metrics-table { width: 100%; }
+.metric-row {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider);
+  align-items: start;
+}
+.metric-row:last-child { border-bottom: none; }
+.metric-key { font-size: 11px; color: var(--text-sec); line-height: 1.4; }
+.metric-val { font-size: 12px; color: var(--text); font-weight: 500; line-height: 1.4; text-align: right; }
+
+/* Investment summary */
+.detail-summary { margin-bottom: 64px; }
+.detail-summary .label { display: block; margin-bottom: 12px; }
+.detail-summary h2 { color: var(--navy); margin-bottom: 24px; font-size: 1.9rem; }
+.detail-summary p { font-size: 14px; color: var(--text-sec); line-height: 1.85; margin-bottom: 16px; }
+
+/* Highlights */
+.detail-highlights { margin-bottom: 64px; }
+.detail-highlights .label { display: block; margin-bottom: 12px; }
+.detail-highlights h2 { color: var(--navy); margin-bottom: 32px; font-size: 1.9rem; }
+.highlights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--divider); }
+.highlight-item {
+  background: var(--white);
+  padding: 28px;
+  border-left: 3px solid transparent;
+  transition: border-color var(--transition);
+}
+.highlight-item:hover { border-left-color: var(--red); }
+.highlight-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--red);
+  margin-bottom: 10px;
+  display: block;
+}
+.highlight-title { font-family: var(--font-serif); font-size: 1.05rem; color: var(--navy); margin-bottom: 8px; }
+.highlight-desc { font-size: 12.5px; color: var(--text-sec); line-height: 1.65; margin-bottom: 10px; }
+.highlight-metric {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  padding-top: 10px;
+  border-top: 1px solid var(--divider);
+}
+
+/* Asset summary */
+/* ============================================================
+   INVESTMENT ANALYSIS
+   ============================================================ */
+.detail-analysis { margin-bottom: 64px; }
+.detail-analysis .label { display: block; margin-bottom: 12px; }
+.detail-analysis h2 { color: var(--navy); margin-bottom: 24px; font-size: 1.9rem; }
+
+.analysis-holding {
+  background: var(--card-bg);
+  border: 1px solid var(--divider);
+  border-left: 3px solid var(--red);
+  padding: 24px 28px;
+  font-size: 13.5px;
+  color: var(--text-sec);
+  line-height: 1.8;
+}
+
+.analysis-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--divider);
+  border: 1px solid var(--divider);
+  margin-bottom: 32px;
+}
+.analysis-metric { background: var(--navy); padding: 26px 24px; }
+.analysis-metric-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 10px;
+}
+.analysis-metric-value {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.1;
+}
+.analysis-metric-note { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 6px; line-height: 1.4; }
+
+.analysis-subtitle {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--navy);
+  margin: 32px 0 14px;
+}
+.analysis-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.analysis-table thead th {
+  text-align: left;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-sec);
+  padding: 10px 14px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--divider);
+}
+.analysis-table thead th:not(:first-child) { text-align: right; }
+.analysis-table tbody td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--divider);
+  color: var(--text);
+}
+.analysis-table tbody td:first-child { color: var(--text-sec); }
+.analysis-table tbody td:not(:first-child) {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+.analysis-table tbody tr:last-child td {
+  border-bottom: 2px solid var(--navy);
+  font-weight: 500;
+  color: var(--navy);
+}
+.analysis-narrative { margin-top: 24px; }
+.analysis-narrative p { font-size: 14px; color: var(--text-sec); line-height: 1.85; margin-bottom: 16px; }
+
+/* Detail footer */
+.detail-footer-note {
+  background: var(--card-bg);
+  border: 1px solid var(--divider);
+  border-left: 3px solid var(--navy);
+  padding: 20px 24px;
+  font-size: 12px;
+  color: var(--text-sec);
+  line-height: 1.65;
+  margin-top: 48px;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26,31,46,0.7);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(2px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white);
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 48px 44px;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-sec);
+  font-size: 18px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--white);
+  border-radius: 1px;
+  transition: var(--transition);
+}
+.modal-close:hover { background: var(--text); color: #fff; }
+.modal h3 { font-size: 1.5rem; color: var(--navy); margin-bottom: 6px; }
+.modal .modal-sub { font-size: 12px; color: var(--text-sec); margin-bottom: 28px; }
+.modal-opp-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--divider);
+  font-size: 11px;
+  color: var(--text-sec);
+  margin-bottom: 24px;
+  border-radius: 1px;
+}
+.form-grid { display: flex; flex-direction: column; gap: 14px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-field { display: flex; flex-direction: column; gap: 5px; }
+.form-field label { font-size: 10.5px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-sec); }
+.form-field input,
+.form-field textarea,
+.form-field select {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 11px 14px;
+  font-size: 13px;
+  color: var(--text);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+.form-field input:focus,
+.form-field textarea:focus { border-color: var(--red); }
+.form-field textarea { resize: vertical; min-height: 90px; }
+.form-field.full { grid-column: 1/-1; }
+.form-consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 4px; }
+.form-consent input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--red); }
+.form-consent label { font-size: 11.5px; color: var(--text-sec); line-height: 1.5; }
+.form-submit {
+  width: 100%;
+  padding: 14px;
+  background: var(--red);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  margin-top: 8px;
+  transition: background var(--transition);
+}
+.form-submit:hover { background: #a02025; }
+.form-success {
+  display: none;
+  text-align: center;
+  padding: 40px 24px;
+}
+.form-success .success-icon {
+  width: 48px; height: 48px;
+  border: 2px solid var(--red);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 18px;
+  color: var(--red);
+}
+.form-success h4 { font-family: var(--font-serif); font-size: 1.3rem; color: var(--navy); margin-bottom: 12px; }
+.form-success p { font-size: 13px; color: var(--text-sec); line-height: 1.7; }
+
+/* ============================================================
+   MAP STYLES
+   ============================================================ */
+.library-map-wrap {
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 0;
+}
+.library-map-wrap .leaflet-container { font-family: var(--font-sans); }
+
+.detail-location-map { margin-bottom: 64px; }
+.detail-location-map .label { display: block; margin-bottom: 12px; }
+.detail-location-map h2 { color: var(--navy); margin-bottom: 8px; font-size: 1.9rem; }
+.detail-map-address { font-size: 13px; color: var(--text-sec); margin-bottom: 0; }
+.detail-location-map .leaflet-container { border: 1px solid var(--border); }
+
+/* Custom Leaflet marker popup */
+.ls-popup .leaflet-popup-content-wrapper {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 4px 16px rgba(26,31,46,0.25);
+  padding: 0;
+}
+.ls-popup .leaflet-popup-content { margin: 0; padding: 0; }
+.ls-popup .leaflet-popup-tip { background: var(--navy); }
+.ls-popup .leaflet-popup-close-button { color: rgba(255,255,255,0.5) !important; }
+.map-popup-inner { padding: 16px 20px; min-width: 200px; }
+.map-popup-profile {
+  font-size: 9px; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 8px; display: block;
+}
+.map-popup-name { font-family: var(--font-serif); font-size: 1.05rem; color: #fff; margin-bottom: 4px; line-height: 1.25; }
+.map-popup-location { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
+.map-popup-price { font-family: var(--font-mono); font-size: 12px; color: #fff; margin-bottom: 12px; }
+.map-popup-btn {
+  display: inline-block; padding: 7px 14px;
+  background: var(--red); color: #fff;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; cursor: pointer; border: none;
+  font-family: var(--font-sans);
+}
+.map-popup-btn:hover { background: #a02025; }
+
+/* ============================================================
+   CLOSED TRANSACTIONS (legacy — kept for CSS completeness)
+   ============================================================ */
+.closed-hero {
+  background: var(--navy);
+  padding: 72px 0 56px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.closed-hero .label { display: block; margin-bottom: 12px; color: rgba(255,255,255,0.4); }
+.closed-hero h1 { color: #fff; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; margin-bottom: 12px; }
+.closed-hero p { color: rgba(255,255,255,0.5); font-size: 14px; max-width: 560px; line-height: 1.7; }
+
+/* ============================================================
+   ABOUT US PAGE
+   ============================================================ */
+.about-hero {
+  background: var(--navy);
+  padding: 80px 0 64px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.about-hero .label { display: block; margin-bottom: 12px; color: rgba(255,255,255,0.4); }
+.about-hero h1 { color: #fff; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; margin-bottom: 16px; }
+.about-hero p { color: rgba(255,255,255,0.55); font-size: 15px; max-width: 640px; line-height: 1.8; }
+
+.about-body { padding: 96px 0; }
+.about-intro { display: grid; grid-template-columns: 1fr 2fr; gap: 80px; align-items: start; margin-bottom: 80px; padding-bottom: 80px; border-bottom: 1px solid var(--divider); }
+.about-intro-left .label { display: block; margin-bottom: 16px; }
+.about-intro-left h2 { color: var(--navy); font-size: 2rem; font-weight: 300; line-height: 1.2; }
+.about-intro-right p { font-size: 14px; color: var(--text-sec); line-height: 1.85; margin-bottom: 18px; }
+.about-intro-right p:last-child { margin-bottom: 0; }
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--divider);
+  border: 1px solid var(--divider);
+  margin-bottom: 80px;
+}
+.about-stat {
+  background: var(--navy);
+  padding: 44px 32px;
+  text-align: center;
+}
+.about-stat-num {
+  font-family: var(--font-serif);
+  font-size: 2.6rem;
+  font-weight: 300;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.about-stat-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+
+.about-pillars { margin-bottom: 80px; padding-bottom: 80px; border-bottom: 1px solid var(--divider); }
+.about-pillars-header { margin-bottom: 48px; }
+.about-pillars-header .label { display: block; margin-bottom: 12px; }
+.about-pillars-header h2 { color: var(--navy); font-size: 2rem; font-weight: 300; }
+.pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--divider); }
+.pillar-item { background: var(--white); padding: 36px 32px; border-top: 2px solid transparent; transition: border-color 0.2s ease; }
+.pillar-item:hover { border-top-color: var(--red); }
+.pillar-num { font-family: var(--font-mono); font-size: 11px; color: var(--red); display: block; margin-bottom: 16px; }
+.pillar-title { font-family: var(--font-serif); font-size: 1.2rem; color: var(--navy); margin-bottom: 12px; }
+.pillar-desc { font-size: 13px; color: var(--text-sec); line-height: 1.7; }
+
+.about-team { margin-bottom: 80px; }
+.about-team-header { margin-bottom: 48px; }
+.about-team-header .label { display: block; margin-bottom: 12px; }
+.about-team-header h2 { color: var(--navy); font-size: 2rem; font-weight: 300; }
+.team-card {
+  background: var(--navy);
+  padding: 40px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 40px;
+  align-items: start;
+  max-width: 680px;
+}
+.team-card-initials {
+  width: 72px; height: 72px;
+  border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+.team-card-name { font-family: var(--font-serif); font-size: 1.4rem; color: #fff; margin-bottom: 4px; }
+.team-card-title { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 20px; display: block; }
+.team-card-bio { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.75; margin-bottom: 20px; }
+.team-card-contact { display: flex; flex-direction: column; gap: 6px; }
+.team-card-contact a { font-size: 12.5px; color: rgba(255,255,255,0.45); transition: color 0.2s ease; }
+.team-card-contact a:hover { color: #fff; }
+
+.about-holding {
+  background: var(--card-bg);
+  border: 1px solid var(--divider);
+  border-left: 3px solid var(--divider);
+  padding: 28px 32px;
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.7;
+
+}
+
+@media (max-width: 1100px) {
+  .about-intro { grid-template-columns: 1fr; gap: 32px; }
+  .about-stats { grid-template-columns: 1fr 1fr; }
+  .pillars-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .pillars-grid { grid-template-columns: 1fr; }
+  .team-card { grid-template-columns: 1fr; gap: 20px; }
+}
+footer {
+  background: var(--navy);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 48px 0 32px;
+}
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 40px;
+}
+.footer-logo-img {
+  height: 34px;
+  width: auto;
+  display: block;
+  margin-bottom: 8px;
+}
+.footer-brand .footer-logo-name {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red);
+  display: block;
+  margin-bottom: 4px;
+}
+.footer-brand .footer-logo-sub {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  display: block;
+  margin-bottom: 16px;
+}
+.footer-brand p { font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.7; max-width: 280px; }
+.footer-brand .footer-brandline {
+  font-family: var(--font-serif);
+  font-size: 14px;
+
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  max-width: 280px;
+}
+.footer-accreditations {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+.footer-accred-mark {
+  font-family: var(--font-wordmark);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.55);
+}
+.footer-accred-mark:not(:last-child) {
+  padding-right: 16px;
+  border-right: 1px solid rgba(255,255,255,0.12);
+}
+.footer-offices {
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+.footer-col h4 {
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 16px;
+}
+.footer-col ul { display: flex; flex-direction: column; gap: 10px; }
+.footer-col ul li a, .footer-col ul li span {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.5);
+  transition: color var(--transition);
+  cursor: pointer;
+}
+.footer-col ul li a:hover, .footer-col ul li span:hover { color: rgba(255,255,255,0.8); }
+.footer-bottom {
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.footer-legal { font-size: 11px; color: rgba(255,255,255,0.25); line-height: 1.6; max-width: 680px; }
+.footer-copy { font-size: 11px; color: rgba(255,255,255,0.25); white-space: nowrap; }
+
+/* ============================================================
+   PAGE TRANSITIONS
+   ============================================================ */
+.page { animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1100px) {
+  .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+  .opps-grid { grid-template-columns: repeat(2, 1fr); }
+  .detail-grid { grid-template-columns: 1fr; }
+  .metrics-panel { position: static; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  :root { --nav-h: 56px; }
+  .container { padding: 0 20px; }
+  .analysis-metric-grid { grid-template-columns: 1fr; }
+  .analysis-table { font-size: 12px; }
+  .analysis-table thead th, .analysis-table tbody td { padding: 9px 10px; }
+  .nav-links, .nav-cta { display: none; }
+  .nav-hamburger { display: block; }
+  .nav-inner { gap: 16px; }
+  .nav-links.open {
+    display: flex;
+    position: fixed;
+    top: var(--nav-h);
+    left: 0; right: 0;
+    background: var(--white);
+    flex-direction: column;
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--divider);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    gap: 4px;
+  }
+  .nav-links.open .nav-link { padding: 10px 0; font-size: 12px; }
+  .nav-cta.open { display: block; padding: 12px 20px 20px; background: var(--white); }
+
+  .hero { padding: 72px 0 64px; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .intro-inner { grid-template-columns: 1fr; gap: 32px; }
+  .opps-grid { grid-template-columns: 1fr; }
+  .highlights-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+  .detail-price-row { gap: 28px; }
+  .filter-bar { gap: 16px; }
+  .modal { padding: 36px 24px; }
+}
+@media (max-width: 480px) {
+  .metrics-grid { grid-template-columns: 1fr; }
+  .hero-btns { flex-direction: column; align-items: stretch; }
+  .hero-btns .btn { justify-content: center; }
+  .gate-card { padding: 40px 28px; }
+  .gate-form-row { grid-template-columns: 1fr; }
+}
+/* ============================================================
+   MOBILE READABILITY  (mobile-only — the desktop design is untouched)
+   ============================================================ */
+@media (max-width: 768px) {
+  /* 16px stops iOS Safari auto-zooming whenever a field is tapped.
+     #gate ID scope guarantees this wins over the gate's own input rules. */
+  input, textarea, select,
+  #gate input,
+  .form-field input, .form-field textarea, .form-field select { font-size: 16px; }
+
+  /* Comfortable reading sizes for small type on a phone */
+  body { font-size: 15.5px; }
+  .label { font-size: 11px; letter-spacing: 0.1em; }
+  .gate-desc { font-size: 14px; }
+  .gate-tab { font-size: 12px; }
+  .gate-checkbox-wrap label, .form-consent label { font-size: 13px; }
+  .form-field label { font-size: 12px; }
+  .modal .modal-sub { font-size: 13.5px; }
+  .card-location { font-size: 13px; }
+  .card-meta-item { font-size: 12px; }
+  .card-yield-item { font-size: 12px; }
+  .metric-key, .metric-val { font-size: 13px; }
+  .highlight-desc { font-size: 13.5px; }
+  .detail-price-label { font-size: 11px; }
+
+  /* Bigger, finger-friendly tap targets */
+  .nav-links.open .nav-link { padding: 13px 0; font-size: 14px; }
+  .btn { padding: 13px 26px; font-size: 12.5px; }
+  .btn-sm { padding: 11px 18px; font-size: 12px; }
+}
+/* ============================================================
+   MOTION — scroll reveal & nav elevation
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.in { opacity: 1; transform: none; }
+#nav { transition: box-shadow 0.3s ease; }
+#nav.scrolled { box-shadow: 0 2px 24px rgba(26,31,46,0.1); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none; opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     EMAIL GATE
+     ============================================================ -->
+<style>
+  /* Auth gate additions */
+  .gate-tabs { display:flex; gap:0; margin-bottom:24px; border-bottom:1px solid var(--border); }
+  .gate-tab {
+    flex:1; padding:12px 0; font-family:var(--font-sans); font-size:11px; font-weight:500;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--text-sec);
+    background:none; border:none; border-bottom:2px solid transparent; transition:var(--transition);
+  }
+  .gate-tab.active { color:var(--text); border-bottom-color:var(--red); }
+  .gate-panel { display:none; }
+  .gate-panel.active { display:block; }
+  .gate-form input[type="password"] {
+    width:100%; border:1px solid var(--border); background:var(--white); padding:13px 16px;
+    font-size:13px; color:var(--text); border-radius:var(--radius); outline:none; transition:border-color var(--transition);
+  }
+  .gate-form input[type="password"]:focus { border-color:var(--red); }
+  .gate-forgot { font-size:11.5px; color:var(--text-sec); text-align:right; cursor:pointer; }
+  .gate-forgot:hover { color:var(--red); }
+  .gate-note { font-size:12px; color:var(--text-sec); line-height:1.6; margin-top:18px; }
+  .gate-success-icon {
+    width:46px; height:46px; border-radius:50%; background:var(--red); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 18px;
+  }
+  .gate-submit:disabled { opacity:0.6; cursor:default; }
+</style>
+<div id="gate">
+  <div class="gate-card">
+    <img class="gate-logo-img" src="https://landsterling.sa/wp-content/uploads/2024/08/LS-Logo-Red-English.png" alt="Land Sterling" onerror="this.style.display='none';document.getElementById('gateLogoText').style.display='block';">
+    <div class="gate-logo" id="gateLogoText" style="display:none;">Land Sterling</div>
+    <div class="gate-rule"></div>
+    <div class="gate-title">Investment Portal</div>
+
+    <!-- Tabs: Sign In  /  Request Access -->
+    <div class="gate-tabs" id="gateTabs">
+      <button class="gate-tab active" type="button" data-tab="signin" onclick="setAuthTab('signin')">Sign In</button>
+      <button class="gate-tab" type="button" data-tab="register" onclick="setAuthTab('register')">Request Access</button>
+    </div>
+
+    <!-- SIGN IN -->
+    <div class="gate-panel active" id="panel-signin">
+      <p class="gate-desc">Enter your email and password to access the portal.</p>
+      <form class="gate-form" id="signinForm" onsubmit="handleSignIn(event)">
+        <input type="email" id="siEmail" placeholder="Email address" required autocomplete="email">
+        <input type="password" id="siPassword" placeholder="Password" required autocomplete="current-password">
+        <span class="gate-forgot" onclick="handleForgotPassword()">Forgot password?</span>
+        <p class="gate-error" id="signinError"></p>
+        <button type="submit" class="gate-submit">Sign In</button>
+      </form>
+    </div>
+
+    <!-- REQUEST ACCESS (self-registration → pending approval) -->
+    <div class="gate-panel" id="panel-register">
+      <p class="gate-desc">New here? Request access below. Your details are reviewed by Land Sterling before access is granted.</p>
+      <form class="gate-form" id="registerForm" onsubmit="handleRegister(event)">
+        <div class="gate-form-row">
+          <input type="text" id="rgFirstName" placeholder="First name" required autocomplete="given-name">
+          <input type="text" id="rgLastName" placeholder="Last name" required autocomplete="family-name">
+        </div>
+        <input type="email" id="rgEmail" placeholder="Email address" required autocomplete="email">
+        <div class="gate-form-row">
+          <input type="tel" id="rgMobile" placeholder="Mobile number" required autocomplete="tel">
+          <input type="text" id="rgCompany" placeholder="Company / Organisation" required autocomplete="organization">
+        </div>
+        <input type="password" id="rgPassword" placeholder="Create a password (min. 8 characters)" required minlength="8" autocomplete="new-password">
+        <div class="gate-checkbox-wrap">
+          <input type="checkbox" id="rgConsent" required>
+          <label for="rgConsent">I agree to be contacted by Land Sterling Investment Advisory in connection with investment opportunities.</label>
+        </div>
+        <p class="gate-error" id="registerError"></p>
+        <button type="submit" class="gate-submit">Request Access</button>
+      </form>
+    </div>
+
+    <!-- STATUS MESSAGE (pending approval / email confirmation / reset sent) -->
+    <div class="gate-panel" id="panel-status">
+      <div class="gate-success-icon">✓</div>
+      <div class="gate-title" id="statusTitle" style="font-size:1.25rem;">Request Received</div>
+      <p class="gate-note" id="statusBody"></p>
+      <button type="button" class="gate-submit" style="margin-top:20px;" onclick="setAuthTab('signin')">Back to Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     NAVIGATION
+     ============================================================ -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" onclick="navigate('home')">
+      <img class="nav-logo-img" src="https://landsterling.sa/wp-content/uploads/2024/08/LS-Logo-Red-English.png" alt="Land Sterling" onerror="this.style.display='none';document.getElementById('navLogoText').style.display='flex';">
+      <span class="nav-logo-text" id="navLogoText" style="display:none;flex-direction:column;line-height:1.1;">
+        <span class="nav-logo-name">Land Sterling</span>
+      </span>
+      <span class="nav-logo-sub">Investment Portal</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><span class="nav-link active" id="nav-home" onclick="navigate('home')">Home</span></li>
+      <li><span class="nav-link" id="nav-asset-library" onclick="navigate('asset-library')">Asset Library</span></li>
+      <li><span class="nav-link" id="nav-about" onclick="navigate('about')">About Us</span></li>
+      <li><span class="nav-link" id="nav-signout" onclick="handleSignOut()" style="display:none;">Sign Out</span></li>
+    </ul>
+    <div class="nav-cta" id="navCta">
+      <button class="btn btn-primary btn-sm" onclick="openEnquireModal(null)">Enquire Now</button>
+    </div>
+    <button class="nav-hamburger" onclick="toggleNav()" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     PAGES
+     ============================================================ -->
+<main id="main">
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="container">
+        <div class="hero-label">Land Sterling Investment Advisory</div>
+        <h1><span>LAND STERLING</span></h1>
+        <span class="hero-portal">Investment Portal</span>
+        <div class="hero-rule"></div>
+        <p class="hero-tagline">Institutional-grade real estate opportunities for informed capital.</p>
+        <p class="hero-desc">The Land Sterling Investment Portal provides direct access to selected UAE real estate opportunities across stabilised income, value-add and development strategies. Each opportunity is structured around clear metrics, asset context and the underlying investment rationale.</p>
+        <div class="hero-btns">
+          <button class="btn btn-primary" onclick="navigate('asset-library')">View Opportunities</button>
+          <button class="btn btn-secondary" onclick="window.location.href='mailto:Cameron.k@landsterling.com'">Contact Investment Advisory</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard Metrics -->
+    <section class="metrics-section">
+      <div class="container">
+        <div class="metrics-grid" id="metricsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Portal Introduction -->
+    <section class="intro-section">
+      <div class="container">
+        <div class="intro-inner">
+          <div class="intro-left">
+            <span class="label">About the Portal</span>
+            <span class="section-rule"></span>
+            <h2>Curated access to UAE real estate investment</h2>
+          </div>
+          <div class="intro-right">
+            <p>The Land Sterling Investment Portal provides selected investors with structured access to curated UAE real estate opportunities across residential, commercial, industrial and land sectors. Each opportunity is reviewed through an investment advisory lens, with emphasis on pricing, income, tenure, asset profile, exit optionality and market context.</p>
+            <p>The platform is designed for informed capital seeking clear access to stabilised income assets, value-add opportunities and development-led acquisitions. Opportunities are presented with full investment metrics, supporting market evidence and direct enquiry access for qualified recipients.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="container">
+        <span class="label">Investment Advisory</span>
+        <h2>Discuss your acquisition criteria</h2>
+        <p>For further information on live opportunities or to discuss acquisition criteria, contact Land Sterling Investment Advisory.</p>
+        <div class="cta-btns">
+          <button class="btn btn-primary" onclick="navigate('asset-library')">View Asset Library</button>
+          <button class="btn btn-outline-white" onclick="window.location.href='mailto:Cameron.k@landsterling.com'">Contact Cameron Kerr</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <div class="page" id="page-asset-library">
+    <div style="padding: 64px 0 96px;">
+      <div class="container">
+
+        <!-- Default header (hidden when Sold filter active) -->
+        <div class="section-header" id="libraryHeader">
+          <span class="label">Asset Library</span>
+          <span class="section-rule"></span>
+          <h2>Curated investment opportunities</h2>
+          <p>UAE real estate investment opportunities across income, value-add and development strategies.</p>
+        </div>
+
+        <!-- Track record header (shown only when Sold filter active) -->
+        <div class="section-header track-record-header" id="trackRecordHeader" style="display:none;">
+          <span class="label">Asset Library · Track Record</span>
+          <span class="section-rule"></span>
+          <h2>Closed transactions</h2>
+          <p>A record of investment transactions advised and concluded by Land Sterling Investment Advisory.</p>
+          <div class="track-record-note">
+            <span>Viewing sold opportunities only. Select a different status filter to return to live opportunities.</span>
+          </div>
+        </div>
+
+        <div class="filter-bar" id="filterBar">
+          <div class="filter-group">
+            <span class="filter-label-text">Country</span>
+            <button class="filter-btn active" data-filter="country" data-value="all" onclick="setFilter('country','all',this)">All</button>
+            <button class="filter-btn" data-filter="country" data-value="UAE" onclick="setFilter('country','UAE',this)">UAE</button>
+            <button class="filter-btn" data-filter="country" data-value="KSA" onclick="setFilter('country','KSA',this)">KSA</button>
+            <button class="filter-btn" data-filter="country" data-value="UK" onclick="setFilter('country','UK',this)">UK</button>
+          </div>
+          <div class="filter-divider"></div>
+          <div class="filter-group">
+            <span class="filter-label-text">Asset Class</span>
+            <button class="filter-btn active" data-filter="type" data-value="all" onclick="setFilter('type','all',this)">All</button>
+            <button class="filter-btn" data-filter="type" data-value="Commercial" onclick="setFilter('type','Commercial',this)">Commercial</button>
+            <button class="filter-btn" data-filter="type" data-value="Residential" onclick="setFilter('type','Residential',this)">Residential</button>
+            <button class="filter-btn" data-filter="type" data-value="Land" onclick="setFilter('type','Land',this)">Land</button>
+            <button class="filter-btn" data-filter="type" data-value="Industrial" onclick="setFilter('type','Industrial',this)">Industrial</button>
+          </div>
+          <div class="filter-divider"></div>
+          <div class="filter-group">
+            <span class="filter-label-text">Status</span>
+            <button class="filter-btn active" data-filter="status" data-value="all" onclick="setFilter('status','all',this)">All</button>
+            <button class="filter-btn" data-filter="status" data-value="Available" onclick="setFilter('status','Available',this)">Available</button>
+            <button class="filter-btn" data-filter="status" data-value="Under Offer" onclick="setFilter('status','Under Offer',this)">Under Offer</button>
+            <button class="filter-btn" data-filter="status" data-value="Sold" onclick="setFilter('status','Sold',this)">Track Record</button>
+          </div>
+          <div class="filter-divider"></div>
+          <div class="filter-group">
+            <span class="filter-label-text">View</span>
+            <button class="filter-btn active" id="viewGrid" onclick="setView('grid')">Grid</button>
+            <button class="filter-btn" id="viewMap" onclick="setView('map')">Map</button>
+          </div>
+        </div>
+        <div class="opps-grid" id="libraryGrid"></div>
+        <div class="library-map-wrap" id="libraryMapWrap" style="display:none;">
+          <div id="libraryMap" style="width:100%;height:560px;"></div>
+        </div>
+        <div class="empty-state" id="emptyState">
+          <p>No opportunities currently match this filter selection. Please adjust your criteria or contact the Investment Advisory team.</p>
+          <br>
+          <button class="btn btn-secondary btn-sm" onclick="window.location.href='mailto:Cameron.k@landsterling.com'">Contact Investment Advisory</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPPORTUNITY DETAIL PAGE -->
+  <div class="page" id="page-opportunity">
+    <div id="opportunityContent"></div>
+  </div>
+
+
+  <!-- ABOUT US PAGE -->
+  <div class="page" id="page-about">
+    <div class="about-hero">
+      <div class="container">
+        <span class="label">Land Sterling Investment Advisory</span>
+        <span class="section-rule"></span>
+        <h1>About Us</h1>
+        <p>Specialist investment advisory practice focused on structuring and presenting institutional-grade UAE real estate opportunities for informed capital.</p>
+      </div>
+    </div>
+    <div class="about-body">
+      <div class="container">
+
+        <div class="about-intro">
+          <div class="about-intro-left">
+            <span class="label">Who We Are</span>
+            <span class="section-rule"></span>
+            <h2>Investment advisory for informed capital</h2>
+          </div>
+          <div class="about-intro-right">
+            <p>Land Sterling Investment Advisory is a specialist real estate investment advisory practice operating across the UAE. We structure and present curated investment opportunities across stabilised income assets, value-add strategies and development-led acquisitions, with a focus on presenting clear metrics, market context and investment rationale to private capital, family offices and institutional investors.</p>
+            <p>The Land Sterling Investment Portal is our proprietary platform for presenting controlled-access investment opportunities to a qualified investor base. Each opportunity is reviewed through an advisory lens before it reaches the portal, with emphasis on pricing discipline, income credibility, tenure clarity and exit optionality.</p>
+            <p>Full company profile, team biographies and advisory credentials will be published here shortly. If you wish to discuss an opportunity or introduce capital before that content is available, please contact Cameron Kerr directly.</p>
+            <div class="about-holding" style="margin-top: 24px;">
+              Full About Us content is being prepared and will be published shortly. In the meantime, please contact the Investment Advisory team for further information on Land Sterling and our advisory practice.
+            </div>
+          </div>
+        </div>
+
+        <div class="about-stats">
+          <div class="about-stat">
+            <div class="about-stat-num">15+</div>
+            <div class="about-stat-label">Years of Experience</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-num">6</div>
+            <div class="about-stat-label">Offices Around the World</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-num">10k+</div>
+            <div class="about-stat-label">Completed Assignments</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-num">RICS</div>
+            <div class="about-stat-label">Regulated Practice</div>
+          </div>
+        </div>
+
+        <div class="about-pillars">
+          <div class="about-pillars-header">
+            <span class="label">Our Approach</span>
+            <span class="section-rule"></span>
+            <h2>How we operate</h2>
+          </div>
+          <div class="pillars-grid">
+            <div class="pillar-item">
+              <span class="pillar-num">01</span>
+              <div class="pillar-title">Opportunity Curation</div>
+              <p class="pillar-desc">Each opportunity presented through the portal is assessed against clear advisory criteria before it reaches investors — including pricing benchmarks, income quality, tenure structure and market comparables.</p>
+            </div>
+            <div class="pillar-item">
+              <span class="pillar-num">02</span>
+              <div class="pillar-title">Data-Led Presentation</div>
+              <p class="pillar-desc">We present investment opportunities with the rigour of an investment bank advisory note — structured metrics, DLD-registered market evidence, yield analysis and clearly articulated investment rationale.</p>
+            </div>
+            <div class="pillar-item">
+              <span class="pillar-num">03</span>
+              <div class="pillar-title">Controlled Market Access</div>
+              <p class="pillar-desc">The portal provides structured access to opportunities across stabilised income, value-add and development strategies — off-market and controlled-market assets presented to qualified investors only.</p>
+            </div>
+            <div class="pillar-item">
+              <span class="pillar-num">04</span>
+              <div class="pillar-title">Advisory-Led Transactions</div>
+              <p class="pillar-desc">We act as investment advisory throughout the transaction process — from initial structuring and investor presentation through to negotiation, documentation and completion.</p>
+            </div>
+            <div class="pillar-item">
+              <span class="pillar-num">05</span>
+              <div class="pillar-title">Sectors Covered</div>
+              <p class="pillar-desc">Commercial, residential, land and mixed-use assets across the UAE — with particular expertise in Dubai's primary investment submarkets including DIFC, TECOM, Al Sufouh and established freehold residential districts.</p>
+            </div>
+            <div class="pillar-item">
+              <span class="pillar-num">06</span>
+              <div class="pillar-title">Investor Focus</div>
+              <p class="pillar-desc">Our advisory practice is oriented toward private capital, family offices, regional institutional investors and HNWIs seeking structured access to credible UAE real estate investment opportunities with clear metrics and defined exit routes.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-team">
+          <div class="about-team-header">
+            <span class="label">Advisory Team</span>
+            <span class="section-rule"></span>
+            <h2>Point of contact</h2>
+          </div>
+          <div class="team-card">
+            <div class="team-card-initials">CK</div>
+            <div>
+              <div class="team-card-name">Cameron Kerr</div>
+              <span class="team-card-title">Associate Director, Investment Advisory</span>
+              <p class="team-card-bio">Cameron leads investment advisory at Land Sterling, structuring and presenting acquisition opportunities to private capital, family offices and institutional investors across the UAE. He focuses on income-producing assets, value-add commercial and development-led residential acquisitions. Full biography to follow.</p>
+              <div class="team-card-contact">
+                <a href="tel:+971509005736">+971 50 900 5736</a>
+                <a href="mailto:Cameron.k@landsterling.com">Cameron.k@landsterling.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+
+<!-- Download Particulars Modal -->
+<div class="modal-overlay" id="particularsModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('particularsModal')">✕</button>
+    <h3>Download Particulars</h3>
+    <p class="modal-sub">Please provide your details and a member of the team will follow up with the relevant information.</p>
+    <div class="modal-opp-tag" id="particularsOppTag"></div>
+    <form id="particularsForm" onsubmit="handleParticularsSubmit(event)">
+      <div class="form-grid">
+        <div class="form-row">
+          <div class="form-field"><label>Full Name *</label><input id="partName" type="text" required placeholder="Your full name"></div>
+          <div class="form-field"><label>Email Address *</label><input id="partEmail" type="email" required placeholder="your@email.com"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Phone Number *</label><input id="partPhone" type="tel" required placeholder="+971 ..."></div>
+          <div class="form-field"><label>Company *</label><input id="partCompany" type="text" required placeholder="Organisation"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Acquisition Budget</label><input id="partBudget" type="text" placeholder="e.g. AED 100M–200M"></div>
+          <div class="form-field"><label>Area of Interest</label><input id="partInterest" type="text" placeholder="e.g. Commercial Dubai"></div>
+        </div>
+        <div class="form-field full"><label>Message</label><textarea id="partMessage" placeholder="Any additional context..." rows="3"></textarea></div>
+        <div class="form-consent">
+          <input type="checkbox" id="particularsConsent" required>
+          <label for="particularsConsent">I confirm I agree to be contacted by Land Sterling Investment Advisory in connection with this opportunity.</label>
+        </div>
+        <button type="submit" class="form-submit">Request Particulars</button>
+      </div>
+    </form>
+    <div class="form-success" id="particularsSuccess">
+      <div class="success-icon">✓</div>
+      <h4>Request Received</h4>
+      <p>Thank you. Your details have been received by Land Sterling Investment Advisory. A member of the team will follow up with the relevant particulars.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Enquire Now Modal -->
+<div class="modal-overlay" id="enquireModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('enquireModal')">✕</button>
+    <h3>Enquire Now</h3>
+    <p class="modal-sub">Submit your enquiry and a member of the team will respond directly.</p>
+    <div class="modal-opp-tag" id="enquireOppTag"></div>
+    <form id="enquireForm" onsubmit="handleEnquireSubmit(event)">
+      <div class="form-grid">
+        <div class="form-row">
+          <div class="form-field"><label>Full Name *</label><input id="enqName" type="text" required placeholder="Your full name"></div>
+          <div class="form-field"><label>Email Address *</label><input id="enqEmail" type="email" required placeholder="your@email.com"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Phone *</label><input id="enqPhone" type="tel" required placeholder="+971 ..."></div>
+          <div class="form-field"><label>Company</label><input id="enqCompany" type="text" placeholder="Organisation"></div>
+        </div>
+        <div class="form-field full"><label>Message</label><textarea id="enqMessage" placeholder="Please describe your interest..." rows="3"></textarea></div>
+        <div class="form-consent">
+          <input type="checkbox" id="enquireConsent" required>
+          <label for="enquireConsent">I agree to be contacted by Land Sterling Investment Advisory in connection with this opportunity.</label>
+        </div>
+        <button type="submit" class="form-submit">Send Enquiry</button>
+      </div>
+    </form>
+    <div class="form-success" id="enquireSuccess">
+      <div class="success-icon">✓</div>
+      <h4>Enquiry Sent</h4>
+      <p>Thank you. Your enquiry has been received and a member of the team will be in touch shortly.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img class="footer-logo-img" src="https://landsterling.sa/wp-content/uploads/2024/08/LS-Logo-White-English.png" alt="Land Sterling" onerror="this.style.display='none';document.getElementById('footerLogoText').style.display='block';">
+        <span class="footer-logo-name" id="footerLogoText" style="display:none;">Land Sterling</span>
+        <span class="footer-logo-sub">Investment Portal</span>
+        <p class="footer-brandline">Revealing the layered value within people, places and possibilities.</p>
+        <p>Structured access to curated real estate investment opportunities across income, value-add and development strategies.</p>
+        <div class="footer-accreditations">
+          <span class="footer-accred-mark">RICS</span>
+          <span class="footer-accred-mark">IVSC</span>
+          <span class="footer-accred-mark">TAQEEM</span>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><span onclick="navigate('home')">Home</span></li>
+          <li><span onclick="navigate('asset-library')">Asset Library</span></li>
+          <li><span onclick="navigate('about')">About Us</span></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+971509005736">+971 50 900 5736</a></li>
+          <li><a href="mailto:Cameron.k@landsterling.com">Cameron.k@landsterling.com</a></li>
+          <li><span>Land Sterling Investment Advisory</span></li>
+          <li><span>Dubai, UAE</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-legal">This portal is provided for qualified recipients only and does not constitute an offer, invitation, contract or financial advice. All information is indicative and subject to change. Land Sterling Investment Advisory gives notice that it is acting as agent for vendors and does not provide warranties as to the accuracy of information presented.</p>
+      <span class="footer-copy">© 2026 Land Sterling</span>
+    </div>
+    <div class="footer-offices">Abu Dhabi&nbsp;&nbsp;|&nbsp;&nbsp;Algiers&nbsp;&nbsp;|&nbsp;&nbsp;Dubai&nbsp;&nbsp;|&nbsp;&nbsp;Leeds&nbsp;&nbsp;|&nbsp;&nbsp;London&nbsp;&nbsp;|&nbsp;&nbsp;Riyadh</div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT — DATA & APP
+     ============================================================ -->
+<script>
+/* ============================================================
+   OPPORTUNITY DATA
+   ------------------------------------------------------------
+   SEED_OPPORTUNITIES is the original bundled content. At runtime
+   OPPORTUNITIES is populated from your Supabase database. The seed
+   is used (a) as a preview fallback before the backend is connected
+   and (b) for the one-click "Import starter data" button in the
+   admin panel.
+   ============================================================ */
+let OPPORTUNITIES = [];
+const SEED_OPPORTUNITIES = window.SEED_OPPORTUNITIES || [];
+
+/* ============================================================
+   DASHBOARD METRICS
+   ============================================================ */
+const METRICS = [
+  { label: 'Active Opportunities', value: '8', desc: 'Curated UAE assets currently available' },
+  { label: 'Total Opportunity Value', value: 'AED 1.16B+', desc: 'Aggregate value across live opportunities' },
+  { label: 'Total Development GDV', value: 'AED 854M+', desc: 'Development opportunities only' },
+  { label: 'Total Area', value: '1.56M+ sq ft', desc: 'Combined NLA, NSA and GFA across live portfolio' }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentFilter = { country: 'all', type: 'all', status: 'all' };
+let currentView   = 'grid';
+let libraryMapInstance = null;
+let currentOpportunity = null;
+
+/* ============================================================
+   AUTHENTICATION GATE  (real password auth via Supabase)
+   ============================================================ */
+function setAuthTab(tab) {
+  document.querySelectorAll('.gate-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === tab));
+  ['signin','register','status'].forEach(p =>
+    document.getElementById('panel-' + p).classList.toggle('active', p === tab));
+}
+
+function showAuthStatus(title, body) {
+  document.getElementById('statusTitle').textContent = title;
+  document.getElementById('statusBody').textContent  = body;
+  document.querySelectorAll('.gate-tab').forEach(t => t.classList.remove('active'));
+  ['signin','register'].forEach(p => document.getElementById('panel-' + p).classList.remove('active'));
+  document.getElementById('panel-status').classList.add('active');
+}
+
+function showGate() {
+  const g = document.getElementById('gate');
+  g.style.display = 'flex';
+  g.style.opacity = '1';
+}
+
+function hideGate() {
+  const g = document.getElementById('gate');
+  g.style.opacity = '0';
+  g.style.transition = 'opacity 0.4s ease';
+  setTimeout(() => { g.style.display = 'none'; }, 400);
+}
+
+// Sign in, then route based on approval status.
+async function handleSignIn(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('signinError');
+  errEl.style.display = 'none';
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+
+  const email = document.getElementById('siEmail').value.trim();
+  const password = document.getElementById('siPassword').value;
+
+  try {
+    const { error } = await LS_API.signIn(email, password);
+    if (error) throw error;
+    const profile = await LS_API.getProfile();
+    await routeAfterAuth(profile);
+  } catch (err) {
+    errEl.textContent = friendlyAuthError(err);
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+}
+
+// Self-registration (Path B) → profile is created with status 'pending'.
+async function handleRegister(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('registerError');
+  errEl.style.display = 'none';
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  const payload = {
+    firstName: document.getElementById('rgFirstName').value.trim(),
+    lastName:  document.getElementById('rgLastName').value.trim(),
+    email:     document.getElementById('rgEmail').value.trim(),
+    mobile:    document.getElementById('rgMobile').value.trim(),
+    company:   document.getElementById('rgCompany').value.trim(),
+    password:  document.getElementById('rgPassword').value
+  };
+
+  try {
+    const { error } = await LS_API.register(payload);
+    if (error) throw error;
+    showAuthStatus(
+      'Request Received',
+      'Thank you. Your access request has been submitted to Land Sterling Investment Advisory for review. ' +
+      'You will be notified by email once your access is approved. (If email confirmation is enabled, please verify your email first.)'
+    );
+  } catch (err) {
+    errEl.textContent = friendlyAuthError(err);
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Request Access';
+  }
+}
+
+async function handleSignOut() {
+  try { await LS_API.signOut(); } catch (e) {}
+  const so = document.getElementById('nav-signout');
+  if (so) so.style.display = 'none';
+  setAuthTab('signin');
+  showGate();
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById('siEmail').value.trim();
+  if (!email) {
+    const errEl = document.getElementById('signinError');
+    errEl.textContent = 'Enter your email above first, then press “Forgot password?”.';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    await LS_API.sendPasswordReset(email, new URL('reset.html', window.location.href).href);
+    showAuthStatus('Check Your Email',
+      'If an account exists for ' + email + ', a password reset link is on its way.');
+  } catch (err) {
+    showAuthStatus('Check Your Email',
+      'If an account exists for ' + email + ', a password reset link is on its way.');
+  }
+}
+
+// Decide what to do once a user is authenticated.
+async function routeAfterAuth(profile) {
+  if (!profile) { showGate(); return false; }
+  if (profile.status === 'approved' || profile.role === 'admin') {
+    hideGate();
+    const so = document.getElementById('nav-signout');
+    if (so) so.style.display = '';
+    return true;
+  }
+  if (profile.status === 'pending' || profile.status === 'invited') {
+    await LS_API.signOut();
+    showAuthStatus('Awaiting Approval',
+      'Your account is pending review by Land Sterling Investment Advisory. ' +
+      'You will be able to sign in as soon as access is granted.');
+    return false;
+  }
+  // rejected or unknown
+  await LS_API.signOut();
+  showAuthStatus('Access Unavailable',
+    'Access to this portal is not currently available for your account. Please contact ' +
+    (window.LS_CONFIG?.SUPPORT_EMAIL || 'the team') + '.');
+  return false;
+}
+
+function friendlyAuthError(err) {
+  const m = (err && err.message ? err.message : String(err)).toLowerCase();
+  if (m.includes('not configured')) return 'The portal backend is not connected yet. (See SETUP.md.)';
+  if (m.includes('invalid login')) return 'Incorrect email or password.';
+  if (m.includes('email not confirmed')) return 'Please confirm your email address first — check your inbox.';
+  if (m.includes('already registered')) return 'An account with this email already exists. Try signing in.';
+  if (m.includes('password')) return 'Password must be at least 8 characters.';
+  return err.message || 'Something went wrong. Please try again.';
+}
+
+// On load: if already logged in & approved, skip the gate.
+async function checkGate() {
+  if (!LS_API.configured) { showGate(); return false; }
+  const session = await LS_API.getSession();
+  if (!session) { showGate(); return false; }
+  const profile = await LS_API.getProfile();
+  return routeAfterAuth(profile);
+}
+
+/* ============================================================
+   NAVIGATION & ROUTING
+   ============================================================ */
+function navigate(page, slug) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  closeNav();
+  window.scrollTo(0, 0);
+
+  if (page === 'opportunity' && slug) {
+    document.getElementById('page-opportunity').classList.add('active');
+    renderOpportunityDetail(slug);
+  } else {
+    const el = document.getElementById('page-' + page);
+    if (el) el.classList.add('active');
+    const navEl = document.getElementById('nav-' + page);
+    if (navEl) navEl.classList.add('active');
+  }
+
+  // Update URL hash
+  if (page === 'opportunity' && slug) {
+    history.pushState(null, '', '#opportunity/' + slug);
+  } else {
+    history.pushState(null, '', '#' + page);
+  }
+}
+
+function handleRoute() {
+  const hash = window.location.hash.slice(1);
+  if (!hash || hash === 'home') { navigate('home'); return; }
+  if (hash.startsWith('opportunity/')) {
+    const slug = hash.split('/')[1];
+    navigate('opportunity', slug);
+    return;
+  }
+  // Fall back to home for unknown or removed pages
+  if (!document.getElementById('page-' + hash)) { navigate('home'); return; }
+  navigate(hash);
+}
+
+window.addEventListener('popstate', handleRoute);
+
+function toggleNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('navCta').classList.toggle('open');
+}
+function closeNav() {
+  document.getElementById('navLinks').classList.remove('open');
+  document.getElementById('navCta').classList.remove('open');
+}
+
+/* ============================================================
+   RENDER METRICS
+   ============================================================ */
+function renderMetrics() {
+  const grid = document.getElementById('metricsGrid');
+  grid.innerHTML = METRICS.map(m => `
+    <div class="metric-card">
+      <span class="metric-label">${m.label}</span>
+      <span class="metric-value">${m.value}</span>
+      <p class="metric-desc">${m.desc}</p>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   CARD TEMPLATE
+   ============================================================ */
+function profileBadgeClass(profile) {
+  if (profile === 'Stabilised Income') return 'badge-stabilised';
+  if (profile === 'Value Add') return 'badge-value-add';
+  return 'badge-development';
+}
+
+function imageClass(type) {
+  if (type === 'Commercial') return 'commercial';
+  if (type === 'Land') return 'land';
+  return 'residential';
+}
+
+function cardHTML(opp) {
+  const statusBadge = opp.dealStatus === 'Under Offer'
+    ? `<span class="card-status-badge status-under-offer">Under Offer</span>`
+    : opp.dealStatus === 'Sold'
+    ? `<span class="card-status-badge status-sold">Sold</span>`
+    : '';
+
+  const yieldRow = (opp.grossYield || opp.netYield) ? `
+    <div class="card-yields">
+      ${opp.grossYield ? `<div class="card-yield-item">Gross Yield <strong>${opp.grossYield}</strong></div>` : ''}
+      ${opp.netYield ? `<div class="card-yield-item">Net Yield <strong>${opp.netYield}</strong></div>` : ''}
+    </div>` : '';
+
+  const psfRow = opp.entryPsf ? `<div class="card-meta-item">Entry <span>${opp.entryPsf}</span></div>` : '';
+  const ctaLabel = opp.dealStatus === 'Sold' ? 'Transaction Complete' : 'View Opportunity →';
+  const ctaDisabled = opp.dealStatus === 'Sold' ? 'disabled style="opacity:0.5;cursor:default"' : `onclick="navigate('opportunity','${opp.id}')"`;
+
+  return `
+    <div class="opp-card" ${opp.dealStatus !== 'Sold' ? `onclick="navigate('opportunity','${opp.id}')"` : ''}>
+      <div class="card-image">
+        <div class="card-image-bg ${imageClass(opp.assetType)}">
+          <div class="card-image-pattern"></div>
+          <div class="card-image-label">
+            <span class="building-icon">▣</span>
+            <span class="location-text">${opp.location}</span>
+          </div>
+        </div>
+        ${opp.image ? `<img class="card-image-photo" src="${opp.image}" alt="${opp.location}" loading="lazy" onerror="this.remove()">` : ''}
+        <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}">${opp.assetProfile}</span>
+        ${statusBadge}
+      </div>
+      <div class="card-body">
+        <div class="card-name">${opp.name}</div>
+        <div class="card-location">↗ ${opp.location}</div>
+        <div class="card-meta">
+          <div class="card-meta-item"><span>${opp.assetType}</span></div>
+          <div class="card-meta-item"><span>${opp.tenure.split(' ')[0]}</span></div>
+          ${psfRow}
+        </div>
+        <div class="card-price">${opp.price}</div>
+        ${yieldRow}
+        <p class="card-angle">${opp.shortAngle}</p>
+        <div class="card-cta">
+          <button class="btn btn-secondary btn-sm" ${ctaDisabled}>${ctaLabel}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   RENDER GRIDS
+   ============================================================ */
+
+function renderLibrary() {
+  const isSoldView = currentFilter.status === 'Sold';
+
+  // Toggle page headers
+  const libraryHeader     = document.getElementById('libraryHeader');
+  const trackRecordHeader = document.getElementById('trackRecordHeader');
+  if (libraryHeader)     libraryHeader.style.display     = isSoldView ? 'none'  : '';
+  if (trackRecordHeader) trackRecordHeader.style.display = isSoldView ? ''      : 'none';
+
+  const filtered = OPPORTUNITIES.filter(o => {
+    const countryMatch = currentFilter.country === 'all' || o.country === currentFilter.country;
+    const typeMatch    = currentFilter.type    === 'all' || o.assetType === currentFilter.type;
+    const statusMatch  = isSoldView
+      ? o.dealStatus === 'Sold'
+      : (currentFilter.status === 'all' ? o.dealStatus !== 'Sold' : o.dealStatus === currentFilter.status);
+    return countryMatch && typeMatch && statusMatch;
+  }).sort((a,b) => a.order - b.order);
+
+  const grid  = document.getElementById('libraryGrid');
+  const empty = document.getElementById('emptyState');
+
+  if (currentView === 'map') {
+    grid.style.display = 'none';
+    renderLibraryMap(filtered);
+    if (empty) empty.style.display = 'none';
+    return;
+  }
+
+  // Grid view
+  document.getElementById('libraryMapWrap').style.display = 'none';
+  grid.style.display = '';
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+  } else {
+    grid.innerHTML = filtered.map(cardHTML).join('');
+    if (empty) empty.style.display = 'none';
+  }
+  if (typeof applyReveal === 'function') applyReveal();
+}
+
+/* ============================================================
+   FILTERS
+   ============================================================ */
+function setFilter(dimension, value, btn) {
+  currentFilter[dimension] = value;
+  // Update active state on buttons
+  document.querySelectorAll(`[data-filter="${dimension}"]`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLibrary();
+}
+
+/* ============================================================
+   VIEW TOGGLE (Grid / Map)
+   ============================================================ */
+function setView(view) {
+  currentView = view;
+  document.getElementById('viewGrid').classList.toggle('active', view === 'grid');
+  document.getElementById('viewMap').classList.toggle('active', view === 'map');
+  renderLibrary();
+}
+
+function renderLibraryMap(opportunities) {
+  const wrap = document.getElementById('libraryMapWrap');
+  wrap.style.display = '';
+
+  // Destroy previous instance to avoid duplicate map error
+  if (libraryMapInstance) {
+    libraryMapInstance.remove();
+    libraryMapInstance = null;
+  }
+
+  // Default centre: Dubai
+  const centre = opportunities.length > 0
+    ? [opportunities[0].lat, opportunities[0].lng]
+    : [25.2048, 55.2708];
+
+  libraryMapInstance = L.map('libraryMap', { zoomControl: true }).setView(centre, opportunities.length === 1 ? 14 : 10);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 19
+  }).addTo(libraryMapInstance);
+
+  if (opportunities.length === 0) return;
+
+  const profileColour = { 'Stabilised Income': '#1A1F2E', 'Value Add': '#C0272D', 'Development': '#6B6560' };
+  const bounds = [];
+
+  opportunities.forEach(opp => {
+    const colour = profileColour[opp.assetProfile] || '#1A1F2E';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:14px;height:14px;background:${colour};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);border-radius:50%;"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+      popupAnchor: [0, -12]
+    });
+
+    const profileLabel = `<span class="map-popup-profile" style="color:${colour === '#1A1F2E' ? '#7a8aaa' : colour === '#C0272D' ? '#e8747a' : '#a8a09a'}">${opp.assetProfile}</span>`;
+    const popup = L.popup({ className: 'ls-popup', maxWidth: 260 }).setContent(`
+      <div class="map-popup-inner">
+        ${profileLabel}
+        <div class="map-popup-name">${opp.name}</div>
+        <div class="map-popup-location">${opp.location}</div>
+        <div class="map-popup-price">${opp.price}</div>
+        <button class="map-popup-btn" onclick="navigate('opportunity','${opp.id}')">View Opportunity →</button>
+      </div>
+    `);
+
+    L.marker([opp.lat, opp.lng], { icon }).addTo(libraryMapInstance).bindPopup(popup);
+    bounds.push([opp.lat, opp.lng]);
+  });
+
+  if (bounds.length > 1) {
+    libraryMapInstance.fitBounds(bounds, { padding: [48, 48] });
+  }
+}
+
+function initDetailMap(lat, lng, name, location) {
+  // Small delay to ensure the DOM element is rendered
+  setTimeout(() => {
+    const el = document.getElementById('detailMap');
+    if (!el) return;
+
+    const map = L.map('detailMap', { zoomControl: true, scrollWheelZoom: false }).setView([lat, lng], 15);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+      maxZoom: 19
+    }).addTo(map);
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:16px;height:16px;background:#C0272D;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35);border-radius:50%;"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+      popupAnchor: [0, -14]
+    });
+
+    L.marker([lat, lng], { icon })
+      .addTo(map)
+      .bindPopup(`<div style="font-family:sans-serif;font-size:12px;line-height:1.5;padding:4px 2px"><strong>${name}</strong><br>${location}</div>`)
+      .openPopup();
+  }, 100);
+}
+
+/* ============================================================
+   INVESTMENT ANALYSIS — profile-aware return framework
+   Reads from opp.analysis when populated; otherwise shows a
+   structured holding state. Three profiles:
+     - Value Add        → cap-ex schedule + return sensitivities
+     - Development/Land  → residual land appraisal
+     - Stabilised Income → IRR / hold-period return profile
+   ============================================================ */
+function analysisMetricGrid(items) {
+  return `<div class="analysis-metric-grid">` + items.map(m => `
+    <div class="analysis-metric">
+      <div class="analysis-metric-label">${m.label}</div>
+      <div class="analysis-metric-value">${m.value}</div>
+      ${m.note ? `<div class="analysis-metric-note">${m.note}</div>` : ''}
+    </div>
+  `).join('') + `</div>`;
+}
+
+function analysisTable(title, columns, rows) {
+  return `
+    ${title ? `<div class="analysis-subtitle">${title}</div>` : ''}
+    <table class="analysis-table">
+      <thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(r => `<tr>${r.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>
+  `;
+}
+
+function buildAnalysisHTML(opp) {
+  const a = opp.analysis;
+
+  // Holding state — shown until profile-specific analysis is supplied
+  if (!a) {
+    const frameworkByProfile = {
+      'Value Add': 'Capital expenditure schedule, stabilisation timeline and return sensitivities to exit yield and ERV will be presented here.',
+      'Development': 'Residual land appraisal, development costing, GDV build-up and profit-on-cost sensitivities will be presented here.',
+      'Stabilised Income': 'Hold-period cash flow, levered and unlevered IRR, equity multiple and yield-on-cost analysis will be presented here.'
+    };
+    const note = frameworkByProfile[opp.assetProfile] || 'Detailed return analysis will be presented here.';
+    return `<div class="analysis-holding">Detailed investment analysis for this opportunity is available within the full particulars. ${note} Request particulars or contact the advisory team for the underwriting model and supporting evidence.</div>`;
+  }
+
+  let html = '';
+
+  // Headline return metrics (common to all profiles, shown if provided)
+  if (a.headline && a.headline.length) {
+    html += analysisMetricGrid(a.headline);
+  }
+
+  // VALUE ADD — cap-ex schedule + sensitivity matrix
+  if (opp.assetProfile === 'Value Add') {
+    if (a.capex && a.capex.rows) {
+      html += analysisTable(a.capex.title || 'Capital Expenditure Schedule', a.capex.columns, a.capex.rows);
+    }
+    if (a.sensitivity && a.sensitivity.rows) {
+      html += analysisTable(a.sensitivity.title || 'Return Sensitivity', a.sensitivity.columns, a.sensitivity.rows);
+    }
+  }
+
+  // DEVELOPMENT / LAND — residual appraisal
+  if (opp.assetProfile === 'Development') {
+    if (a.residual && a.residual.rows) {
+      html += analysisTable(a.residual.title || 'Residual Land Appraisal', a.residual.columns, a.residual.rows);
+    }
+    if (a.sensitivity && a.sensitivity.rows) {
+      html += analysisTable(a.sensitivity.title || 'Profit-on-Cost Sensitivity', a.sensitivity.columns, a.sensitivity.rows);
+    }
+  }
+
+  // STABILISED INCOME — IRR / hold-period profile
+  if (opp.assetProfile === 'Stabilised Income') {
+    if (a.cashflow && a.cashflow.rows) {
+      html += analysisTable(a.cashflow.title || 'Hold-Period Cash Flow', a.cashflow.columns, a.cashflow.rows);
+    }
+    if (a.sensitivity && a.sensitivity.rows) {
+      html += analysisTable(a.sensitivity.title || 'IRR Sensitivity', a.sensitivity.columns, a.sensitivity.rows);
+    }
+  }
+
+  // Return narrative — closing framework text
+  if (a.narrative) {
+    const paras = a.narrative.split('\n\n').map(p => `<p>${p}</p>`).join('');
+    html += `<div class="analysis-narrative"><div class="analysis-subtitle">Return Narrative</div>${paras}</div>`;
+  }
+
+  return html;
+}
+
+/* ============================================================
+   OPPORTUNITY DETAIL
+   ============================================================ */
+function renderOpportunityDetail(slug) {
+  const opp = OPPORTUNITIES.find(o => o.id === slug);
+  if (!opp) { navigate('asset-library'); return; }
+  currentOpportunity = opp;
+
+  const metricsHTML = Object.entries(opp.metrics).map(([k,v]) => `
+    <div class="metric-row">
+      <span class="metric-key">${k}</span>
+      <span class="metric-val">${v}</span>
+    </div>
+  `).join('');
+
+  const summaryParas = opp.summary.split('\n\n').map(p => `<p>${p}</p>`).join('');
+
+  const highlightsHTML = opp.highlights.map((h, i) => `
+    <div class="highlight-item">
+      <span class="highlight-num">${String(i+1).padStart(2,'0')}</span>
+      <div class="highlight-title">${h.title}</div>
+      <p class="highlight-desc">${h.desc}</p>
+      ${h.metric ? `<div class="highlight-metric">${h.metric}</div>` : ''}
+    </div>
+  `).join('');
+
+  const analysisHTML = buildAnalysisHTML(opp);
+
+  const priceDisplay = opp.grossYield ? `
+    <div class="detail-price-item">
+      <div class="detail-price-label">${opp.priceLabel}</div>
+      <div class="detail-price-value large">${opp.price}</div>
+    </div>
+    <div class="detail-price-item">
+      <div class="detail-price-label">Gross Yield</div>
+      <div class="detail-price-value">${opp.grossYield}</div>
+    </div>
+    ${opp.netYield ? `<div class="detail-price-item"><div class="detail-price-label">Net Yield</div><div class="detail-price-value">${opp.netYield}</div></div>` : ''}
+    ${opp.entryPsf ? `<div class="detail-price-item"><div class="detail-price-label">Entry Price PSF</div><div class="detail-price-value">${opp.entryPsf}</div></div>` : ''}
+  ` : `
+    <div class="detail-price-item">
+      <div class="detail-price-label">${opp.priceLabel}</div>
+      <div class="detail-price-value large">${opp.price}</div>
+    </div>
+    ${opp.entryPsf ? `<div class="detail-price-item"><div class="detail-price-label">Entry Metric</div><div class="detail-price-value">${opp.entryPsf}</div></div>` : ''}
+  `;
+
+  document.getElementById('opportunityContent').innerHTML = `
+    <div class="detail-hero">
+      ${opp.image ? `<div class="detail-hero-bg" style="background-image:url('${opp.image}')"></div>` : ''}
+      <div class="container">
+        <div class="detail-breadcrumb">
+          <a onclick="navigate('home')">Home</a>
+          <span>→</span>
+          <a onclick="navigate('asset-library')">Asset Library</a>
+          <span>→</span>
+          <span style="color:rgba(255,255,255,0.6)">${opp.name}</span>
+        </div>
+        <div class="detail-badges">
+          <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}" style="position:static">${opp.assetProfile}</span>
+          <span class="detail-badge type">${opp.assetType}</span>
+          <span class="detail-badge tenure">${opp.tenure}</span>
+        </div>
+        <h1 class="detail-name">${opp.name}</h1>
+        <p class="detail-location">↗ ${opp.location}</p>
+        <div class="detail-price-row">${priceDisplay}</div>
+        <div class="detail-cta-row">
+          <button class="btn btn-primary" onclick="openParticularsModal('${opp.id}')">Download Particulars</button>
+          <button class="btn btn-outline-white" onclick="openEnquireModal('${opp.id}')">Enquire Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-body">
+      <div class="container">
+        <div class="detail-grid">
+          <div class="detail-main">
+            <div class="detail-summary">
+              <span class="label">Investment Summary</span>
+              <span class="section-rule"></span>
+              <h2>Acquisition Overview</h2>
+              ${summaryParas}
+            </div>
+
+            <div class="detail-highlights">
+              <span class="label">Investment Highlights</span>
+              <span class="section-rule"></span>
+              <h2>Why This Opportunity</h2>
+              <div class="highlights-grid">${highlightsHTML}</div>
+            </div>
+
+            <div class="detail-analysis">
+              <span class="label">Investment Analysis</span>
+              <span class="section-rule"></span>
+              <h2>Returns &amp; Sensitivities</h2>
+              ${analysisHTML}
+            </div>
+
+            <div class="detail-location-map">
+              <span class="label">Location</span>
+              <span class="section-rule"></span>
+              <h2>Asset Location</h2>
+              <p class="detail-map-address">↗ ${opp.location}</p>
+              <div id="detailMap" style="width:100%;height:380px;margin-top:20px;"></div>
+            </div>
+
+            <div class="detail-footer-note">
+              This information is provided for qualified recipients only and does not constitute an offer or contract. Further financial, legal and technical information may be released following appropriate confidentiality protocols. Viewings and data room access are strictly by appointment with Land Sterling Advisory.
+            </div>
+          </div>
+
+          <div class="detail-sidebar">
+            <div class="metrics-panel">
+              <h3>Key Metrics</h3>
+              <div class="metrics-table">${metricsHTML}</div>
+              <div style="margin-top:24px; display:flex; flex-direction:column; gap:10px;">
+                <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Download Particulars</button>
+                <button class="btn btn-secondary" style="width:100%; justify-content:center" onclick="openEnquireModal('${opp.id}')">Enquire Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  // Initialise detail page map after DOM is written
+  initDetailMap(opp.lat, opp.lng, opp.name, opp.location);
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+function openParticularsModal(oppId) {
+  const opp = oppId ? OPPORTUNITIES.find(o => o.id === oppId) : currentOpportunity;
+  const tag = document.getElementById('particularsOppTag');
+  tag.textContent = opp ? opp.name : 'General Enquiry';
+  document.getElementById('particularsForm').style.display = '';
+  document.getElementById('particularsSuccess').style.display = 'none';
+  document.getElementById('particularsModal').classList.add('open');
+  document.getElementById('particularsConsent').checked = false;
+}
+
+function openEnquireModal(oppId) {
+  const opp = oppId ? OPPORTUNITIES.find(o => o.id === oppId) : null;
+  const tag = document.getElementById('enquireOppTag');
+  tag.textContent = opp ? opp.name : 'General Enquiry';
+  document.getElementById('enquireForm').style.display = '';
+  document.getElementById('enquireSuccess').style.display = 'none';
+  document.getElementById('enquireModal').classList.add('open');
+  document.getElementById('enquireConsent').checked = false;
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+});
+
+/* ============================================================
+   FORM HANDLERS
+   ============================================================ */
+
+// Enquiries are saved to your Supabase admin inbox AND emailed to you
+// (via Formspree, if FORMSPREE_ENDPOINT is set in config.js).
+function handleEnquireSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const oppName = document.getElementById('enquireOppTag').textContent;
+  const opp = OPPORTUNITIES.find(o => o.name === oppName);
+  LS_API.submitEnquiry({
+    type: 'enquiry',
+    opportunity_slug: opp ? opp.id : null,
+    opportunity_name: oppName || 'General Enquiry',
+    name:    document.getElementById('enqName').value.trim(),
+    email:   document.getElementById('enqEmail').value.trim(),
+    phone:   document.getElementById('enqPhone').value.trim(),
+    company: document.getElementById('enqCompany').value.trim(),
+    message: document.getElementById('enqMessage').value.trim(),
+    consent: document.getElementById('enquireConsent').checked
+  }).catch(err => console.warn('Enquiry save failed:', err));
+  form.style.display = 'none';
+  document.getElementById('enquireSuccess').style.display = 'block';
+}
+
+function handleParticularsSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const oppName = document.getElementById('particularsOppTag').textContent;
+  const opp = OPPORTUNITIES.find(o => o.name === oppName);
+  const budget   = document.getElementById('partBudget').value.trim();
+  const interest = document.getElementById('partInterest').value.trim();
+  const extra = [budget && ('Budget: ' + budget), interest && ('Interest: ' + interest),
+                 document.getElementById('partMessage').value.trim()].filter(Boolean).join(' | ');
+  LS_API.submitEnquiry({
+    type: 'particulars',
+    opportunity_slug: opp ? opp.id : null,
+    opportunity_name: oppName || 'General Enquiry',
+    name:    document.getElementById('partName').value.trim(),
+    email:   document.getElementById('partEmail').value.trim(),
+    phone:   document.getElementById('partPhone').value.trim(),
+    company: document.getElementById('partCompany').value.trim(),
+    message: extra,
+    consent: document.getElementById('particularsConsent').checked
+  }).catch(err => console.warn('Request save failed:', err));
+  form.style.display = 'none';
+  document.getElementById('particularsSuccess').style.display = 'block';
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+/* ============================================================
+   MOTION — scroll reveal & nav elevation
+   ============================================================ */
+const revealObserver = ('IntersectionObserver' in window)
+  ? new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          revealObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 })
+  : null;
+
+function applyReveal() {
+  if (!revealObserver) return;
+  document.querySelectorAll('.opp-card, .metric-card, .pillar-item, .about-stat').forEach((el, i) => {
+    if (el.classList.contains('reveal')) return;
+    el.classList.add('reveal');
+    el.style.transitionDelay = (i % 6) * 60 + 'ms';
+    revealObserver.observe(el);
+  });
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 8);
+}, { passive: true });
+
+async function loadOpportunities() {
+  // Pull live listings from Supabase; fall back to bundled seed for preview.
+  try {
+    if (LS_API.configured) {
+      const live = await LS_API.fetchOpportunities();
+      OPPORTUNITIES = (live && live.length) ? live : SEED_OPPORTUNITIES;
+    } else {
+      OPPORTUNITIES = SEED_OPPORTUNITIES;
+    }
+  } catch (err) {
+    console.warn('Falling back to seed opportunities:', err);
+    OPPORTUNITIES = SEED_OPPORTUNITIES;
+  }
+}
+
+async function init() {
+  renderMetrics();
+  await checkGate();
+  await loadOpportunities();
+  renderLibrary();
+  handleRoute();
+  applyReveal();
+
+  // Keep the gate in sync if the session changes in another tab.
+  LS_API.onAuthChange(async (session) => {
+    if (!session) showGate();
+  });
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Node (not used yet, but ignore if added later)
+node_modules/
+
+# Secrets — never commit real secret keys.
+# NOTE: public/js/config.js holds only the PUBLIC Supabase anon key (safe to commit).
+# Service-role keys and CRM keys live ONLY in Supabase as Function secrets, never here.
+.env
+.env.*
+
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/

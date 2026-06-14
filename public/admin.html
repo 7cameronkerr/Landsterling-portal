@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Land Sterling Investment Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<style>
+  :root{--bg:#F7F5F1;--card:#fff;--navy:#1A1F2E;--red:#C0272D;--text:#1A1A1A;--sec:#6B6560;
+        --border:#E0DBD5;--green:#2C6E49;--amber:#B45309;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
+  h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:400;}
+  a{color:var(--red);text-decoration:none;}
+  .mono{font-family:'DM Sans';font-variant-numeric:tabular-nums;}
+  /* Login */
+  #login{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50;}
+  .login-card{background:var(--bg);max-width:400px;width:100%;padding:42px 38px;text-align:center;}
+  .login-card h1{font-size:1.4rem;font-weight:300;margin-bottom:4px;}
+  .login-card .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:18px;}
+  input,select,textarea{width:100%;border:1px solid var(--border);background:#fff;padding:11px 13px;font-size:13px;
+        border-radius:2px;outline:none;font-family:inherit;color:var(--text);}
+  input:focus,select:focus,textarea:focus{border-color:var(--red);}
+  .login-card input{margin-bottom:11px;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;font-size:11px;font-weight:500;
+       letter-spacing:.06em;text-transform:uppercase;border-radius:2px;background:var(--red);color:#fff;}
+  .btn:hover{background:#a02025;}
+  .btn.ghost{background:none;border:1px solid var(--border);color:var(--text);}
+  .btn.ghost:hover{background:#efeae4;}
+  .btn.green{background:var(--green);} .btn.green:hover{filter:brightness(1.1);}
+  .btn.sm{padding:7px 12px;font-size:10px;}
+  .btn.danger{background:none;border:1px solid var(--red);color:var(--red);}
+  .btn.danger:hover{background:var(--red);color:#fff;}
+  .login-card button[type=submit]{width:100%;padding:13px;margin-top:6px;}
+  .err{color:var(--red);font-size:12px;margin-top:8px;min-height:16px;}
+  /* Shell */
+  header{background:var(--navy);color:#fff;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;}
+  header .brand{font-family:'Cormorant Garamond',serif;letter-spacing:.14em;text-transform:uppercase;font-size:15px;}
+  header .brand small{display:block;font-family:'DM Sans';font-size:9px;letter-spacing:.18em;color:#b9b4ad;text-transform:uppercase;}
+  header .who{font-size:12px;color:#cfcac3;display:flex;align-items:center;gap:14px;}
+  header .who a{color:#fff;}
+  .tabs{display:flex;gap:4px;padding:0 28px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:60px;z-index:19;}
+  .tab{padding:15px 18px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--sec);
+       border-bottom:2px solid transparent;background:none;}
+  .tab.active{color:var(--text);border-bottom-color:var(--red);font-weight:500;}
+  .tab .badge{background:var(--red);color:#fff;border-radius:10px;font-size:10px;padding:1px 7px;margin-left:6px;}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px;}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:3px;margin-bottom:14px;}
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+  .sec-head h2{font-size:1.5rem;}
+  .muted{color:var(--sec);font-size:12.5px;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--border);}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+  th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sec);background:#faf8f5;}
+  tr:last-child td{border-bottom:none;}
+  .pill{display:inline-block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;}
+  .pill.pending{background:#fef3e2;color:var(--amber);}
+  .pill.approved{background:#e4f0e9;color:var(--green);}
+  .pill.rejected{background:#fbe6e6;color:var(--red);}
+  .pill.invited{background:#eef0f5;color:var(--navy);}
+  .row-actions{display:flex;gap:6px;}
+  .empty{padding:36px;text-align:center;color:var(--sec);background:#fff;border:1px dashed var(--border);border-radius:3px;}
+  /* Opportunity form */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+  .field.full{grid-column:1 / -1;}
+  .field label{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--sec);}
+  .repeater-row{display:grid;gap:8px;margin-bottom:8px;align-items:center;}
+  .repeater-row.metrics{grid-template-columns:1fr 1.4fr auto;}
+  .repeater-row.highlights{grid-template-columns:1fr 2fr 1fr auto;}
+  .x{background:none;color:var(--red);font-size:16px;padding:0 6px;}
+  .modal-bg{position:fixed;inset:0;background:rgba(26,31,46,.55);display:none;align-items:flex-start;justify-content:center;
+            padding:40px 16px;overflow-y:auto;z-index:40;}
+  .modal-bg.open{display:flex;}
+  .modal{background:var(--bg);max-width:760px;width:100%;padding:30px;border-radius:4px;}
+  .modal h3{font-size:1.4rem;margin-bottom:4px;}
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:13px 20px;border-radius:3px;
+         font-size:13px;opacity:0;transform:translateY(8px);transition:.25s;z-index:60;}
+  .toast.show{opacity:1;transform:none;}
+  .enq-card{padding:15px 17px;}
+  .enq-card .top{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;}
+  .enq-card .opp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--red);}
+  .enq-card .meta{font-size:12px;color:var(--sec);margin:3px 0 8px;}
+  .enq-card.unread{border-left:3px solid var(--red);}
+  /* Let inputs shrink inside grids so modals/rows never force horizontal overflow */
+  input,select,textarea{min-width:0;}
+  .repeater-row input{min-width:0;}
+  /* Tables scroll horizontally inside their container on small screens */
+  #pendingList,#membersList,#oppList{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+  @media(max-width:680px){
+    /* 16px stops iOS Safari auto-zooming whenever a field is tapped */
+    input,select,textarea{font-size:16px;}
+    .field label{font-size:12px;}
+    th{font-size:11px;}
+    td{font-size:13.5px;}
+    .form-grid{grid-template-columns:1fr;}
+    .wrap{padding:18px 14px;}
+    header{padding:0 16px;}
+    header .brand{font-size:13px;}
+    header .who{font-size:11px;gap:10px;}
+    .tabs{padding:0 12px;}
+    .tab{padding:14px 12px;white-space:nowrap;}
+    .modal{padding:22px 17px;}
+    .modal-bg{padding:16px 8px;}
+    .sec-head h2{font-size:1.3rem;}
+    /* Stack the metric/highlight editor rows vertically on phones */
+    .repeater-row.metrics,.repeater-row.highlights{grid-template-columns:1fr;gap:6px;
+      padding:10px;border:1px solid var(--border);border-radius:3px;background:#fff;position:relative;}
+    .repeater-row .x{position:absolute;top:6px;right:6px;}
+    /* Keep data tables readable by scrolling rather than crushing columns */
+    #pendingList table,#membersList table,#oppList table{min-width:560px;}
+    .row-actions{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN ------------------------------------------------------------------ -->
+<div id="login">
+  <div class="login-card">
+    <div class="lbl">Land Sterling</div>
+    <h1>Admin Sign In</h1>
+    <p class="muted" style="margin:6px 0 20px;">Administrator access only.</p>
+    <form id="loginForm">
+      <input type="email" id="admEmail" placeholder="Email" required autocomplete="email">
+      <input type="password" id="admPassword" placeholder="Password" required autocomplete="current-password">
+      <button class="btn" type="submit">Sign In</button>
+      <div class="err" id="loginErr"></div>
+    </form>
+  </div>
+</div>
+
+<!-- APP -------------------------------------------------------------------- -->
+<div id="app" style="display:none;">
+  <header>
+    <div class="brand">Land Sterling <small>Portal Admin</small></div>
+    <div class="who"><span id="whoEmail"></span><a href="index.html" target="_blank">View portal ↗</a><a href="#" id="signout">Sign out</a></div>
+  </header>
+  <div class="tabs">
+    <button class="tab active" data-tab="approvals" onclick="showTab('approvals')">Approvals <span class="badge" id="pendBadge" style="display:none;">0</span></button>
+    <button class="tab" data-tab="opportunities" onclick="showTab('opportunities')">Opportunities</button>
+    <button class="tab" data-tab="enquiries" onclick="showTab('enquiries')">Enquiries <span class="badge" id="enqBadge" style="display:none;">0</span></button>
+  </div>
+
+  <div class="wrap">
+
+    <!-- APPROVALS -->
+    <div class="panel active" id="panel-approvals">
+      <div class="sec-head">
+        <div><h2>Client Access</h2><p class="muted">Approve or decline access requests, and invite clients directly.</p></div>
+        <button class="btn" onclick="openInvite()">+ Invite Client</button>
+      </div>
+      <h3 style="font-size:1.1rem;margin:18px 0 10px;">Pending requests</h3>
+      <div id="pendingList"></div>
+      <h3 style="font-size:1.1rem;margin:26px 0 10px;">All members</h3>
+      <div id="membersList"></div>
+    </div>
+
+    <!-- OPPORTUNITIES -->
+    <div class="panel" id="panel-opportunities">
+      <div class="sec-head">
+        <div><h2>Opportunities</h2><p class="muted">Add, edit, publish or remove investment listings.</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn ghost sm" onclick="importSeed()" id="importBtn">Import starter data</button>
+          <button class="btn" onclick="openOpp()">+ New Opportunity</button>
+        </div>
+      </div>
+      <div id="oppList"></div>
+    </div>
+
+    <!-- ENQUIRIES -->
+    <div class="panel" id="panel-enquiries">
+      <div class="sec-head"><div><h2>Enquiries</h2><p class="muted">Every CTA submission from the portal lands here (and in your email).</p></div></div>
+      <div id="enqList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- INVITE MODAL -->
+<div class="modal-bg" id="inviteModal">
+  <div class="modal" style="max-width:440px;">
+    <h3>Invite a Client</h3>
+    <p class="muted" style="margin-bottom:18px;">They’ll receive an email to set their password and will be approved automatically.</p>
+    <div class="form-grid">
+      <div class="field"><label>First name</label><input id="invFirst"></div>
+      <div class="field"><label>Last name</label><input id="invLast"></div>
+    </div>
+    <div class="field full"><label>Email *</label><input id="invEmail" type="email" required></div>
+    <div class="err" id="invErr"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn ghost" onclick="closeModal('inviteModal')">Cancel</button>
+      <button class="btn" id="invSend" onclick="sendInvite()">Send Invite</button>
+    </div>
+  </div>
+</div>
+
+<!-- OPPORTUNITY MODAL -->
+<div class="modal-bg" id="oppModal">
+  <div class="modal">
+    <h3 id="oppModalTitle">New Opportunity</h3>
+    <p class="muted" style="margin-bottom:16px;">Fields marked * are required.</p>
+    <input type="hidden" id="oppId">
+    <div class="form-grid">
+      <div class="field"><label>Name *</label><input id="f_name"></div>
+      <div class="field"><label>Slug (URL id)</label><input id="f_slug" placeholder="auto from name"></div>
+      <div class="field"><label>Location</label><input id="f_location"></div>
+      <div class="field"><label>Country</label><input id="f_country" value="UAE"></div>
+      <div class="field"><label>Asset Type</label>
+        <select id="f_assetType"><option>Commercial</option><option>Residential</option><option>Land</option><option>Mixed Use</option><option>Hospitality</option><option>Industrial</option></select></div>
+      <div class="field"><label>Asset Profile</label>
+        <select id="f_assetProfile"><option>Income</option><option>Value Add</option><option>Development</option><option>Core</option><option>Opportunistic</option></select></div>
+      <div class="field"><label>Tenure</label><input id="f_tenure" placeholder="Freehold"></div>
+      <div class="field"><label>Deal Status</label>
+        <select id="f_dealStatus"><option>Available</option><option>Under Offer</option><option>Reserved</option><option>Sold</option></select></div>
+      <div class="field"><label>Price</label><input id="f_price" placeholder="AED … or Price on Application"></div>
+      <div class="field"><label>Price Label</label><input id="f_priceLabel" value="Guide Price"></div>
+      <div class="field"><label>Gross Yield</label><input id="f_grossYield" placeholder="e.g. 5.79%"></div>
+      <div class="field"><label>Net Yield</label><input id="f_netYield" placeholder="e.g. 4.75%"></div>
+      <div class="field"><label>Entry PSF</label><input id="f_entryPsf" placeholder="e.g. AED 2,112 psf"></div>
+      <div class="field"><label>Sort order</label><input id="f_order" type="number" value="100"></div>
+      <div class="field"><label>Latitude</label><input id="f_lat" type="number" step="any" placeholder="25.0957"></div>
+      <div class="field"><label>Longitude</label><input id="f_lng" type="number" step="any" placeholder="55.1536"></div>
+      <div class="field full"><label>Image URL</label><input id="f_image" placeholder="https://…"></div>
+      <div class="field full"><label>Short angle (card teaser)</label><textarea id="f_shortAngle" rows="2"></textarea></div>
+      <div class="field full"><label>Summary (detail page)</label><textarea id="f_summary" rows="5"></textarea></div>
+    </div>
+
+    <div class="field full" style="margin-top:8px;">
+      <label>Key Metrics</label>
+      <div id="metricsRepeater"></div>
+      <button class="btn ghost sm" type="button" onclick="addMetricRow()">+ Add metric</button>
+    </div>
+
+    <div class="field full" style="margin-top:14px;">
+      <label>Investment Highlights</label>
+      <div id="highlightsRepeater"></div>
+      <button class="btn ghost sm" type="button" onclick="addHighlightRow()">+ Add highlight</button>
+    </div>
+
+    <div style="display:flex;gap:18px;align-items:center;margin:16px 0;">
+      <label style="display:flex;gap:8px;align-items:center;font-size:13px;"><input type="checkbox" id="f_featured" style="width:auto;"> Featured</label>
+      <label style="display:flex;gap:8px;align-items:center;font-size:13px;"><input type="checkbox" id="f_published" style="width:auto;" checked> Published</label>
+    </div>
+
+    <div class="err" id="oppErr"></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:8px;">
+      <button class="btn danger sm" id="oppDelete" onclick="deleteOpp()" style="display:none;">Delete</button>
+      <div style="display:flex;gap:8px;margin-left:auto;">
+        <button class="btn ghost" onclick="closeModal('oppModal')">Cancel</button>
+        <button class="btn" id="oppSave" onclick="saveOpp()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const sb = LS_API.client;
+let MEMBERS = [], OPPS = [], ENQ = [];
+
+/* ---------- helpers ---------- */
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function slugify(s){return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+t));
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+/* ---------- auth ---------- */
+document.getElementById('loginForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const err=document.getElementById('loginErr'); err.textContent='';
+  if(!LS_API.configured){err.textContent='Backend not connected yet (see SETUP.md).';return;}
+  const { error } = await LS_API.signIn(document.getElementById('admEmail').value.trim(), document.getElementById('admPassword').value);
+  if(error){err.textContent='Incorrect email or password.';return;}
+  bootstrap();
+});
+document.getElementById('signout').addEventListener('click', async e=>{e.preventDefault();await LS_API.signOut();location.reload();});
+
+async function bootstrap(){
+  const profile = await LS_API.getProfile();
+  if(!profile || profile.role!=='admin'){
+    await LS_API.signOut();
+    document.getElementById('loginErr').textContent='This account is not an administrator.';
+    return;
+  }
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('whoEmail').textContent=profile.email||'';
+  await Promise.all([loadMembers(), loadOpps(), loadEnq()]);
+}
+
+/* ---------- approvals ---------- */
+async function loadMembers(){
+  const { data, error } = await sb.from('profiles').select('*').order('created_at',{ascending:false});
+  if(error){toast('Could not load members');return;}
+  MEMBERS = data||[];
+  const pending = MEMBERS.filter(m=>m.status==='pending'||m.status==='invited');
+  const badge=document.getElementById('pendBadge');
+  if(pending.length){badge.style.display='';badge.textContent=pending.length;}else badge.style.display='none';
+
+  document.getElementById('pendingList').innerHTML = pending.length ? table(pending,true) :
+    '<div class="empty">No pending requests.</div>';
+  const others = MEMBERS.filter(m=>m.status==='approved'||m.status==='rejected');
+  document.getElementById('membersList').innerHTML = others.length ? table(others,false) :
+    '<div class="empty">No members yet.</div>';
+}
+function table(rows, withApprove){
+  return `<table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Mobile</th><th>Status</th><th></th></tr></thead><tbody>${
+    rows.map(m=>`<tr>
+      <td>${esc(m.full_name||((m.first_name||'')+' '+(m.last_name||'')).trim()||'—')}</td>
+      <td>${esc(m.email)}</td><td>${esc(m.company||'—')}</td><td>${esc(m.mobile||'—')}</td>
+      <td><span class="pill ${m.status}">${m.status}</span>${m.role==='admin'?' <span class="pill approved">admin</span>':''}</td>
+      <td><div class="row-actions">${
+        withApprove
+          ? `<button class="btn green sm" onclick="setStatus('${m.id}','approved')">Approve</button>
+             <button class="btn danger sm" onclick="setStatus('${m.id}','rejected')">Decline</button>`
+          : (m.status==='rejected'
+              ? `<button class="btn green sm" onclick="setStatus('${m.id}','approved')">Approve</button>`
+              : (m.role!=='admin' ? `<button class="btn ghost sm" onclick="setStatus('${m.id}','rejected')">Revoke</button>`:''))
+      }</div></td></tr>`).join('')
+  }</tbody></table>`;
+}
+async function setStatus(id,status){
+  const patch={status};
+  if(status==='approved'){patch.approved_at=new Date().toISOString();}
+  const { error } = await sb.from('profiles').update(patch).eq('id',id);
+  if(error){toast('Update failed');return;}
+  toast(status==='approved'?'Client approved':'Access updated');
+  loadMembers();
+}
+
+/* ---------- invite (Path A) ---------- */
+function openInvite(){['invFirst','invLast','invEmail'].forEach(i=>document.getElementById(i).value='');document.getElementById('invErr').textContent='';document.getElementById('inviteModal').classList.add('open');}
+async function sendInvite(){
+  const err=document.getElementById('invErr'); err.textContent='';
+  const email=document.getElementById('invEmail').value.trim();
+  if(!email){err.textContent='Email is required.';return;}
+  const btn=document.getElementById('invSend'); btn.disabled=true; btn.textContent='Sending…';
+  try{
+    const { data, error } = await sb.functions.invoke('invite-client', { body:{
+      email, first_name:document.getElementById('invFirst').value.trim(), last_name:document.getElementById('invLast').value.trim(),
+      redirectTo: new URL('reset.html', location.href).href
+    }});
+    if(error) throw error;
+    if(data && data.error) throw new Error(data.error);
+    toast('Invitation sent to '+email);
+    closeModal('inviteModal'); loadMembers();
+  }catch(e){
+    err.innerHTML='Could not send invite. If you have not deployed the invite function yet, '+
+      'you can invite from the Supabase dashboard (Authentication → Users → Invite). See SETUP.md, Step 8.';
+  }finally{btn.disabled=false;btn.textContent='Send Invite';}
+}
+
+/* ---------- opportunities ---------- */
+async function loadOpps(){
+  const { data, error } = await sb.from('opportunities').select('*').order('sort_order').order('created_at');
+  if(error){toast('Could not load opportunities');return;}
+  OPPS=data||[];
+  document.getElementById('oppList').innerHTML = OPPS.length ? `<table><thead><tr>
+    <th>Name</th><th>Type</th><th>Status</th><th>Published</th><th>Order</th><th></th></tr></thead><tbody>${
+    OPPS.map(o=>`<tr>
+      <td>${esc(o.name)}<div class="muted">${esc(o.location||'')}</div></td>
+      <td>${esc(o.asset_type||'—')}</td><td>${esc(o.deal_status||'—')}</td>
+      <td>${o.is_published?'<span class="pill approved">Live</span>':'<span class="pill pending">Draft</span>'}</td>
+      <td class="mono">${o.sort_order}</td>
+      <td><button class="btn ghost sm" onclick="openOpp('${o.id}')">Edit</button></td></tr>`).join('')
+  }</tbody></table>` : '<div class="empty">No opportunities yet. Click “Import starter data” to load your existing eight listings, or add a new one.</div>';
+}
+
+function metricRow(k='',v=''){return `<div class="repeater-row metrics">
+  <input placeholder="Label (e.g. Guide Price)" value="${esc(k)}"><input placeholder="Value" value="${esc(v)}">
+  <button class="x" type="button" onclick="this.parentNode.remove()">✕</button></div>`;}
+function highlightRow(t='',d='',m=''){return `<div class="repeater-row highlights">
+  <input placeholder="Title" value="${esc(t)}"><input placeholder="Description" value="${esc(d)}">
+  <input placeholder="Metric (optional)" value="${esc(m)}">
+  <button class="x" type="button" onclick="this.parentNode.remove()">✕</button></div>`;}
+function addMetricRow(){document.getElementById('metricsRepeater').insertAdjacentHTML('beforeend',metricRow());}
+function addHighlightRow(){document.getElementById('highlightsRepeater').insertAdjacentHTML('beforeend',highlightRow());}
+
+function openOpp(id){
+  const o = id ? OPPS.find(x=>x.id===id) : null;
+  document.getElementById('oppModalTitle').textContent = o ? 'Edit Opportunity' : 'New Opportunity';
+  document.getElementById('oppErr').textContent='';
+  document.getElementById('oppId').value = o ? o.id : '';
+  const set=(k,v)=>document.getElementById(k).value=v??'';
+  set('f_name',o?.name); set('f_slug',o?.slug); set('f_location',o?.location); set('f_country',o?.country||'UAE');
+  set('f_assetType',o?.asset_type||'Commercial'); set('f_assetProfile',o?.asset_profile||'Income');
+  set('f_tenure',o?.tenure); set('f_dealStatus',o?.deal_status||'Available'); set('f_price',o?.price);
+  set('f_priceLabel',o?.price_label||'Guide Price'); set('f_grossYield',o?.gross_yield); set('f_netYield',o?.net_yield);
+  set('f_entryPsf',o?.entry_psf); set('f_order',o?.sort_order??100); set('f_lat',o?.lat); set('f_lng',o?.lng);
+  set('f_image',o?.image); set('f_shortAngle',o?.short_angle); set('f_summary',o?.summary);
+  document.getElementById('f_featured').checked = !!o?.featured;
+  document.getElementById('f_published').checked = o ? !!o.is_published : true;
+  // repeaters
+  const mr=document.getElementById('metricsRepeater'); mr.innerHTML='';
+  const metrics=o?.metrics||{}; Object.keys(metrics).forEach(k=>mr.insertAdjacentHTML('beforeend',metricRow(k,metrics[k])));
+  if(!Object.keys(metrics).length){mr.insertAdjacentHTML('beforeend',metricRow());}
+  const hr=document.getElementById('highlightsRepeater'); hr.innerHTML='';
+  (o?.highlights||[]).forEach(h=>hr.insertAdjacentHTML('beforeend',highlightRow(h.title,h.desc,h.metric)));
+  if(!(o?.highlights||[]).length){hr.insertAdjacentHTML('beforeend',highlightRow());}
+  document.getElementById('oppDelete').style.display = o ? '' : 'none';
+  document.getElementById('oppModal').classList.add('open');
+}
+
+function collectOpp(){
+  const metrics={};
+  document.querySelectorAll('#metricsRepeater .repeater-row').forEach(r=>{
+    const[k,v]=r.querySelectorAll('input'); if(k.value.trim())metrics[k.value.trim()]=v.value.trim();});
+  const highlights=[];
+  document.querySelectorAll('#highlightsRepeater .repeater-row').forEach(r=>{
+    const[t,d,m]=r.querySelectorAll('input');
+    if(t.value.trim()||d.value.trim())highlights.push({title:t.value.trim(),desc:d.value.trim(),metric:m.value.trim()||null});});
+  const name=document.getElementById('f_name').value.trim();
+  return {
+    name, slug:(document.getElementById('f_slug').value.trim()||slugify(name)),
+    location:document.getElementById('f_location').value.trim(), country:document.getElementById('f_country').value.trim(),
+    asset_type:document.getElementById('f_assetType').value, asset_profile:document.getElementById('f_assetProfile').value,
+    tenure:document.getElementById('f_tenure').value.trim(), deal_status:document.getElementById('f_dealStatus').value,
+    price:document.getElementById('f_price').value.trim(), price_label:document.getElementById('f_priceLabel').value.trim(),
+    gross_yield:document.getElementById('f_grossYield').value.trim()||null, net_yield:document.getElementById('f_netYield').value.trim()||null,
+    entry_psf:document.getElementById('f_entryPsf').value.trim()||null, sort_order:parseInt(document.getElementById('f_order').value)||100,
+    lat:parseFloat(document.getElementById('f_lat').value)||null, lng:parseFloat(document.getElementById('f_lng').value)||null,
+    image:document.getElementById('f_image').value.trim(), short_angle:document.getElementById('f_shortAngle').value.trim(),
+    summary:document.getElementById('f_summary').value.trim(), metrics, highlights,
+    featured:document.getElementById('f_featured').checked, is_published:document.getElementById('f_published').checked
+  };
+}
+async function saveOpp(){
+  const err=document.getElementById('oppErr'); err.textContent='';
+  const id=document.getElementById('oppId').value;
+  const payload=collectOpp();
+  if(!payload.name){err.textContent='Name is required.';return;}
+  const btn=document.getElementById('oppSave'); btn.disabled=true; btn.textContent='Saving…';
+  let res;
+  if(id) res=await sb.from('opportunities').update(payload).eq('id',id);
+  else   res=await sb.from('opportunities').insert([payload]);
+  btn.disabled=false; btn.textContent='Save';
+  if(res.error){err.textContent=res.error.message;return;}
+  toast(id?'Opportunity updated':'Opportunity added'); closeModal('oppModal'); loadOpps();
+}
+async function deleteOpp(){
+  const id=document.getElementById('oppId').value; if(!id)return;
+  if(!confirm('Delete this opportunity permanently?'))return;
+  const { error } = await sb.from('opportunities').delete().eq('id',id);
+  if(error){toast('Delete failed');return;}
+  toast('Opportunity deleted'); closeModal('oppModal'); loadOpps();
+}
+
+/* ---------- import starter data ---------- */
+async function importSeed(){
+  if(!window.SEED_OPPORTUNITIES){toast('Seed data not found');return;}
+  if(!confirm('Import the '+SEED_OPPORTUNITIES.length+' bundled opportunities into the database?'))return;
+  const btn=document.getElementById('importBtn'); btn.disabled=true; btn.textContent='Importing…';
+  const rows=SEED_OPPORTUNITIES.map(o=>({
+    slug:o.id, name:o.name, location:o.location, country:o.country, lat:o.lat, lng:o.lng, image:o.image,
+    asset_type:o.assetType, asset_profile:o.assetProfile, tenure:o.tenure, deal_status:o.dealStatus,
+    price:o.price, price_label:o.priceLabel, gross_yield:o.grossYield, net_yield:o.netYield, entry_psf:o.entryPsf,
+    short_angle:o.shortAngle, summary:o.summary, metrics:o.metrics||{}, highlights:o.highlights||[],
+    featured:!!o.featured, sort_order:o.order||100, is_published:true
+  }));
+  const { error } = await sb.from('opportunities').upsert(rows,{onConflict:'slug'});
+  btn.disabled=false; btn.textContent='Import starter data';
+  if(error){toast('Import failed: '+error.message);return;}
+  toast('Imported '+rows.length+' opportunities'); loadOpps();
+}
+
+/* ---------- enquiries ---------- */
+async function loadEnq(){
+  const { data, error } = await sb.from('enquiries').select('*').order('created_at',{ascending:false}).limit(200);
+  if(error){return;}
+  ENQ=data||[];
+  const unread=ENQ.filter(e=>!e.is_read).length;
+  const badge=document.getElementById('enqBadge');
+  if(unread){badge.style.display='';badge.textContent=unread;}else badge.style.display='none';
+  document.getElementById('enqList').innerHTML = ENQ.length ? ENQ.map(e=>`
+    <div class="card enq-card ${e.is_read?'':'unread'}">
+      <div class="top">
+        <div><span class="opp">${esc(e.opportunity_name||e.type)}</span>
+          <div class="meta">${esc(e.name||'—')} · <a href="mailto:${esc(e.email)}">${esc(e.email||'')}</a> · ${esc(e.phone||'')} ${e.company?'· '+esc(e.company):''}</div></div>
+        <div style="text-align:right;">
+          <div class="muted">${new Date(e.created_at).toLocaleString()}</div>
+          ${e.is_read?'':`<button class="btn ghost sm" style="margin-top:6px;" onclick="markRead('${e.id}')">Mark read</button>`}
+        </div>
+      </div>
+      ${e.message?`<div style="margin-top:4px;">${esc(e.message)}</div>`:''}
+      <div class="muted" style="margin-top:6px;">Type: ${esc(e.type)}</div>
+    </div>`).join('') : '<div class="empty">No enquiries yet.</div>';
+}
+async function markRead(id){await sb.from('enquiries').update({is_read:true}).eq('id',id);loadEnq();}
+
+/* ---------- start ---------- */
+(async function(){
+  if(!LS_API.configured){document.getElementById('loginErr').textContent='Backend not connected yet (see SETUP.md).';return;}
+  const session = await LS_API.getSession();
+  if(session) bootstrap();
+})();
+</script>
+<!-- Reuse the seed data from the portal for one-click import -->
+<script>
+  // Lightweight fetch of SEED_OPPORTUNITIES from index.html is not possible cross-file;
+  // so the admin import pulls it from window if present. Loaded below.
+</script>
+<script src="js/seed-data.js"></script>
+</body>
+</html>

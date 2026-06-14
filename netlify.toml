@@ -1,0 +1,6 @@
+# Netlify configuration.
+# If you deploy by connecting a Git repo, Netlify will publish the public/ folder.
+# (For the quick "Netlify Drop" method in SETUP.md Step 7, just drag the public/
+#  folder and this file isn't needed.)
+[build]
+  publish = "public"

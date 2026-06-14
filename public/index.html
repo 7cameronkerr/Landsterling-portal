@@ -1536,6 +1536,13 @@ footer {
       <p class="gate-note" id="statusBody"></p>
       <button type="button" class="gate-submit" style="margin-top:20px;" onclick="setAuthTab('signin')">Back to Sign In</button>
     </div>
+
+    <!-- Setup-mode only: lets you explore the portal before the backend is connected.
+         This link is hidden automatically once Supabase keys are added. -->
+    <div id="previewHint" style="display:none; margin-top:22px; padding-top:18px; border-top:1px solid var(--border);">
+      <p style="font-size:11px; color:var(--text-sec); margin-bottom:8px;">Setup preview — backend not connected yet</p>
+      <a onclick="previewBypass()" style="font-size:12.5px; color:var(--red); cursor:pointer; text-decoration:underline;">Explore the portal without signing in →</a>
+    </div>
   </div>
 </div>
 
@@ -2202,9 +2209,21 @@ function friendlyAuthError(err) {
   return err.message || 'Something went wrong. Please try again.';
 }
 
+// Setup-mode only: explore the portal before Supabase is connected.
+function previewBypass() {
+  hideGate();
+  const so = document.getElementById('nav-signout');
+  if (so) so.style.display = 'none';
+}
+
 // On load: if already logged in & approved, skip the gate.
 async function checkGate() {
-  if (!LS_API.configured) { showGate(); return false; }
+  if (!LS_API.configured) {
+    const hint = document.getElementById('previewHint');
+    if (hint) hint.style.display = 'block';
+    showGate();
+    return false;
+  }
   const session = await LS_API.getSession();
   if (!session) { showGate(); return false; }
   const profile = await LS_API.getProfile();

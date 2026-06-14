@@ -1565,7 +1565,7 @@ footer {
       <li><span class="nav-link" id="nav-signout" onclick="handleSignOut()" style="display:none;">Sign Out</span></li>
     </ul>
     <div class="nav-cta" id="navCta">
-      <button class="btn btn-primary btn-sm" onclick="openBookACall()">Book a Call</button>
+      <button class="btn btn-primary btn-sm" onclick="openEnquireModal(null)">Request Further Details</button>
     </div>
     <button class="nav-hamburger" onclick="toggleNav()" id="hamburger" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -1923,8 +1923,8 @@ footer {
 <div class="modal-overlay" id="enquireModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('enquireModal')">✕</button>
-    <h3>Enquire Now</h3>
-    <p class="modal-sub">Submit your enquiry and a member of the team will respond directly.</p>
+    <h3>Request Further Details</h3>
+    <p class="modal-sub">Leave your details and a member of the team will respond directly — or book a call below.</p>
     <div class="modal-opp-tag" id="enquireOppTag"></div>
     <form id="enquireForm" onsubmit="handleEnquireSubmit(event)">
       <div class="form-grid">
@@ -1948,6 +1948,15 @@ footer {
       <div class="success-icon">✓</div>
       <h4>Enquiry Sent</h4>
       <p>Thank you. Your enquiry has been received and a member of the team will be in touch shortly.</p>
+    </div>
+
+    <!-- Secondary option: book a call directly (keeps a path for active enquirers) -->
+    <div class="enquire-bookcall">
+      <div style="display:flex;align-items:center;gap:12px;margin:24px 0 16px;color:var(--text-sec);font-size:10px;letter-spacing:0.12em;">
+        <span style="flex:1;height:1px;background:var(--border);"></span>OR<span style="flex:1;height:1px;background:var(--border);"></span>
+      </div>
+      <p style="font-size:13px;color:var(--text-sec);text-align:center;margin-bottom:12px;">Prefer to talk it through? Book a call at a time that suits you.</p>
+      <button type="button" class="btn btn-secondary" style="width:100%;justify-content:center;" onclick="openBookACall()">Book a Call</button>
     </div>
   </div>
 </div>

@@ -1610,15 +1610,15 @@ footer {
             <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">Accredited Advisory</div>
           </div>
           <div>
-            <div style="font-family:var(--font-serif);font-size:2.1rem;color:#fff;line-height:1.1;">[X] yrs</div>
-            <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">Advising on Regional Real Estate</div>
+            <div style="font-family:var(--font-serif);font-size:2.1rem;color:#fff;line-height:1.1;">17 yrs</div>
+            <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">In Business</div>
           </div>
           <div>
-            <div style="font-family:var(--font-serif);font-size:2.1rem;color:#fff;line-height:1.1;">AED [X]</div>
-            <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">Transacted &amp; Advised</div>
+            <div style="font-family:var(--font-serif);font-size:2.1rem;color:#fff;line-height:1.1;">AED 30B+</div>
+            <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">Advised On</div>
           </div>
         </div>
-        <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.35);margin-top:20px;">A global real estate solutions provider across Abu Dhabi, Algiers, Dubai, Leeds, London &amp; Riyadh. Figures marked [X] to be confirmed by Land Sterling.</p>
+        <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.35);margin-top:20px;">A global real estate solutions provider across Abu Dhabi, Algiers, Dubai, Leeds, London &amp; Riyadh.</p>
       </div>
     </section>
 
@@ -1767,8 +1767,8 @@ footer {
 
         <div class="about-stats">
           <div class="about-stat">
-            <div class="about-stat-num">15+</div>
-            <div class="about-stat-label">Years of Experience</div>
+            <div class="about-stat-num">17</div>
+            <div class="about-stat-label">Years in Business</div>
           </div>
           <div class="about-stat">
             <div class="about-stat-num">6</div>
@@ -1875,11 +1875,11 @@ footer {
      MODALS
      ============================================================ -->
 
-<!-- Download Particulars Modal -->
+<!-- Request Particulars Modal -->
 <div class="modal-overlay" id="particularsModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('particularsModal')">✕</button>
-    <h3>Download Particulars</h3>
+    <h3>Request Particulars</h3>
     <p class="modal-sub">Please provide your details and a member of the team will follow up with the relevant information.</p>
     <div class="modal-opp-tag" id="particularsOppTag"></div>
     <form id="particularsForm" onsubmit="handleParticularsSubmit(event)">
@@ -1986,7 +1986,7 @@ footer {
       <span class="footer-copy">© 2026 Land Sterling</span>
     </div>
     <div class="footer-legal-row" style="display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between;padding-top:16px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);font-size:11px;color:rgba(255,255,255,0.4);">
-      <span>RERA ORN: [to confirm] &nbsp;·&nbsp; DLD / Trade Licence: [to confirm]</span>
+      <span>Land Sterling Properties LLC &nbsp;·&nbsp; Trade Licence 669075 &nbsp;·&nbsp; Dubai, UAE</span>
       <span><a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:underline;">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html" style="color:rgba(255,255,255,0.6);text-decoration:underline;">Terms of Use</a></span>
       <span>🔒 Encrypted, access-controlled portal — confidential information released under NDA</span>
     </div>
@@ -2310,7 +2310,7 @@ function cardHTML(opp) {
   const isSold = opp.dealStatus === 'Sold';
   const ctaBtn = isSold
     ? `<button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:default">Transaction Complete</button>`
-    : `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openParticularsModal('${opp.id}')">Download Particulars</button>`;
+    : `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openParticularsModal('${opp.id}')">Request Particulars</button>`;
 
   return `
     <div class="opp-card" ${opp.dealStatus !== 'Sold' ? `onclick="navigate('opportunity','${opp.id}')"` : ''}>
@@ -2683,7 +2683,7 @@ function renderOpportunityDetail(slug) {
         <p class="detail-location">↗ ${opp.location}</p>
         <div class="detail-price-row">${priceDisplay}</div>
         <div class="detail-cta-row">
-          <button class="btn btn-primary" onclick="openParticularsModal('${opp.id}')">Download Particulars</button>
+          <button class="btn btn-primary" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
           <button class="btn btn-outline-white" onclick="openBookACall()">Book a Call</button>
         </div>
       </div>
@@ -2736,7 +2736,7 @@ function renderOpportunityDetail(slug) {
               <h3>Key Metrics</h3>
               <div class="metrics-table">${metricsHTML}</div>
               <div style="margin-top:24px; display:flex; flex-direction:column; gap:10px;">
-                <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Download Particulars</button>
+                <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
                 <button class="btn btn-secondary" style="width:100%; justify-content:center" onclick="openBookACall()">Book a Call</button>
               </div>
             </div>

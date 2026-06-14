@@ -14,16 +14,17 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'DM Sans',system-ui,sans-serif;background:var(--navy);color:var(--text);
        min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;}
-  .card{background:var(--bg);max-width:560px;width:100%;padding:44px 42px;margin:auto;border-radius:2px;}
+  .card{background:var(--bg);max-width:600px;width:100%;padding:44px 42px;margin:auto;border-radius:2px;}
   .lbl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);text-align:center;margin-bottom:6px;}
   h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.55rem;text-align:center;margin-bottom:6px;letter-spacing:.02em;}
   .rule{width:32px;height:1px;background:var(--red);margin:14px auto 20px;}
   p.sub{font-size:13px;color:var(--sec);line-height:1.7;text-align:center;margin-bottom:22px;}
   .step-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);font-weight:500;margin:22px 0 10px;}
-  .nda-box{height:200px;overflow-y:auto;border:1px solid var(--border);background:#fff;padding:16px 18px;font-size:12.5px;line-height:1.6;color:#333;border-radius:2px;}
-  .nda-box h4{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1rem;margin:12px 0 6px;}
+  .nda-box{height:230px;overflow-y:auto;border:1px solid var(--border);background:#fff;padding:16px 18px;font-size:12px;line-height:1.6;color:#333;border-radius:2px;}
+  .nda-box h4{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1.05rem;margin:14px 0 6px;color:var(--text);}
   .nda-box p{margin-bottom:9px;}
-  .review-flag{background:#fff7e6;border:1px solid #f0d9a8;color:#8a5a00;font-size:11.5px;padding:8px 12px;border-radius:3px;margin-top:8px;}
+  .nda-box .party{font-size:12.5px;}
+  .nda-note{font-size:11px;color:var(--sec);margin-top:8px;}
   label.chk{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:#333;margin:14px 0;line-height:1.5;}
   label.chk input{margin-top:2px;accent-color:var(--red);flex-shrink:0;}
   input[type=text],input[type=password]{width:100%;border:1px solid var(--border);background:#fff;padding:13px 15px;
@@ -39,11 +40,46 @@
 </style>
 </head>
 <body>
+  <!-- NDA text held statically here, injected into the signing box below -->
+  <div id="ndaSource" style="display:none;">
+    <h4>Non-Disclosure Agreement</h4>
+    <p class="party">This Non-Disclosure Agreement is made between <strong>Land Sterling Properties LLC</strong>, incorporated and registered in the UAE with Trade Licence 669075, registered office First Floor, Block B, DSO HQ Building, Dubai, UAE (the &ldquo;Discloser&rdquo;), and you, the registering recipient (the &ldquo;Recipient&rdquo;), in connection with your evaluation of real estate investment opportunities and related confidential information made available through the Land Sterling Investment Portal (the &ldquo;Purpose&rdquo;).</p>
+
+    <h4>1. Confidential Information</h4>
+    <p>&ldquo;Confidential Information&rdquo; means all confidential information relating to the Purpose disclosed by the Discloser or its Representatives, directly or indirectly, before, on or after the date of acceptance &mdash; including the fact and status of any discussions, the terms of this Agreement, and all proprietary information, opportunity particulars, financial data, analysis, know-how and materials relating to the opportunities and the business of the Discloser and its Group. It excludes information that is or becomes public other than through breach of this Agreement, was lawfully held by the Recipient before disclosure, is received from a third party not under a confidentiality obligation, or is independently developed by the Recipient.</p>
+
+    <h4>2. Confidentiality obligations</h4>
+    <p>The Recipient shall: (a) keep the Confidential Information secret and confidential; (b) not use or exploit it in any way except for the Purpose; (c) not disclose or make it available to any person except as expressly permitted by this Agreement; (d) not copy or record it except as strictly necessary for the Purpose; and (e) apply adequate security measures to safeguard it from unauthorised access, copying or use.</p>
+
+    <h4>3. Permitted disclosure</h4>
+    <p>The Recipient may disclose Confidential Information to its Representatives (its officers, employees and professional advisers who need to know it for the Purpose) provided it first informs them of its confidential nature and procures that they comply with obligations equivalent to those in clause 2. The Recipient remains liable for the acts and omissions of its Representatives.</p>
+
+    <h4>4. Mandatory disclosure</h4>
+    <p>The Recipient may disclose Confidential Information to the minimum extent required by law, and shall, where lawfully permitted, give the Discloser as much prior notice as possible.</p>
+
+    <h4>5. Return or destruction</h4>
+    <p>On the Discloser&rsquo;s written request, the Recipient shall as soon as reasonably practicable return or destroy and erase all Confidential Information, save for copies required to be retained by law or regulation, to which this Agreement shall continue to apply.</p>
+
+    <h4>6. Reservation of rights</h4>
+    <p>The Discloser reserves all rights in its Confidential Information; no licence or other right is granted beyond those expressly set out here. The Confidential Information is provided without any warranty as to its accuracy or completeness, does not constitute an offer, invitation or financial advice, and creates no obligation on either party to proceed with any transaction.</p>
+
+    <h4>7. Remedies</h4>
+    <p>The Recipient acknowledges that damages alone would not be an adequate remedy for breach, and that the Discloser shall be entitled to injunctive relief, specific performance or other equitable relief for any threatened or actual breach.</p>
+
+    <h4>8. Duration</h4>
+    <p>The Recipient&rsquo;s obligations under this Agreement continue in full force for a period of 5 years from the date of acceptance.</p>
+
+    <h4>9. Governing law</h4>
+    <p>This Agreement and any dispute arising out of or in connection with it are governed by the laws of Dubai and the UAE, and the courts of Dubai have exclusive jurisdiction.</p>
+
+    <p class="nda-note">By typing your full name and selecting &ldquo;Sign &amp; Activate Access&rdquo;, you agree to be bound by this Agreement. Your name, the date and time, and your IP address are recorded as your electronic signature. This is the portal edition of Land Sterling&rsquo;s standard NDA; the full executed agreement may be required for specific transactions.</p>
+  </div>
+
   <div class="card">
     <div class="lbl">Land Sterling</div>
     <h1>Activate Your Access</h1>
     <div class="rule"></div>
-    <div id="content"><p class="sub">Verifying your link…</p></div>
+    <div id="content"><p class="sub">Verifying your link&hellip;</p></div>
   </div>
 
 <script>
@@ -51,7 +87,6 @@
   const content = document.getElementById('content');
   if (!LS_API.configured) { content.innerHTML = '<p class="sub err">The portal backend is not connected yet (see SETUP.md).</p>'; return; }
 
-  // supabase-js reads the invite/recovery token from the URL; give it a moment.
   let session = await LS_API.getSession();
   if (!session) { await new Promise(r => setTimeout(r, 800)); session = await LS_API.getSession(); }
   if (!session) {
@@ -59,24 +94,16 @@
     return;
   }
 
-  const NDA_VERSION = 'v1-draft';
+  const NDA_VERSION = 'LS-Portal-NDA-v1';
+  const ndaHtml = document.getElementById('ndaSource').innerHTML;
   content.innerHTML =
-    '<p class="sub">Welcome. To access the Asset Library, please review and sign the confidentiality agreement and set a password — in one step.</p>' +
-    '<div class="step-label">1 · Non-Disclosure Agreement</div>' +
-    '<div class="nda-box" id="ndaBox">' +
-      '<h4>Confidentiality &amp; Non-Disclosure Agreement</h4>' +
-      '<p>This Agreement is entered into between Land Sterling Investment Advisory ("Discloser") and the undersigned recipient ("Recipient") in connection with access to confidential real estate investment opportunities and related materials (the "Confidential Information").</p>' +
-      '<p>1. The Recipient agrees to keep all Confidential Information strictly confidential and to use it solely for the purpose of evaluating a potential investment.</p>' +
-      '<p>2. The Recipient shall not disclose, reproduce or distribute the Confidential Information to any third party without the prior written consent of the Discloser.</p>' +
-      '<p>3. Confidential Information excludes information that is or becomes public through no breach by the Recipient, or is lawfully obtained from another source.</p>' +
-      '<p>4. The Confidential Information is provided without warranty as to accuracy or completeness and does not constitute an offer or financial advice.</p>' +
-      '<p>5. This Agreement shall be governed by the applicable laws of the Emirate of Dubai, United Arab Emirates. [Wording to be confirmed by legal.]</p>' +
-      '<div class="review-flag">⚠ Placeholder NDA wording — Land Sterling to replace with the final, legally-approved agreement.</div>' +
-    '</div>' +
+    '<p class="sub">Welcome. To access the Asset Library, please review and sign the confidentiality agreement and set a password &mdash; in one step.</p>' +
+    '<div class="step-label">1 &middot; Non-Disclosure Agreement</div>' +
+    '<div class="nda-box" id="ndaBox">' + ndaHtml + '</div>' +
     '<label class="field-label" style="margin-top:14px;">Full legal name (your electronic signature)</label>' +
     '<input type="text" id="signName" placeholder="Type your full name" autocomplete="name">' +
     '<label class="chk"><input type="checkbox" id="ndaAgree"> I have read and agree to the Non-Disclosure Agreement, and I understand typing my name constitutes my electronic signature.</label>' +
-    '<div class="step-label">2 · Create your password</div>' +
+    '<div class="step-label">2 &middot; Create your password</div>' +
     '<input type="password" id="pw1" placeholder="New password (min. 8 characters)" minlength="8" autocomplete="new-password">' +
     '<input type="password" id="pw2" placeholder="Confirm password" minlength="8" autocomplete="new-password">' +
     '<button class="submit" id="go">Sign &amp; Activate Access</button>' +
@@ -87,7 +114,7 @@
     const agree = document.getElementById('ndaAgree').checked;
     const pw1 = document.getElementById('pw1').value, pw2 = document.getElementById('pw2').value;
     const msg = document.getElementById('msg'); const btn = this; msg.className = 'msg';
-    if (!name)            { msg.className='msg err'; msg.textContent='Please type your full name to sign.'; return; }
+    if (!name)           { msg.className='msg err'; msg.textContent='Please type your full name to sign.'; return; }
     if (!agree)          { msg.className='msg err'; msg.textContent='Please confirm you agree to the NDA.'; return; }
     if (pw1.length < 8)  { msg.className='msg err'; msg.textContent='Password must be at least 8 characters.'; return; }
     if (pw1 !== pw2)     { msg.className='msg err'; msg.textContent='Passwords do not match.'; return; }

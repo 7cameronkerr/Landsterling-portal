@@ -35,12 +35,11 @@ window.LS_CONFIG = {
 
   /* --- Company / legal (shown in footer & legal pages) ---------------- */
   COMPANY: {
-    legalName: 'Land Sterling Investment Advisory',
-    reraOrn:   'RERA ORN: [to confirm]',
-    dldLicence:'DLD / Trade Licence: [to confirm]',
-    address:   'First Floor, Block B, Dubai Silicon Oasis HQ Building, Dubai, UAE',
-    phone:     '+971 50 900 5736',
-    email:     'Cameron.k@landsterling.com'
+    legalName:    'Land Sterling Properties LLC',
+    tradeLicence: '669075',
+    address:      'First Floor, Block B, Dubai Silicon Oasis HQ Building, Dubai, UAE',
+    phone:        '+971 50 900 5736',
+    email:        'Cameron.k@landsterling.com'
   },
 
   SUPPORT_EMAIL: 'Cameron.k@landsterling.com'

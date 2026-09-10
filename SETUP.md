@@ -96,7 +96,7 @@ The `public` folder is a normal static website. Easiest host: **Netlify Drop**.
 3. Open that URL — you'll see the portal with the **Sign In / Request Access** gate.
 4. **Important:** go back to Supabase → **Authentication → URL Configuration** and set:
    - **Site URL:** your Netlify URL (e.g. `https://your-portal-name.netlify.app`)
-   - **Redirect URLs:** add `https://your-portal-name.netlify.app/reset.html`
+   - **Redirect URLs:** add `https://your-portal-name.netlify.app/activation.html` (invites) and `https://your-portal-name.netlify.app/reset.html` (password resets)
    This makes invite & password-reset email links work correctly.
 
 *(A custom domain like `invest.landsterling.com` can be added later in Netlify →
@@ -139,10 +139,12 @@ the **“+ Invite Client”** button works and auto-approves the client:
 
 | | **Path A — you invite** | **Path B — they self-register** |
 |---|---|---|
-| Trigger | You click *Invite Client* (or dashboard Invite) | Client uses *Request Access* on the portal |
-| Client action | Receives email → sets password | Fills details + sets password |
-| Approval | **Auto-approved** | **Pending → you approve** in Approvals tab |
-| Result | Logs in immediately | Logs in once you approve |
+| Trigger | You click *Invite Client* | Client uses *Request Access* on the portal (details only — no password yet) |
+| Approval | **Auto-approved** (you initiated it) | **Pending → you click *Approve & invite*** in the Approvals tab |
+| Client action | Activation email → **signs the NDA + sets a password** in one step | Same activation email → **signs the NDA + sets a password** |
+| Result | Logged in with a signed NDA on file | Logged in with a signed NDA on file |
+
+Both paths converge on `activation.html`, so nobody holds a working login without a signed NDA.
 
 ## Daily use, in one minute
 

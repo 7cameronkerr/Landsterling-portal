@@ -1525,7 +1525,7 @@ footer {
 
     <!-- REQUEST ACCESS (self-registration → pending approval) -->
     <div class="gate-panel" id="panel-register">
-      <p class="gate-desc">New here? Request access below. Your details are reviewed by Land Sterling before access is granted.</p>
+      <p class="gate-desc">New here? Request access below. Land Sterling reviews every request; once approved you will receive an email to sign the confidentiality agreement and set your password.</p>
       <form class="gate-form" id="registerForm" onsubmit="handleRegister(event)">
         <div class="gate-form-row">
           <input type="text" id="rgFirstName" placeholder="First name" required autocomplete="given-name">
@@ -1536,7 +1536,6 @@ footer {
           <input type="tel" id="rgMobile" placeholder="Mobile number" required autocomplete="tel">
           <input type="text" id="rgCompany" placeholder="Company / Organisation" required autocomplete="organization">
         </div>
-        <input type="password" id="rgPassword" placeholder="Create a password (min. 8 characters)" required minlength="8" autocomplete="new-password">
         <div class="gate-checkbox-wrap">
           <input type="checkbox" id="rgConsent" required>
           <label for="rgConsent">I agree to be contacted by Land Sterling Investment Advisory in connection with investment opportunities.</label>
@@ -2153,22 +2152,24 @@ async function handleRegister(e) {
   const btn = e.target.querySelector('button[type="submit"]');
   btn.disabled = true; btn.textContent = 'Submitting…';
 
+  // Details only — no password here. The password is created together with the
+  // NDA signature on activation.html, after Land Sterling approves the request.
   const payload = {
     firstName: document.getElementById('rgFirstName').value.trim(),
     lastName:  document.getElementById('rgLastName').value.trim(),
     email:     document.getElementById('rgEmail').value.trim(),
     mobile:    document.getElementById('rgMobile').value.trim(),
     company:   document.getElementById('rgCompany').value.trim(),
-    password:  document.getElementById('rgPassword').value
+    consent:   document.getElementById('rgConsent').checked
   };
 
   try {
-    const { error } = await LS_API.register(payload);
+    const { error } = await LS_API.requestAccess(payload);
     if (error) throw error;
     showAuthStatus(
       'Request Received',
-      'Thank you. Your access request has been submitted to Land Sterling Investment Advisory for review. ' +
-      'You will be notified by email once your access is approved. (If email confirmation is enabled, please verify your email first.)'
+      'Thank you. Land Sterling Investment Advisory will review your request. Once approved, you will receive an email ' +
+      'inviting you to sign the confidentiality agreement and set your password — usually within one working day.'
     );
   } catch (err) {
     errEl.textContent = friendlyAuthError(err);

@@ -43,6 +43,21 @@
       });
     },
 
+    // Path B (current model) — self-registration captures DETAILS ONLY, no password.
+    // Cameron approves in the admin, which sends the activation invite; the client
+    // then signs the NDA and sets a password in one step (activation.html).
+    async requestAccess({ firstName, lastName, email, mobile, company, consent }) {
+      assertReady();
+      return sb.from('access_requests').insert([{
+        first_name: firstName,
+        last_name:  lastName,
+        email,
+        mobile,
+        company,
+        consent: !!consent
+      }]);
+    },
+
     async signIn(email, password) {
       assertReady();
       return sb.auth.signInWithPassword({ email, password });

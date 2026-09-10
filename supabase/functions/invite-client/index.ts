@@ -46,13 +46,14 @@ Deno.serve(async (req) => {
     }
 
     // --- 3. Parse input -----------------------------------------------------
-    const { email, first_name, last_name, redirectTo } = await req.json();
+    const { email, first_name, last_name, mobile, company, redirectTo } = await req.json();
     if (!email) return json({ error: "Email is required" }, 400);
 
     // --- 4. Invite via the service-role client ------------------------------
+    // Metadata flows into the profile row via the handle_new_user trigger.
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-      data: { first_name, last_name, status: "approved" },
+      data: { first_name, last_name, mobile, company, status: "approved" },
       redirectTo: redirectTo || undefined,
     });
     if (error) return json({ error: error.message }, 400);

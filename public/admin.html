@@ -302,19 +302,65 @@ async function bootstrap(){
 }
 
 /* ---------- approvals ---------- */
+let REQUESTS = [];
 async function loadMembers(){
-  const { data, error } = await sb.from('profiles').select('*').order('created_at',{ascending:false});
-  if(error){toast('Could not load members');return;}
-  MEMBERS = data||[];
-  const pending = MEMBERS.filter(m=>m.status==='pending'||m.status==='invited');
+  // Access requests (details-only sign-ups awaiting approval) + existing profiles.
+  const [pr, rq] = await Promise.all([
+    sb.from('profiles').select('*').order('created_at',{ascending:false}),
+    sb.from('access_requests').select('*').eq('status','pending').order('created_at',{ascending:false})
+  ]);
+  if(pr.error){toast('Could not load members');return;}
+  MEMBERS  = pr.data||[];
+  REQUESTS = rq.error ? [] : (rq.data||[]);
+  const pendingProfiles = MEMBERS.filter(m=>m.status==='pending'||m.status==='invited');
+  const pendingCount = REQUESTS.length + pendingProfiles.length;
   const badge=document.getElementById('pendBadge');
-  if(pending.length){badge.style.display='';badge.textContent=pending.length;}else badge.style.display='none';
+  if(pendingCount){badge.style.display='';badge.textContent=pendingCount;}else badge.style.display='none';
 
-  document.getElementById('pendingList').innerHTML = pending.length ? table(pending,true) :
-    '<div class="empty">No pending requests.</div>';
+  let html='';
+  if(REQUESTS.length) html += requestTable(REQUESTS);
+  if(pendingProfiles.length) html += (REQUESTS.length?'<p class="muted" style="margin:16px 0 8px;">Invited — awaiting activation</p>':'') + table(pendingProfiles,true);
+  document.getElementById('pendingList').innerHTML = html || '<div class="empty">No pending requests.</div>';
   const others = MEMBERS.filter(m=>m.status==='approved'||m.status==='rejected');
   document.getElementById('membersList').innerHTML = others.length ? table(others,false) :
     '<div class="empty">No members yet.</div>';
+}
+function requestTable(rows){
+  return `<table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Mobile</th><th>Requested</th><th></th></tr></thead><tbody>${
+    rows.map(r=>`<tr>
+      <td>${esc(((r.first_name||'')+' '+(r.last_name||'')).trim()||'—')}</td>
+      <td>${esc(r.email)}</td><td>${esc(r.company||'—')}</td><td>${esc(r.mobile||'—')}</td>
+      <td class="muted">${new Date(r.created_at).toLocaleDateString()}</td>
+      <td><div class="row-actions">
+        <button class="btn green sm" onclick="approveRequest('${r.id}')">Approve &amp; invite</button>
+        <button class="btn danger sm" onclick="declineRequest('${r.id}')">Decline</button>
+      </div></td></tr>`).join('')
+  }</tbody></table>`;
+}
+// Approve = send the activation invite (NDA + password) and close the request.
+async function approveRequest(id){
+  const r = REQUESTS.find(x=>x.id===id); if(!r) return;
+  try{
+    const { data, error } = await sb.functions.invoke('invite-client', { body:{
+      email:r.email, first_name:r.first_name, last_name:r.last_name, mobile:r.mobile, company:r.company,
+      redirectTo: new URL('activation.html', location.href).href
+    }});
+    if(error) throw error;
+    if(data && data.error) throw new Error(data.error);
+  }catch(e){
+    toast('Could not send the activation email — is the invite-client function deployed?');
+    return;
+  }
+  const { data:{ user } } = await sb.auth.getUser();
+  await sb.from('access_requests').update({status:'approved', handled_at:new Date().toISOString(), handled_by:user?user.id:null}).eq('id',id);
+  toast('Approved — activation email sent to '+r.email);
+  loadMembers();
+}
+async function declineRequest(id){
+  const { data:{ user } } = await sb.auth.getUser();
+  const { error } = await sb.from('access_requests').update({status:'rejected', handled_at:new Date().toISOString(), handled_by:user?user.id:null}).eq('id',id);
+  if(error){toast('Update failed');return;}
+  toast('Request declined'); loadMembers();
 }
 function table(rows, withApprove){
   return `<table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Mobile</th><th>Status</th><th></th></tr></thead><tbody>${
@@ -351,7 +397,7 @@ async function sendInvite(){
   try{
     const { data, error } = await sb.functions.invoke('invite-client', { body:{
       email, first_name:document.getElementById('invFirst').value.trim(), last_name:document.getElementById('invLast').value.trim(),
-      redirectTo: new URL('reset.html', location.href).href
+      redirectTo: new URL('activation.html', location.href).href
     }});
     if(error) throw error;
     if(data && data.error) throw new Error(data.error);

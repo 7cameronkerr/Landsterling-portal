@@ -12,6 +12,13 @@ window.LS_CONFIG = {
   /* --- Enquiry email (Formspree, SETUP.md Step 8) --------------------- */
   FORMSPREE_ENDPOINT: '',           // e.g. 'https://formspree.io/f/abcdwxyz'
 
+  /* --- WhatsApp (top-bar button) -------------------------------------- */
+  // International format without + or spaces. The message is pre-filled for the client.
+  WHATSAPP: {
+    number:  '971509005736',
+    message: 'Hello Cameron, I am enquiring via the Land Sterling Investment Portal.'
+  },
+
   /* --- Book a Call (Calendly) ----------------------------------------- */
   // Paste your Calendly scheduling link. Until then the button shows a notice.
   CALENDLY_URL: '',                 // e.g. 'https://calendly.com/cameron-landsterling/30min'

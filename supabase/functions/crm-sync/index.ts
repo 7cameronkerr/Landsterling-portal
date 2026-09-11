@@ -69,6 +69,9 @@ Deno.serve(async (req) => {
     }
 
     if (provider === "attio") {
+      // Attio's "name" attribute requires first_name/last_name, not just full_name.
+      const first = r.first_name || (contact.name ? contact.name.split(" ")[0] : "") || "";
+      const last  = r.last_name  || (contact.name ? contact.name.split(" ").slice(1).join(" ") : "") || "";
       // Assert (upsert) a person by email in Attio.
       const res = await fetch(
         "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
@@ -79,7 +82,7 @@ Deno.serve(async (req) => {
             data: {
               values: {
                 email_addresses: [{ email_address: contact.email }],
-                name: contact.name ? [{ full_name: contact.name }] : undefined,
+                name: (first || last) ? [{ first_name: first, last_name: last, full_name: contact.name || [first, last].filter(Boolean).join(" ") }] : undefined,
                 phone_numbers: contact.phone ? [{ original_phone_number: contact.phone }] : undefined,
               },
             },
@@ -88,8 +91,7 @@ Deno.serve(async (req) => {
       );
       if (!res.ok) {
         const bodyText = await res.text();
-        // TEMP DIAGNOSTIC — remove once the Attio path is confirmed working.
-        console.log("crm-sync attio error:", JSON.stringify({ status: res.status, body: bodyText, keyPrefix: apiKey.slice(0, 10) }));
+        console.log("crm-sync attio error:", JSON.stringify({ status: res.status, body: bodyText }));
         return ok({ error: bodyText }, 502);
       }
       return ok({ ok: true, provider });

@@ -86,7 +86,12 @@ Deno.serve(async (req) => {
           }),
         },
       );
-      if (!res.ok) return ok({ error: await res.text() }, 502);
+      if (!res.ok) {
+        const bodyText = await res.text();
+        // TEMP DIAGNOSTIC — remove once the Attio path is confirmed working.
+        console.log("crm-sync attio error:", JSON.stringify({ status: res.status, body: bodyText, keyPrefix: apiKey.slice(0, 10) }));
+        return ok({ error: bodyText }, 502);
+      }
       return ok({ ok: true, provider });
     }
 

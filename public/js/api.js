@@ -192,13 +192,19 @@
 
   // Best-effort email notification to you via Formspree — used for both
   // enquiries and new access requests, so you hear about both immediately.
+  // Never blocks or fails the caller (the DB record is what matters), but a
+  // rejected submission (e.g. a required field Formspree got blank) is
+  // logged rather than silently dropped — fetch() doesn't reject on 4xx/5xx,
+  // only on a real network failure, so this checks response.ok explicitly.
   function notifyByEmail(payload) {
     if (!cfg.FORMSPREE_ENDPOINT) return;
     const fd = new FormData();
     Object.entries(payload).forEach(([k, v]) => fd.append(k, v ?? ''));
     fetch(cfg.FORMSPREE_ENDPOINT, {
       method: 'POST', headers: { Accept: 'application/json' }, body: fd
-    }).catch(() => {});
+    }).then(res => {
+      if (!res.ok) res.json().then(b => console.warn('Formspree notification rejected:', res.status, b)).catch(() => console.warn('Formspree notification rejected:', res.status));
+    }).catch(err => console.warn('Formspree notification failed:', err));
   }
 
   // Instant WhatsApp to you alongside the existing email notification — a

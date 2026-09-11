@@ -3715,7 +3715,12 @@ function prefillIdentity(prefix, form) {
 
   // Signed in: populate hidden fields (still submitted with the form) and
   // show only a short confirmation line — no editable contact inputs at all.
-  const name = p.full_name || ((p.first_name || '') + ' ' + (p.last_name || '')).trim();
+  // A profile created outside the normal invite/registration flow (e.g. added
+  // directly in the Supabase dashboard) can have no first/last/full name on
+  // file — fall back to email rather than submitting a blank name, since a
+  // blank name silently gets this enquiry rejected downstream (Formspree
+  // treats "name" as required and fetch() doesn't surface non-2xx errors).
+  const name = p.full_name || ((p.first_name || '') + ' ' + (p.last_name || '')).trim() || p.email || '';
   if (nameEl)    nameEl.value    = name;
   if (emailEl)   emailEl.value   = p.email || '';
   if (phoneEl)   phoneEl.value   = p.mobile || '';

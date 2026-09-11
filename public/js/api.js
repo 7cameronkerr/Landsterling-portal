@@ -58,6 +58,7 @@
       };
       const result = await sb.from('access_requests').insert([record]);
       syncToCrm('access_requests', record);
+      notifyByEmail({ type: 'Portal Access Request', name: `${firstName} ${lastName}`.trim(), email, phone: mobile, company });
       return result;
     },
 
@@ -154,18 +155,23 @@
       // 1. Save to the database (your admin inbox)
       const { error } = await sb.from('enquiries').insert([payload]);
       // 2. Also email you via Formspree, if configured (best-effort)
-      if (cfg.FORMSPREE_ENDPOINT) {
-        const fd = new FormData();
-        Object.entries(payload).forEach(([k, v]) => fd.append(k, v ?? ''));
-        fetch(cfg.FORMSPREE_ENDPOINT, {
-          method: 'POST', headers: { Accept: 'application/json' }, body: fd
-        }).catch(() => {});
-      }
+      notifyByEmail(payload);
       if (error) throw error;
       syncToCrm('enquiries', payload);
       return true;
     }
   };
+
+  // Best-effort email notification to you via Formspree — used for both
+  // enquiries and new access requests, so you hear about both immediately.
+  function notifyByEmail(payload) {
+    if (!cfg.FORMSPREE_ENDPOINT) return;
+    const fd = new FormData();
+    Object.entries(payload).forEach(([k, v]) => fd.append(k, v ?? ''));
+    fetch(cfg.FORMSPREE_ENDPOINT, {
+      method: 'POST', headers: { Accept: 'application/json' }, body: fd
+    }).catch(() => {});
+  }
 
   // Push a new row straight to the CRM from the browser (best-effort, never
   // blocks or fails the caller). Stands in for a database webhook — some

@@ -10,7 +10,7 @@ window.LS_CONFIG = {
   SUPABASE_ANON_KEY: 'sb_publishable_VnfBSBu-FGxP1Kz3486B8g_AT_6qj5o',
 
   /* --- Enquiry email (Formspree, SETUP.md Step 8) --------------------- */
-  FORMSPREE_ENDPOINT: '',           // e.g. 'https://formspree.io/f/abcdwxyz'
+  FORMSPREE_ENDPOINT: 'https://formspree.io/f/mwlkywyp',
 
   /* --- WhatsApp (top-bar button) -------------------------------------- */
   // International format without + or spaces. The message is pre-filled for the client.

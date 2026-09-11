@@ -59,12 +59,20 @@
       const result = await sb.from('access_requests').insert([record]);
       syncToCrm('access_requests', record);
       notifyByEmail({ type: 'Portal Access Request', name: `${firstName} ${lastName}`.trim(), email, phone: mobile, company });
+      notifyByWhatsApp('access_requests', record);
       return result;
     },
 
     async signIn(email, password) {
       assertReady();
       return sb.auth.signInWithPassword({ email, password });
+    },
+
+    // Passwordless return visits: emails a one-click sign-in link. Native
+    // Supabase capability — no new service, no password to remember or reset.
+    async sendMagicLink(email, redirectTo) {
+      assertReady();
+      return sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo, shouldCreateUser: false } });
     },
 
     async signOut() {
@@ -105,20 +113,24 @@
       return data;
     },
 
-    // Combined activation: set password AND record the signed NDA in one step.
-    async activateAccount({ password, ndaName, ndaVersion }) {
+    // Combined activation: set password, capture mobile/company (belt-and-braces
+    // for invites that didn't carry them), and record the signed NDA — one step.
+    async activateAccount({ password, ndaName, ndaVersion, mobile, company }) {
       assertReady();
       const { error: pErr } = await sb.auth.updateUser({ password });
       if (pErr) return { error: pErr };
       let ip = null;
       try { const r = await fetch('https://api.ipify.org?format=json'); ip = (await r.json()).ip; } catch (e) {}
       const { data: { user } } = await sb.auth.getUser();
-      const { error: uErr } = await sb.from('profiles').update({
+      const patch = {
         nda_signed_at: new Date().toISOString(),
         nda_name:      ndaName,
         nda_version:   ndaVersion,
         nda_ip:        ip
-      }).eq('id', user.id);
+      };
+      if (mobile)  patch.mobile  = mobile;
+      if (company) patch.company = company;
+      const { error: uErr } = await sb.from('profiles').update(patch).eq('id', user.id);
       return { error: uErr || null };
     },
 
@@ -152,12 +164,20 @@
 
     async submitEnquiry(payload) {
       assertReady();
+      // Link to the submitter's real profile when they're signed in, so every
+      // action is traceable to one contact instead of a freestanding text row.
+      let record = payload;
+      try {
+        const { data: { user } } = await sb.auth.getUser();
+        if (user) record = { ...payload, user_id: user.id };
+      } catch (e) {}
       // 1. Save to the database (your admin inbox)
-      const { error } = await sb.from('enquiries').insert([payload]);
+      const { error } = await sb.from('enquiries').insert([record]);
       // 2. Also email you via Formspree, if configured (best-effort)
-      notifyByEmail(payload);
+      notifyByEmail(record);
       if (error) throw error;
-      syncToCrm('enquiries', payload);
+      syncToCrm('enquiries', record);
+      notifyByWhatsApp('enquiries', record);
       return true;
     }
   };
@@ -171,6 +191,13 @@
     fetch(cfg.FORMSPREE_ENDPOINT, {
       method: 'POST', headers: { Accept: 'application/json' }, body: fd
     }).catch(() => {});
+  }
+
+  // Instant WhatsApp to you alongside the existing email notification — a
+  // no-op until WhatsApp credentials are configured (see notify-whatsapp).
+  function notifyByWhatsApp(table, record) {
+    if (!sb) return;
+    sb.functions.invoke('notify-whatsapp', { body: { table, record } }).catch(() => {});
   }
 
   // Push a new row straight to the CRM from the browser (best-effort, never

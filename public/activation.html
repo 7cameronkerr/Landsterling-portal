@@ -97,14 +97,21 @@
 
   const NDA_VERSION = 'LS-Portal-NDA-v1';
   const ndaHtml = document.getElementById('ndaSource').innerHTML;
+  // Direct admin invites may already carry mobile/company from the invite form;
+  // self-registration always does. Prefill either way, but keep it editable —
+  // this is the safety net so no contact ever activates without these on file.
+  const meta = (session.user && session.user.user_metadata) || {};
   content.innerHTML =
     '<p class="sub">Welcome. To access the Asset Library, please review and sign the confidentiality agreement and set a password &mdash; in one step.</p>' +
-    '<div class="step-label">1 &middot; Non-Disclosure Agreement</div>' +
+    '<div class="step-label">1 &middot; Your details</div>' +
+    '<input type="text" id="mobile" placeholder="Mobile number" value="' + (meta.mobile || '').replace(/"/g, '&quot;') + '" autocomplete="tel">' +
+    '<input type="text" id="company" placeholder="Company / Organisation" value="' + (meta.company || '').replace(/"/g, '&quot;') + '" autocomplete="organization">' +
+    '<div class="step-label">2 &middot; Non-Disclosure Agreement</div>' +
     '<div class="nda-box" id="ndaBox">' + ndaHtml + '</div>' +
     '<label class="field-label" style="margin-top:14px;">Full legal name (your electronic signature)</label>' +
-    '<input type="text" id="signName" placeholder="Type your full name" autocomplete="name">' +
+    '<input type="text" id="signName" placeholder="Type your full name" value="' + [meta.first_name, meta.last_name].filter(Boolean).join(' ').replace(/"/g, '&quot;') + '" autocomplete="name">' +
     '<label class="chk"><input type="checkbox" id="ndaAgree"> I have read and agree to the Non-Disclosure Agreement, and I understand typing my name constitutes my electronic signature.</label>' +
-    '<div class="step-label">2 &middot; Create your password</div>' +
+    '<div class="step-label">3 &middot; Create your password</div>' +
     '<input type="password" id="pw1" placeholder="New password (min. 8 characters)" minlength="8" autocomplete="new-password">' +
     '<input type="password" id="pw2" placeholder="Confirm password" minlength="8" autocomplete="new-password">' +
     '<button class="submit" id="go">Sign &amp; Activate Access</button>' +
@@ -112,16 +119,20 @@
 
   document.getElementById('go').addEventListener('click', async function () {
     const name = document.getElementById('signName').value.trim();
+    const mobile = document.getElementById('mobile').value.trim();
+    const company = document.getElementById('company').value.trim();
     const agree = document.getElementById('ndaAgree').checked;
     const pw1 = document.getElementById('pw1').value, pw2 = document.getElementById('pw2').value;
     const msg = document.getElementById('msg'); const btn = this; msg.className = 'msg';
     if (!name)           { msg.className='msg err'; msg.textContent='Please type your full name to sign.'; return; }
+    if (!mobile)         { msg.className='msg err'; msg.textContent='Please enter your mobile number.'; return; }
+    if (!company)        { msg.className='msg err'; msg.textContent='Please enter your company.'; return; }
     if (!agree)          { msg.className='msg err'; msg.textContent='Please confirm you agree to the NDA.'; return; }
     if (pw1.length < 8)  { msg.className='msg err'; msg.textContent='Password must be at least 8 characters.'; return; }
     if (pw1 !== pw2)     { msg.className='msg err'; msg.textContent='Passwords do not match.'; return; }
     btn.disabled = true; btn.textContent = 'Activating…';
     try {
-      const result = await LS_API.activateAccount({ password: pw1, ndaName: name, ndaVersion: NDA_VERSION });
+      const result = await LS_API.activateAccount({ password: pw1, ndaName: name, ndaVersion: NDA_VERSION, mobile, company });
       if (result.error) throw result.error;
       msg.className = 'msg ok';
       msg.textContent = 'Access activated. Redirecting to the portal…';

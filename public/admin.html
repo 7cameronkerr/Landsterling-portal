@@ -195,6 +195,10 @@
       <div class="field"><label>Last name</label><input id="invLast"></div>
     </div>
     <div class="field full"><label>Email *</label><input id="invEmail" type="email" required></div>
+    <div class="form-grid">
+      <div class="field"><label>Mobile</label><input id="invMobile" type="tel"></div>
+      <div class="field"><label>Company</label><input id="invCompany"></div>
+    </div>
     <div class="err" id="invErr"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
       <button class="btn ghost" onclick="closeModal('inviteModal')">Cancel</button>
@@ -389,7 +393,7 @@ async function setStatus(id,status){
 }
 
 /* ---------- invite (Path A) ---------- */
-function openInvite(){['invFirst','invLast','invEmail'].forEach(i=>document.getElementById(i).value='');document.getElementById('invErr').textContent='';document.getElementById('inviteModal').classList.add('open');}
+function openInvite(){['invFirst','invLast','invEmail','invMobile','invCompany'].forEach(i=>document.getElementById(i).value='');document.getElementById('invErr').textContent='';document.getElementById('inviteModal').classList.add('open');}
 async function sendInvite(){
   const err=document.getElementById('invErr'); err.textContent='';
   const email=document.getElementById('invEmail').value.trim();
@@ -398,6 +402,7 @@ async function sendInvite(){
   try{
     const { data, error } = await sb.functions.invoke('invite-client', { body:{
       email, first_name:document.getElementById('invFirst').value.trim(), last_name:document.getElementById('invLast').value.trim(),
+      mobile:document.getElementById('invMobile').value.trim(), company:document.getElementById('invCompany').value.trim(),
       redirectTo: new URL('activation.html', location.href).href
     }});
     if(error) throw error;

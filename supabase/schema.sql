@@ -262,6 +262,24 @@ create policy "admin manage requests" on public.access_requests
   for all using ( public.is_admin() ) with check ( public.is_admin() );
 
 -- ============================================================================
+--  PHASE 3 ADDITIONS  (production upgrade: link enquiries to a real contact,
+--  capture budget/location as real fields, notification/CRM completeness)
+-- ============================================================================
+
+-- 12. Link every enquiry back to the submitting profile, when known (nullable —
+--     signed-out/teaser visitors have no account yet). Fixes duplicate/orphaned
+--     lead records: activity is now queryable per contact, not just per row.
+alter table public.enquiries add column if not exists user_id         uuid references auth.users(id) on delete set null;
+alter table public.enquiries add column if not exists budget          text;
+alter table public.enquiries add column if not exists target_location text;
+create index if not exists idx_enquiries_user on public.enquiries (user_id, created_at desc);
+
+-- 13. Capture mobile/company for admin-direct invites too (previously only the
+--     self-registration path collected these). Safe no-op if already applied.
+-- (No new columns needed — profiles.mobile/company already exist; this is a
+--  front-end fix in the invite modal + activation page, not a schema change.)
+
+-- ============================================================================
 --  DONE. Next: create your own login, then promote yourself to admin with the
 --  one-line command in SETUP.md (Step 6).
 -- ============================================================================

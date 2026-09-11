@@ -11,9 +11,19 @@
 // ============================================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 Deno.serve(async (req) => {
+  // The browser sends a CORS preflight OPTIONS request before the real POST —
+  // this must be answered immediately, before touching req.json().
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
   const ok = (b: unknown, s = 200) =>
-    new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json" } });
+    new Response(JSON.stringify(b), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
 
   try {
     const provider = Deno.env.get("CRM_PROVIDER") ?? "";

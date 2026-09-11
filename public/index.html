@@ -163,6 +163,7 @@ h4 { font-size: 1.15rem; }
 }
 .nav-wa svg { width: 21px; height: 21px; fill: currentColor; display: block; }
 .nav-wa:hover { color: #fff; background: var(--red); border-color: var(--red); }
+.card-cta { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ============================================================
    EMAIL GATE
@@ -998,7 +999,7 @@ h4 { font-size: 1.15rem; }
    MODALS
    ============================================================ */
 .modal-overlay {
-  display: none;
+  display: flex;
   position: fixed;
   inset: 0;
   background: rgba(26,31,46,0.7);
@@ -1007,8 +1008,11 @@ h4 { font-size: 1.15rem; }
   justify-content: center;
   padding: 24px;
   backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
 }
-.modal-overlay.open { display: flex; }
+.modal-overlay.open { opacity: 1; visibility: visible; transition: opacity 0.25s ease, visibility 0s; }
 .modal {
   background: var(--white);
   max-width: 560px;
@@ -1017,6 +1021,21 @@ h4 { font-size: 1.15rem; }
   overflow-y: auto;
   padding: 48px 44px;
   position: relative;
+  transform: translateY(14px);
+  transition: transform 0.25s ease;
+}
+.modal-overlay.open .modal { transform: none; }
+body.modal-open { overflow: hidden; }
+.form-error { display: none; font-size: 12.5px; color: var(--red); line-height: 1.5; }
+.form-reassure { font-size: 11.5px; color: var(--text-sec); line-height: 1.5; margin-top: -4px; }
+/* Phones: modals present as bottom sheets with the submit within thumb reach */
+@media (max-width: 600px) {
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal { max-height: 92vh; border-radius: 8px 8px 0 0; padding: 28px 20px 32px; transform: translateY(100%); }
+  .modal-overlay.open .modal { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay, .modal { transition: none; }
 }
 .modal-close {
   position: absolute;
@@ -1369,6 +1388,10 @@ footer {
    ============================================================ */
 .page { animation: fadeIn 0.25s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .page { animation: none; }
+}
 
 /* ============================================================
    RESPONSIVE
@@ -1628,20 +1651,20 @@ footer {
       <div class="container">
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:28px;text-align:center;">
           <div>
-            <div style="font-family:var(--font-serif);font-size:2.1rem;color:#fff;line-height:1.1;">6</div>
-            <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">International Offices</div>
+            <div style="font-family:var(--font-mono);font-size:1.9rem;font-weight:400;letter-spacing:0.02em;color:#fff;line-height:1.1;">6</div>
+            <div class="label" style="font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.72);margin-top:9px;">International Offices</div>
           </div>
           <div>
-            <div style="font-family:var(--font-serif);font-size:2.1rem;color:#fff;line-height:1.1;">RICS · IVSC</div>
-            <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">Accredited Advisory</div>
+            <div style="font-family:var(--font-mono);font-size:1.9rem;font-weight:400;letter-spacing:0.02em;color:#fff;line-height:1.1;">RICS · IVSC</div>
+            <div class="label" style="font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.72);margin-top:9px;">Accredited Advisory</div>
           </div>
           <div>
-            <div style="font-family:var(--font-serif);font-size:2.1rem;color:#fff;line-height:1.1;">17 yrs</div>
-            <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">In Business</div>
+            <div style="font-family:var(--font-mono);font-size:1.9rem;font-weight:400;letter-spacing:0.02em;color:#fff;line-height:1.1;">17 yrs</div>
+            <div class="label" style="font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.72);margin-top:9px;">In Business</div>
           </div>
           <div>
-            <div style="font-family:var(--font-serif);font-size:2.1rem;color:#fff;line-height:1.1;">AED 30B+</div>
-            <div class="label" style="color:rgba(255,255,255,0.55);margin-top:6px;">Advised On</div>
+            <div style="font-family:var(--font-mono);font-size:1.9rem;font-weight:400;letter-spacing:0.02em;color:#fff;line-height:1.1;">AED 30B+</div>
+            <div class="label" style="font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.72);margin-top:9px;">Advised On</div>
           </div>
         </div>
         <p style="text-align:center;font-size:11.5px;color:rgba(255,255,255,0.62);margin-top:20px;">A global real estate solutions provider across Abu Dhabi, Algiers, Dubai, Leeds, London &amp; Riyadh.</p>
@@ -1673,7 +1696,7 @@ footer {
         <p>For further information on live opportunities or to discuss acquisition criteria, contact Land Sterling Investment Advisory.</p>
         <div class="cta-btns">
           <button class="btn btn-primary" onclick="navigate('asset-library')">View Asset Library</button>
-          <button class="btn btn-outline-white" onclick="window.location.href='mailto:Cameron.k@landsterling.com'">Contact Cameron Kerr</button>
+          <button class="btn btn-outline-white" onclick="openEnquireModal(null)">Request Further Details</button>
         </div>
       </div>
     </section>
@@ -1750,7 +1773,7 @@ footer {
         <div class="empty-state" id="emptyState">
           <p>No opportunities currently match this filter selection. Please adjust your criteria or contact the Investment Advisory team.</p>
           <br>
-          <button class="btn btn-secondary btn-sm" onclick="window.location.href='mailto:Cameron.k@landsterling.com'">Contact Investment Advisory</button>
+          <button class="btn btn-secondary btn-sm" onclick="openEnquireModal(null)">Request Further Details</button>
         </div>
       </div>
     </div>
@@ -1905,8 +1928,8 @@ footer {
 <div class="modal-overlay" id="particularsModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('particularsModal')">✕</button>
-    <h3>Request Particulars</h3>
-    <p class="modal-sub">Please provide your details and a member of the team will follow up with the relevant information.</p>
+    <h3 id="partTitle">Request Particulars</h3>
+    <p class="modal-sub" id="partSub">Please provide your details and a member of the team will follow up with the relevant information.</p>
     <div class="modal-opp-tag" id="particularsOppTag"></div>
     <form id="particularsForm" onsubmit="handleParticularsSubmit(event)">
       <div class="form-grid">
@@ -1927,13 +1950,19 @@ footer {
           <input type="checkbox" id="particularsConsent" required>
           <label for="particularsConsent">I confirm I agree to be contacted by Land Sterling Investment Advisory in connection with this opportunity.</label>
         </div>
-        <button type="submit" class="form-submit">Request Particulars</button>
+        <p class="form-error" id="particularsError" role="alert"></p>
+        <p class="form-reassure">Particulars are issued under the confidentiality agreement you signed at activation and sent to your email.</p>
+        <button type="submit" class="form-submit" id="partSubmit">Request Particulars</button>
       </div>
     </form>
     <div class="form-success" id="particularsSuccess">
       <div class="success-icon">✓</div>
-      <h4>Request Received</h4>
-      <p>Thank you. Your details have been received by Land Sterling Investment Advisory. A member of the team will follow up with the relevant particulars.</p>
+      <h4 id="partSuccessTitle">Request Received</h4>
+      <p id="partSuccessBody">Thank you. The particulars will be emailed to you by Cameron Kerr within one working day. To discuss the opportunity sooner, book a call or message us on WhatsApp.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('particularsModal'); openBookACall();">Book a Call</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('particularsModal')">Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1960,13 +1989,16 @@ footer {
           <input type="checkbox" id="enquireConsent" required>
           <label for="enquireConsent">I agree to be contacted by Land Sterling Investment Advisory in connection with this opportunity.</label>
         </div>
+        <p class="form-error" id="enquireError" role="alert"></p>
+        <p class="form-reassure">Your details are held in confidence and used only to respond to this enquiry.</p>
         <button type="submit" class="form-submit">Send Enquiry</button>
       </div>
     </form>
     <div class="form-success" id="enquireSuccess">
       <div class="success-icon">✓</div>
       <h4>Enquiry Sent</h4>
-      <p>Thank you. Your enquiry has been received and a member of the team will be in touch shortly.</p>
+      <p>Thank you. Cameron Kerr will respond personally within one working day. If it is time-sensitive, book a call below or message us on WhatsApp.</p>
+      <button type="button" class="btn btn-secondary btn-sm" style="margin-top:18px;" onclick="closeModal('enquireModal')">Close</button>
     </div>
 
     <!-- Secondary option: book a call directly (keeps a path for active enquirers) -->
@@ -2267,7 +2299,8 @@ function navigate(page, slug) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   closeNav();
-  window.scrollTo(0, 0);
+  // Jump, don't glide: a smooth scroll over a freshly swapped page reads as a glitch.
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 
   if (page === 'opportunity' && slug) {
     document.getElementById('page-opportunity').classList.add('active');
@@ -2359,7 +2392,8 @@ function cardHTML(opp) {
   const isSold = opp.dealStatus === 'Sold';
   const ctaBtn = isSold
     ? `<button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:default">Transaction Complete</button>`
-    : `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openParticularsModal('${opp.id}')">Request Particulars</button>`;
+    : `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openParticularsModal('${opp.id}','data_room')">Request Data Room</button>
+       <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openParticularsModal('${opp.id}')">Request Particulars</button>`;
 
   return `
     <div class="opp-card" ${opp.dealStatus !== 'Sold' ? `onclick="navigate('opportunity','${opp.id}')"` : ''}>
@@ -2785,7 +2819,8 @@ function renderOpportunityDetail(slug) {
               <h3>Key Metrics</h3>
               <div class="metrics-table">${metricsHTML}</div>
               <div style="margin-top:24px; display:flex; flex-direction:column; gap:10px;">
-                <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
+                <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}','data_room')">Request Data Room Access</button>
+                <button class="btn btn-secondary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
                 <button class="btn btn-secondary" style="width:100%; justify-content:center" onclick="openBookACall()">Book a Call</button>
               </div>
             </div>
@@ -2801,14 +2836,55 @@ function renderOpportunityDetail(slug) {
 /* ============================================================
    MODALS
    ============================================================ */
-function openParticularsModal(oppId) {
+// Dialog behaviour shared by both modals: scroll-lock, focus hand-off and return.
+let lastFocusedBeforeModal = null;
+function openModalDialog(id) {
+  const overlay = document.getElementById(id);
+  lastFocusedBeforeModal = document.activeElement;
+  overlay.classList.add('open');
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  document.body.classList.add('modal-open');
+  const first = overlay.querySelector('form input, form textarea, .modal-close');
+  setTimeout(() => { if (first) first.focus(); }, 260);
+}
+
+// The particulars modal doubles as the Data Room Access request (the data room
+// itself is provided offsite by Land Sterling once a request is reviewed).
+let particularsMode = 'particulars';
+const PARTICULARS_COPY = {
+  particulars: {
+    title: 'Request Particulars',
+    sub: 'Please provide your details and a member of the team will follow up with the relevant information.',
+    submit: 'Request Particulars',
+    successTitle: 'Request Received',
+    successBody: 'Thank you. The particulars will be emailed to you by Cameron Kerr within one working day. To discuss the opportunity sooner, book a call or message us on WhatsApp.'
+  },
+  data_room: {
+    title: 'Request Data Room Access',
+    sub: 'Tell us a little about your interest. Data room access is granted by Land Sterling following review and the access details are sent to your email.',
+    submit: 'Request Access',
+    successTitle: 'Request Received',
+    successBody: 'Thank you. Cameron Kerr will review your request and email the data room access details within one working day. To move faster, book a call or message us on WhatsApp.'
+  }
+};
+
+function openParticularsModal(oppId, mode) {
+  particularsMode = (mode === 'data_room') ? 'data_room' : 'particulars';
+  const copy = PARTICULARS_COPY[particularsMode];
+  document.getElementById('partTitle').textContent = copy.title;
+  document.getElementById('partSub').textContent = copy.sub;
+  document.getElementById('partSubmit').textContent = copy.submit;
+  document.getElementById('partSuccessTitle').textContent = copy.successTitle;
+  document.getElementById('partSuccessBody').textContent = copy.successBody;
   const opp = oppId ? OPPORTUNITIES.find(o => o.id === oppId) : currentOpportunity;
   const tag = document.getElementById('particularsOppTag');
   tag.textContent = opp ? opp.name : 'General Enquiry';
   document.getElementById('particularsForm').style.display = '';
   document.getElementById('particularsSuccess').style.display = 'none';
-  document.getElementById('particularsModal').classList.add('open');
+  document.getElementById('particularsError').style.display = 'none';
   document.getElementById('particularsConsent').checked = false;
+  openModalDialog('particularsModal');
 }
 
 function openEnquireModal(oppId) {
@@ -2817,24 +2893,32 @@ function openEnquireModal(oppId) {
   tag.textContent = opp ? opp.name : 'General Enquiry';
   document.getElementById('enquireForm').style.display = '';
   document.getElementById('enquireSuccess').style.display = 'none';
-  document.getElementById('enquireModal').classList.add('open');
+  document.getElementById('enquireError').style.display = 'none';
   document.getElementById('enquireConsent').checked = false;
+  openModalDialog('enquireModal');
 }
 
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+  const overlay = document.getElementById(id);
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  if (!document.querySelector('.modal-overlay.open')) document.body.classList.remove('modal-open');
+  if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === 'function') {
+    lastFocusedBeforeModal.focus();
+    lastFocusedBeforeModal = null;
+  }
 }
 
 // Close modals on overlay click
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('open');
+    if (e.target === this) closeModal(this.id);
   });
 });
 
 // Close on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
 });
 
 /* ============================================================
@@ -2843,12 +2927,39 @@ document.addEventListener('keydown', e => {
 
 // Enquiries are saved to your Supabase admin inbox AND emailed to you
 // (via Formspree, if FORMSPREE_ENDPOINT is set in config.js).
+// Shared submit flow: real pending → saved → success (or a recoverable error).
+// Success is only shown once the lead is actually stored; nothing is faked.
+async function submitLead(form, errorId, successId, payload) {
+  const btn   = form.querySelector('button[type="submit"]');
+  const errEl = document.getElementById(errorId);
+  const label = btn.textContent;
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    if (!LS_API.configured) {
+      throw new Error('preview');
+    }
+    await LS_API.submitEnquiry(payload);
+    form.style.display = 'none';
+    const ok = document.getElementById(successId);
+    ok.style.display = 'block';
+    const h = ok.querySelector('h4');
+    if (h) { h.setAttribute('tabindex', '-1'); h.focus(); }
+  } catch (err) {
+    errEl.textContent = (err && err.message === 'preview')
+      ? 'This is the preview build — enquiries will send once the portal is connected. In the meantime, use the WhatsApp button at the top of the page.'
+      : 'We could not send your request just now. Please try again, or message us on WhatsApp using the button at the top of the page.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = label;
+  }
+}
+
 function handleEnquireSubmit(e) {
   e.preventDefault();
-  const form = e.target;
   const oppName = document.getElementById('enquireOppTag').textContent;
   const opp = OPPORTUNITIES.find(o => o.name === oppName);
-  LS_API.submitEnquiry({
+  submitLead(e.target, 'enquireError', 'enquireSuccess', {
     type: 'enquiry',
     opportunity_slug: opp ? opp.id : null,
     opportunity_name: oppName || 'General Enquiry',
@@ -2858,22 +2969,19 @@ function handleEnquireSubmit(e) {
     company: document.getElementById('enqCompany').value.trim(),
     message: document.getElementById('enqMessage').value.trim(),
     consent: document.getElementById('enquireConsent').checked
-  }).catch(err => console.warn('Enquiry save failed:', err));
-  form.style.display = 'none';
-  document.getElementById('enquireSuccess').style.display = 'block';
+  });
 }
 
 function handleParticularsSubmit(e) {
   e.preventDefault();
-  const form = e.target;
   const oppName = document.getElementById('particularsOppTag').textContent;
   const opp = OPPORTUNITIES.find(o => o.name === oppName);
   const budget   = document.getElementById('partBudget').value.trim();
   const interest = document.getElementById('partInterest').value.trim();
   const extra = [budget && ('Budget: ' + budget), interest && ('Interest: ' + interest),
                  document.getElementById('partMessage').value.trim()].filter(Boolean).join(' | ');
-  LS_API.submitEnquiry({
-    type: 'particulars',
+  submitLead(e.target, 'particularsError', 'particularsSuccess', {
+    type: particularsMode,
     opportunity_slug: opp ? opp.id : null,
     opportunity_name: oppName || 'General Enquiry',
     name:    document.getElementById('partName').value.trim(),
@@ -2882,9 +2990,7 @@ function handleParticularsSubmit(e) {
     company: document.getElementById('partCompany').value.trim(),
     message: extra,
     consent: document.getElementById('particularsConsent').checked
-  }).catch(err => console.warn('Request save failed:', err));
-  form.style.display = 'none';
-  document.getElementById('particularsSuccess').style.display = 'block';
+  });
 }
 
 /* ============================================================

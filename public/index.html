@@ -1598,6 +1598,30 @@ footer {
 }
 
 /* ============================================================
+   AUTH GATE — trust row, password toggle, forgot-password button
+   ============================================================ */
+.gate-trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin: -8px 0 18px; }
+.gate-trust span { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-sec); }
+.gate-trust span + span::before { content: '·'; margin-right: 16px; color: var(--border); }
+.gate-pw-wrap { position: relative; }
+.gate-form .gate-pw-wrap input[type="password"], .gate-form .gate-pw-wrap input[type="text"] {
+  width: 100%; padding-right: 64px;
+  border: 1px solid var(--border); background: var(--white); padding-top: 13px; padding-bottom: 13px; padding-left: 16px;
+  font-size: 13px; color: var(--text); border-radius: var(--radius); outline: none;
+}
+.gate-form .gate-pw-wrap input:focus { border-color: var(--red); }
+.gate-pw-toggle {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: 0; padding: 6px 8px; min-height: 32px;
+  font: 500 11px var(--font-sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-sec); cursor: pointer;
+}
+.gate-pw-toggle:hover { color: var(--red); }
+button.gate-forgot { background: none; border: 0; padding: 0; align-self: flex-end; font: inherit; font-size: 11.5px; color: var(--text-sec); cursor: pointer; }
+button.gate-forgot:hover { color: var(--red); }
+@media (max-width: 480px) { .gate-trust { flex-direction: column; gap: 4px; } .gate-trust span + span::before { content: none; margin: 0; } }
+@media (max-width: 768px) { .gate-form .gate-pw-wrap input[type="password"], .gate-form .gate-pw-wrap input[type="text"] { font-size: 16px; } }
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
@@ -1727,11 +1751,16 @@ footer {
   .gate-submit:disabled { opacity:0.6; cursor:default; }
 </style>
 <div id="gate">
-  <div class="gate-card">
+  <div class="gate-card" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
     <img class="gate-logo-img" src="https://landsterling.sa/wp-content/uploads/2024/08/LS-Logo-Red-English.png" alt="Land Sterling" onerror="this.style.display='none';document.getElementById('gateLogoText').style.display='block';">
     <div class="gate-logo" id="gateLogoText" style="display:none;">Land Sterling</div>
     <div class="gate-rule"></div>
-    <div class="gate-title">Investment Portal</div>
+    <div class="gate-title" id="gateTitle">Investment Portal</div>
+    <div class="gate-trust" aria-label="Portal terms">
+      <span>Qualified investors only</span>
+      <span>Confidential under NDA</span>
+      <span>Reviewed within one business day</span>
+    </div>
 
     <!-- Tabs: Sign In  /  Request Access -->
     <div class="gate-tabs" id="gateTabs">
@@ -1741,11 +1770,14 @@ footer {
 
     <!-- SIGN IN -->
     <div class="gate-panel active" id="panel-signin">
-      <p class="gate-desc">Enter your email and password to access the portal.</p>
+      <p class="gate-desc">Sign in to view live, fully underwritten UAE opportunities.</p>
       <form class="gate-form" id="signinForm" onsubmit="handleSignIn(event)">
         <input type="email" id="siEmail" placeholder="Email address" required autocomplete="email">
-        <input type="password" id="siPassword" placeholder="Password" required autocomplete="current-password">
-        <span class="gate-forgot" onclick="handleForgotPassword()">Forgot password?</span>
+        <div class="gate-pw-wrap">
+          <input type="password" id="siPassword" placeholder="Password" required autocomplete="current-password">
+          <button type="button" class="gate-pw-toggle" aria-pressed="false" onclick="toggleGatePw(this)">Show</button>
+        </div>
+        <button type="button" class="gate-forgot" onclick="handleForgotPassword()">Forgot password?</button>
         <p class="gate-error" id="signinError"></p>
         <button type="submit" class="gate-submit">Sign In</button>
       </form>
@@ -1753,7 +1785,7 @@ footer {
 
     <!-- REQUEST ACCESS (self-registration → pending approval) -->
     <div class="gate-panel" id="panel-register">
-      <p class="gate-desc">New here? Request access below. Land Sterling reviews every request; once approved you will receive an email to sign the confidentiality agreement and set your password.</p>
+      <p class="gate-desc">Request access to the Asset Library. Land Sterling reviews each request personally — typically within one business day — and your activation email lets you sign the confidentiality agreement and set a password.</p>
       <form class="gate-form" id="registerForm" onsubmit="handleRegister(event)">
         <div class="gate-form-row">
           <input type="text" id="rgFirstName" placeholder="First name" required autocomplete="given-name">
@@ -1774,11 +1806,12 @@ footer {
     </div>
 
     <!-- STATUS MESSAGE (pending approval / email confirmation / reset sent) -->
-    <div class="gate-panel" id="panel-status">
+    <div class="gate-panel" id="panel-status" role="status">
       <div class="gate-success-icon">✓</div>
       <div class="gate-title" id="statusTitle" style="font-size:1.25rem;">Request Received</div>
       <p class="gate-note" id="statusBody"></p>
-      <button type="button" class="gate-submit" style="margin-top:20px;" onclick="setAuthTab('signin')">Back to Sign In</button>
+      <button type="button" class="btn btn-secondary" style="margin-top:20px;width:100%;justify-content:center;" onclick="openBookACall()">Book an introductory call</button>
+      <button type="button" class="gate-submit" style="margin-top:10px;" onclick="setAuthTab('signin')">Back to Sign In</button>
     </div>
 
     <!-- Setup-mode only: lets you explore the portal before the backend is connected.
@@ -2381,17 +2414,35 @@ function showAuthStatus(title, body) {
   document.getElementById('panel-status').classList.add('active');
 }
 
+// While the gate is open the portal behind it leaves the tab order and cannot scroll.
+function setPortalInert(on) {
+  ['#nav', '#main', 'body > footer'].forEach(sel => {
+    const el = document.querySelector(sel); if (!el) return;
+    el.inert = on;
+    if (on) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden');
+  });
+  document.body.style.overflow = on ? 'hidden' : '';
+}
+function toggleGatePw(btn) {
+  const input = document.getElementById('siPassword');
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'Hide' : 'Show';
+  btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+}
+
 function showGate() {
   const g = document.getElementById('gate');
   g.style.display = 'flex';
   g.style.opacity = '1';
+  setPortalInert(true);
 }
 
 function hideGate() {
   const g = document.getElementById('gate');
   g.style.opacity = '0';
   g.style.transition = 'opacity 0.4s ease';
-  setTimeout(() => { g.style.display = 'none'; }, 400);
+  setTimeout(() => { g.style.display = 'none'; setPortalInert(false); }, 400);
   // The hero's moment: restart the slow zoom and stagger the copy in.
   const hero = document.querySelector('.hero'), bg = document.querySelector('.hero-bg');
   if (bg) { bg.style.animation = 'none'; void bg.offsetWidth; bg.style.animation = ''; }
@@ -2512,8 +2563,8 @@ async function routeAfterAuth(profile) {
 
 function friendlyAuthError(err) {
   const m = (err && err.message ? err.message : String(err)).toLowerCase();
-  if (m.includes('not configured')) return 'The portal backend is not connected yet. (See SETUP.md.)';
-  if (m.includes('invalid login')) return 'Incorrect email or password.';
+  if (m.includes('not configured')) return 'The portal is temporarily unavailable. Please email ' + ((window.LS_CONFIG && window.LS_CONFIG.SUPPORT_EMAIL) || 'us') + ' and we will help directly.';
+  if (m.includes('invalid login')) return 'Incorrect email or password. If you have requested access and not yet received your activation email, your request is still under review.';
   if (m.includes('email not confirmed')) return 'Please confirm your email address first — check your inbox.';
   if (m.includes('already registered')) return 'An account with this email already exists. Try signing in.';
   if (m.includes('password')) return 'Password must be at least 8 characters.';
@@ -2601,9 +2652,28 @@ function closeNav() {
 /* ============================================================
    RENDER METRICS
    ============================================================ */
+// Dashboard tiles computed from the live listings so they never drift from the
+// content; the hard-coded METRICS remain the fallback for anything not derivable.
+function computeMetrics() {
+  const live = OPPORTUNITIES.filter(o => o.dealStatus !== 'Sold');
+  const aed = s => { const m = String(s || '').match(/AED\s*([\d,]+)/); return m ? parseFloat(m[1].replace(/,/g, '')) : 0; };
+  const totalValue = live.reduce((t, o) => t + aed(o.price), 0);
+  const gdv = live.reduce((t, o) => { const m = o.metrics || {}; return t + aed(m['Base-Case GDV'] || m['GDV (Estimated)']); }, 0);
+  const fmt = n => n >= 1e9 ? 'AED ' + (n / 1e9).toFixed(2).replace(/\.?0+$/, '') + 'B'
+                 : n >= 1e6 ? 'AED ' + Math.round(n / 1e6) + 'M' : 'AED ' + n.toLocaleString();
+  const poa = live.filter(o => !aed(o.price)).length;
+  return [
+    { label: 'Active Opportunities', value: String(live.length), desc: 'Curated assets currently available' },
+    { label: 'Total Opportunity Value', value: totalValue ? fmt(totalValue) + '+' : METRICS[1].value,
+      desc: poa ? 'Aggregate guide value; ' + poa + ' on application' : 'Aggregate value across live opportunities' },
+    { label: 'Total Development GDV', value: gdv ? fmt(gdv) + '+' : METRICS[2].value, desc: 'Development opportunities only' },
+    METRICS[3]
+  ];
+}
+
 function renderMetrics() {
   const grid = document.getElementById('metricsGrid');
-  grid.innerHTML = METRICS.map(m => `
+  grid.innerHTML = (OPPORTUNITIES.length ? computeMetrics() : METRICS).map(m => `
     <div class="metric-card">
       <span class="metric-label">${m.label}</span>
       <span class="metric-value">${m.value}</span>
@@ -3466,6 +3536,7 @@ document.addEventListener('keydown', e => {
 
 async function init() {
   renderMetrics();
+  setPortalInert(true);            // the gate is visible until the session check clears it
   await checkGate();
   // Skeleton cards while the live listings load (visible if landing on the library).
   const skGrid = document.getElementById('libraryGrid');
@@ -3473,6 +3544,7 @@ async function init() {
     skGrid.innerHTML = Array(3).fill('<div class="opp-card opp-skeleton" aria-hidden="true"><div class="card-image"></div><div class="card-body"><div class="sk sk-t"></div><div class="sk sk-s"></div><div class="sk sk-s"></div></div></div>').join('');
   }
   await loadOpportunities();
+  renderMetrics();                 // re-run now that the live listings are known
   renderLibrary();
   renderFeatured();
   handleRoute();

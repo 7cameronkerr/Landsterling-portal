@@ -6,8 +6,8 @@
  * ========================================================================== */
 window.LS_CONFIG = {
   /* --- Supabase (SETUP.md Step 4) ------------------------------------- */
-  SUPABASE_URL:      'https://YOUR-PROJECT-ref.supabase.co',
-  SUPABASE_ANON_KEY: 'YOUR-ANON-PUBLIC-KEY',
+  SUPABASE_URL:      'https://psgasvgzhdgojuyykxyd.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_VnfBSBu-FGxP1Kz3486B8g_AT_6qj5o',
 
   /* --- Enquiry email (Formspree, SETUP.md Step 8) --------------------- */
   FORMSPREE_ENDPOINT: '',           // e.g. 'https://formspree.io/f/abcdwxyz'

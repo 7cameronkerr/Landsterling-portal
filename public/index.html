@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Land Sterling Investment Portal | UAE Real Estate Investment Opportunities</title>
 <meta name="description" content="Curated UAE real estate investment opportunities across income-producing assets, value-add strategies and development-led acquisitions by Land Sterling Investment Advisory.">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet (maps) is loaded on demand the first time a map is shown — see ensureLeaflet() -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
 <!-- Backend: Supabase SDK + portal config + API layer -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
@@ -351,7 +350,7 @@ h4 { font-size: 1.15rem; }
 .hero-bg {
   position: absolute;
   inset: -48px;
-  background: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=2400&q=85') center 32% / cover no-repeat;
+  background: url('https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1800&q=80') center 40% / cover no-repeat;
   animation: heroZoom 30s ease-out forwards;
   will-change: transform;
 }
@@ -1549,6 +1548,56 @@ footer {
 }
 
 /* ============================================================
+   HERO COMPOSITION · SECTION RHYTHM · FILTER RAILS · PERFORMANCE
+   ============================================================ */
+.hero-title {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2.2rem, 5.5vw, 4.25rem); line-height: 1.08; letter-spacing: -0.01em;
+  max-width: 18ch; margin: 0 auto 20px; color: #fff; text-wrap: balance;
+  text-shadow: 0 2px 24px rgba(16,20,31,0.35);
+}
+.hero-tagline { margin-bottom: 40px; max-width: 600px; }
+.hero::after {
+  background: linear-gradient(180deg, rgba(16,20,31,0.42) 0%, rgba(16,20,31,0.34) 45%, rgba(16,20,31,0.74) 100%);
+}
+@media (min-width: 769px) {
+  .hero { min-height: min(78vh, 720px); display: flex; align-items: center; padding: 120px 0; }
+  .hero .container { width: 100%; }
+}
+@media (max-width: 768px) {
+  .hero { min-height: auto; padding: 72px 0 64px; }
+  .hero-bg { background-image: url('https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=900&q=75'); }
+}
+/* Light ground for the achievements band restores light/dark rhythm on the home page */
+.proof-band { background: var(--card-bg); border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider); padding: 48px 0; color: var(--text); }
+.proof-num { font-family: var(--font-mono); font-size: 1.9rem; font-weight: 400; letter-spacing: 0.02em; color: var(--navy); line-height: 1.1; }
+.proof-label { font-size: 11px; letter-spacing: 0.14em; color: var(--text-sec); margin-top: 9px; }
+.proof-caption { text-align: center; font-size: 12px; color: var(--text-sec); margin-top: 20px; }
+.metrics-section { padding: 64px 0 56px; }
+.cta-section { border-bottom: 1px solid rgba(255,255,255,0.14); }
+/* Filter bar: identical on desktop; horizontal chip rails on phones */
+.filter-secondary { display: contents; }
+#libraryMap, #detailMap { background: var(--card-bg); }
+@media (max-width: 768px) {
+  .filter-bar { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px 0 16px; margin-bottom: 28px; }
+  .filter-divider { display: none; }
+  .filter-group {
+    flex-wrap: nowrap; overflow-x: auto; margin: 0 -20px; padding: 2px 20px; gap: 8px;
+    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent); mask-image: linear-gradient(90deg, #000 90%, transparent);
+  }
+  .filter-group::-webkit-scrollbar { display: none; }
+  .filter-label-text { flex: 0 0 auto; font-size: 10px; }
+  .filter-btn { flex: 0 0 auto; scroll-snap-align: start; min-height: 40px; padding: 8px 15px; font-size: 12.5px; border-radius: 999px; }
+  .filter-secondary { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4px; }
+  .filter-secondary .filter-group { margin: 0; padding: 0; overflow: visible; gap: 0; mask-image: none; -webkit-mask-image: none; }
+  .filter-secondary .filter-label-text { display: none; }
+  .filter-secondary .filter-btn { border-radius: 0; margin-left: -1px; padding: 8px 12px; }
+  .filter-secondary .filter-btn:first-of-type { border-radius: 999px 0 0 999px; margin-left: 0; }
+  .filter-secondary .filter-btn:last-of-type { border-radius: 0 999px 999px 0; }
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
@@ -1783,12 +1832,10 @@ footer {
     <section class="hero">
       <div class="hero-bg"></div>
       <div class="container">
-        <div class="hero-label">Land Sterling Investment Advisory</div>
-        <h1><span>LAND STERLING</span></h1>
-        <span class="hero-portal">Investment Portal</span>
+        <div class="hero-label">Land Sterling · Investment Portal</div>
+        <h1 class="hero-title">Curated UAE real estate investments for qualified capital.</h1>
         <div class="hero-rule"></div>
-        <p class="hero-tagline">Curated UAE real estate investments for qualified capital — fully underwritten, directly accessible.</p>
-        <p class="hero-desc">The Land Sterling Investment Portal provides direct access to selected UAE real estate opportunities across stabilised income, value-add and development strategies. Each opportunity is structured around clear metrics, asset context and the underlying investment rationale.</p>
+        <p class="hero-tagline">Fully underwritten. Directly accessible. Presented for informed capital across income, value-add and development strategies.</p>
         <div class="hero-btns">
           <button class="btn btn-primary" onclick="navigate('asset-library')">View Opportunities</button>
           <button class="btn btn-secondary" onclick="openBookACall()">Book a Call</button>
@@ -1804,27 +1851,27 @@ footer {
     </section>
 
     <!-- Firm credibility / proof points -->
-    <section class="proof-band" style="background:var(--navy);color:#fff;padding:40px 0;">
+    <section class="proof-band">
       <div class="container">
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:28px;text-align:center;">
           <div>
-            <div style="font-family:var(--font-mono);font-size:1.9rem;font-weight:400;letter-spacing:0.02em;color:#fff;line-height:1.1;">6</div>
-            <div class="label" style="font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.72);margin-top:9px;">International Offices</div>
+            <div class="proof-num">6</div>
+            <div class="label proof-label">International Offices</div>
           </div>
           <div>
-            <div style="font-family:var(--font-mono);font-size:1.9rem;font-weight:400;letter-spacing:0.02em;color:#fff;line-height:1.1;">RICS · IVSC</div>
-            <div class="label" style="font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.72);margin-top:9px;">Accredited Advisory</div>
+            <div class="proof-num">RICS · IVSC</div>
+            <div class="label proof-label">Accredited Advisory</div>
           </div>
           <div>
-            <div style="font-family:var(--font-mono);font-size:1.9rem;font-weight:400;letter-spacing:0.02em;color:#fff;line-height:1.1;">17 yrs</div>
-            <div class="label" style="font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.72);margin-top:9px;">In Business</div>
+            <div class="proof-num">17 yrs</div>
+            <div class="label proof-label">In Business</div>
           </div>
           <div>
-            <div style="font-family:var(--font-mono);font-size:1.9rem;font-weight:400;letter-spacing:0.02em;color:#fff;line-height:1.1;">AED 30B+</div>
-            <div class="label" style="font-size:11px;letter-spacing:0.14em;color:rgba(255,255,255,0.72);margin-top:9px;">Advised On</div>
+            <div class="proof-num">AED 30B+</div>
+            <div class="label proof-label">Advised On</div>
           </div>
         </div>
-        <p style="text-align:center;font-size:11.5px;color:rgba(255,255,255,0.62);margin-top:20px;">A global real estate solutions provider across Abu Dhabi, Algiers, Dubai, Leeds, London &amp; Riyadh.</p>
+        <p class="proof-caption">A global real estate solutions provider across Abu Dhabi, Algiers, Dubai, Leeds, London &amp; Riyadh.</p>
       </div>
     </section>
 
@@ -1923,18 +1970,20 @@ footer {
             <button class="filter-btn" data-filter="status" data-value="Sold" onclick="setFilter('status','Sold',this)">Track Record</button>
           </div>
           <div class="filter-divider"></div>
-          <div class="filter-group">
-            <span class="filter-label-text">View</span>
-            <button class="filter-btn active" id="viewGrid" onclick="setView('grid')">Grid</button>
-            <button class="filter-btn" id="viewMap" onclick="setView('map')">Map</button>
-          </div>
-          <div class="filter-divider"></div>
-          <div class="filter-group">
-            <span class="filter-label-text">Currency</span>
-            <button class="filter-btn currency-btn active" data-cur="AED" onclick="setCurrency('AED')">AED</button>
-            <button class="filter-btn currency-btn" data-cur="USD" onclick="setCurrency('USD')">USD</button>
-            <button class="filter-btn currency-btn" data-cur="GBP" onclick="setCurrency('GBP')">GBP</button>
-            <button class="filter-btn currency-btn" data-cur="EUR" onclick="setCurrency('EUR')">EUR</button>
+          <div class="filter-secondary">
+            <div class="filter-group">
+              <span class="filter-label-text">View</span>
+              <button class="filter-btn active" id="viewGrid" onclick="setView('grid')">Grid</button>
+              <button class="filter-btn" id="viewMap" onclick="setView('map')">Map</button>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-group">
+              <span class="filter-label-text">Currency</span>
+              <button class="filter-btn currency-btn active" data-cur="AED" onclick="setCurrency('AED')">AED</button>
+              <button class="filter-btn currency-btn" data-cur="USD" onclick="setCurrency('USD')">USD</button>
+              <button class="filter-btn currency-btn" data-cur="GBP" onclick="setCurrency('GBP')">GBP</button>
+              <button class="filter-btn currency-btn" data-cur="EUR" onclick="setCurrency('EUR')">EUR</button>
+            </div>
           </div>
         </div>
         <p class="fx-note" id="fxNote" style="display:none;font-size:11px;color:var(--text-sec);margin:-8px 0 18px;">Non-AED figures are indicative, converted at a stored rate for guidance only.</p>
@@ -2268,6 +2317,27 @@ let currentCurrency = 'AED';
 let libraryMapInstance = null;
 let currentOpportunity = null;
 
+// Leaflet is ~150KB and only needed behind the Map toggle / on deal pages, so it
+// loads on first use instead of blocking every page load (incl. the auth gate).
+let leafletReady = null;
+function ensureLeaflet() {
+  if (window.L) return Promise.resolve();
+  if (!leafletReady) {
+    leafletReady = new Promise((resolve, reject) => {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet'; css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      const js = document.createElement('script');
+      js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      let loaded = 0;
+      const done = () => { if (++loaded === 2) resolve(); };
+      css.onload = done; js.onload = done;
+      css.onerror = js.onerror = () => { leafletReady = null; reject(new Error('Leaflet failed to load')); };
+      document.head.append(css, js);
+    });
+  }
+  return leafletReady;
+}
+
 /* ============================================================
    MULTI-CURRENCY DISPLAY (indicative — converts AED guide prices)
    ============================================================ */
@@ -2600,6 +2670,10 @@ function cardHTML(opp) {
     : '';
 
   const figures = cardFigures(opp);
+  // Serve a 600px source to phones; the 1200px only where a card is wide.
+  const imgAttrs = (opp.image && /[?&]w=1200/.test(opp.image))
+    ? `srcset="${opp.image.replace('w=1200', 'w=600')} 600w, ${opp.image} 1200w" sizes="(max-width:768px) 100vw, (max-width:1100px) 50vw, 33vw" decoding="async"`
+    : 'decoding="async"';
   const isSold = opp.dealStatus === 'Sold';
   const ctaBtn = isSold
     ? `<button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:default">Transaction Complete</button>`
@@ -2616,7 +2690,7 @@ function cardHTML(opp) {
             <span class="location-text">${opp.location}</span>
           </div>
         </div>
-        ${opp.image ? `<img class="card-image-photo" src="${opp.image}" alt="${opp.location}" loading="lazy" onload="this.classList.add('is-loaded')" onerror="this.remove()">` : ''}
+        ${opp.image ? `<img class="card-image-photo" src="${opp.image}" ${imgAttrs} alt="${opp.location}" loading="lazy" onload="this.classList.add('is-loaded')" onerror="this.remove()">` : ''}
         <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}">${opp.assetProfile}</span>
         ${statusBadge}
       </div>
@@ -2719,7 +2793,16 @@ function setView(view) {
 function renderLibraryMap(opportunities) {
   const wrap = document.getElementById('libraryMapWrap');
   wrap.style.display = '';
+  ensureLeaflet().then(() => {
+    // The user may have switched back to Grid or left the page while Leaflet loaded.
+    if (currentView !== 'map' || !document.getElementById('libraryMap')) return;
+    drawLibraryMap(opportunities);
+  }).catch(() => {
+    wrap.innerHTML = '<p class="detail-map-address" style="padding:24px 0;">Map unavailable right now — the listings remain available in Grid view.</p>';
+  });
+}
 
+function drawLibraryMap(opportunities) {
   // Destroy previous instance to avoid duplicate map error
   if (libraryMapInstance) {
     libraryMapInstance.remove();
@@ -2774,10 +2857,9 @@ function renderLibraryMap(opportunities) {
 }
 
 function initDetailMap(lat, lng, name, location) {
-  // Small delay to ensure the DOM element is rendered
-  setTimeout(() => {
+  ensureLeaflet().then(() => {
     const el = document.getElementById('detailMap');
-    if (!el) return;
+    if (!el || el._leaflet_id) return;   // route changed, or already initialised
 
     const map = L.map('detailMap', { zoomControl: true, scrollWheelZoom: false }).setView([lat, lng], 15);
 
@@ -2798,7 +2880,10 @@ function initDetailMap(lat, lng, name, location) {
       .addTo(map)
       .bindPopup(`<div style="font-family:sans-serif;font-size:12px;line-height:1.5;padding:4px 2px"><strong>${name}</strong><br>${location}</div>`)
       .openPopup();
-  }, 100);
+  }).catch(() => {
+    const el = document.getElementById('detailMap');
+    if (el) el.innerHTML = '<p class="detail-map-address" style="padding:24px 0;">Map unavailable right now.</p>';
+  });
 }
 
 /* ============================================================
@@ -3218,6 +3303,7 @@ function openEnquireModal(oppId) {
   document.getElementById('enquireSuccess').style.display = 'none';
   document.getElementById('enquireError').style.display = 'none';
   document.getElementById('enquireConsent').checked = false;
+  window.LS_ENQ_TYPE = null;
   prefillIdentity('enq', document.getElementById('enquireForm'));
   openModalDialog('enquireModal');
 }
@@ -3284,7 +3370,7 @@ function handleEnquireSubmit(e) {
   const oppName = document.getElementById('enquireOppTag').textContent;
   const opp = OPPORTUNITIES.find(o => o.name === oppName);
   submitLead(e.target, 'enquireError', 'enquireSuccess', {
-    type: 'enquiry',
+    type: window.LS_ENQ_TYPE || 'enquiry',   // 'callback' when raised from Book a Call
     opportunity_slug: opp ? opp.id : null,
     opportunity_name: oppName || 'General Enquiry',
     name:    document.getElementById('enqName').value.trim(),

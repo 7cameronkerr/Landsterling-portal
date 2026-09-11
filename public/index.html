@@ -543,8 +543,10 @@ h4 { font-size: 1.15rem; }
   height: 100%;
   object-fit: cover;
   z-index: 1;
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.card-image-photo.is-loaded { opacity: 1; }
 .opp-card:hover .card-image-photo { transform: scale(1.06); }
 .card-image::after {
   content: '';
@@ -1484,6 +1486,69 @@ footer {
 @media (prefers-reduced-motion: reduce) { .detail-action-bar { transition: none; } }
 
 /* ============================================================
+   CARDS LEAD WITH FIGURES · FEATURED GALLERY · IDENTITY PREFILL
+   ============================================================ */
+.card-name { font-size: 1.4rem; line-height: 1.15; }
+.card-meta { margin-bottom: 12px; padding-bottom: 0; border-bottom: 0; }
+.card-price { font-size: 1.35rem; margin-bottom: 12px; }
+.card-figures {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider);
+  padding: 12px 0; margin-bottom: 14px;
+}
+.card-figures .label { display: block; font-size: 9.5px; margin-bottom: 4px; }
+.card-figures strong {
+  display: block; font-family: var(--font-mono); font-weight: 400; font-size: 0.95rem; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-angle { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.featured-section { padding: 96px 0; border-bottom: 1px solid var(--divider); }
+.form-row.is-collapsed { display: none; }
+.form-identity {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 10px 12px; background: var(--card-bg); border: 1px solid var(--divider); border-radius: 1px;
+  font-size: 12px; color: var(--text-sec);
+}
+.form-identity strong { color: var(--text); font-weight: 500; }
+.form-identity-edit { font: inherit; font-size: 11px; color: var(--red); text-decoration: underline; background: none; border: 0; padding: 6px 0; cursor: pointer; min-height: 32px; }
+@media (max-width: 768px) {
+  .featured-section { padding: 56px 0; }
+  .card-figures strong { font-size: 0.9rem; }
+  .card-figures .label { font-size: 10.5px; }
+}
+
+/* ============================================================
+   POLISH — loading skeleton, hero entrance, mobile menu state
+   ============================================================ */
+.opp-skeleton { pointer-events: none; }
+.opp-skeleton .card-image { background: var(--card-bg); }
+.sk { height: 14px; background: var(--card-bg); border-radius: 2px; margin-bottom: 10px; animation: skPulse 1.2s ease-in-out infinite; }
+.sk-t { width: 70%; height: 20px; }
+.sk-s { width: 45%; }
+@keyframes skPulse { 50% { opacity: 0.45; } }
+
+@keyframes heroRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.hero.hero-in .hero-label   { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero.hero-in h1            { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both; }
+.hero.hero-in .hero-portal  { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both; }
+.hero.hero-in .hero-rule    { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both; }
+.hero.hero-in .hero-tagline { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both; }
+.hero.hero-in .hero-desc    { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both; }
+.hero.hero-in .hero-btns    { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both; }
+
+.nav-link-cta { display: none; }
+.nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+@keyframes menuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 768px) { .nav-links.open { animation: menuIn 0.22s ease; } }
+@media (prefers-reduced-motion: reduce) {
+  .sk, .hero.hero-in .hero-label, .hero.hero-in h1, .hero.hero-in .hero-portal, .hero.hero-in .hero-rule,
+  .hero.hero-in .hero-tagline, .hero.hero-in .hero-desc, .hero.hero-in .hero-btns, .nav-links.open { animation: none; }
+  .card-image-photo { transition: none; opacity: 1; }
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
@@ -1516,7 +1581,7 @@ footer {
     gap: 4px;
   }
   .nav-links.open .nav-link { padding: 10px 0; font-size: 12px; }
-  .nav-cta.open { display: block; padding: 12px 20px 20px; background: var(--white); }
+  .nav-links.open .nav-link-cta { display: block; margin-top: 14px; }
 
   .hero { padding: 72px 0 64px; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1693,6 +1758,7 @@ footer {
       <li><span class="nav-link" id="nav-asset-library" onclick="navigate('asset-library')">Asset Library</span></li>
       <li><span class="nav-link" id="nav-about" onclick="navigate('about')">About Us</span></li>
       <li><span class="nav-link" id="nav-signout" onclick="handleSignOut()" style="display:none;">Sign Out</span></li>
+      <li class="nav-link-cta"><button class="btn btn-primary btn-sm" onclick="closeNav(); openEnquireModal(null)">Request Further Details</button></li>
     </ul>
     <div class="nav-cta" id="navCta">
       <button class="btn btn-primary btn-sm" onclick="openEnquireModal(null)">Request Further Details</button>
@@ -1776,6 +1842,21 @@ footer {
             <p>The platform is designed for informed capital seeking clear access to stabilised income assets, value-add opportunities and development-led acquisitions. Opportunities are presented with full investment metrics, supporting market evidence and direct enquiry access for qualified recipients.</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Featured opportunities (imagery-led; renders the `featured` flag) -->
+    <section class="featured-section" id="featuredSection" hidden>
+      <div class="container">
+        <div class="section-header-row">
+          <div class="section-header" style="margin:0">
+            <span class="label">Selected Opportunities</span>
+            <span class="section-rule"></span>
+            <h2>Currently presenting</h2>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="navigate('asset-library')">View Asset Library</button>
+        </div>
+        <div class="opps-grid" id="featuredGrid"></div>
       </div>
     </section>
 
@@ -2208,8 +2289,8 @@ function setCurrency(code) {
     b.classList.toggle('active', b.dataset.cur === code));
   const note = document.getElementById('fxNote');
   if (note) note.style.display = code === 'AED' ? 'none' : 'block';
-  renderLibrary();
-  if (currentOpportunity) renderOpportunityDetail(currentOpportunity.id);
+  // Update every priced element in place — no page rebuild, no map reload.
+  document.querySelectorAll('[data-aed]').forEach(el => { el.textContent = convertAedDisplay(el.dataset.aed); });
 }
 
 /* ============================================================
@@ -2241,6 +2322,10 @@ function hideGate() {
   g.style.opacity = '0';
   g.style.transition = 'opacity 0.4s ease';
   setTimeout(() => { g.style.display = 'none'; }, 400);
+  // The hero's moment: restart the slow zoom and stagger the copy in.
+  const hero = document.querySelector('.hero'), bg = document.querySelector('.hero-bg');
+  if (bg) { bg.style.animation = 'none'; void bg.offsetWidth; bg.style.animation = ''; }
+  if (hero) { hero.classList.remove('hero-in'); void hero.offsetWidth; hero.classList.add('hero-in'); }
 }
 
 // Sign in, then route based on approval status.
@@ -2303,6 +2388,7 @@ async function handleRegister(e) {
 }
 
 async function handleSignOut() {
+  window.LS_PROFILE = null;
   try { await LS_API.signOut(); } catch (e) {}
   const so = document.getElementById('nav-signout');
   if (so) so.style.display = 'none';
@@ -2332,11 +2418,13 @@ async function handleForgotPassword() {
 async function routeAfterAuth(profile) {
   if (!profile) { showGate(); return false; }
   if (profile.status === 'approved' || profile.role === 'admin') {
+    window.LS_PROFILE = profile;     // used to prefill enquiry forms
     hideGate();
     const so = document.getElementById('nav-signout');
     if (so) so.style.display = '';
     return true;
   }
+  window.LS_PROFILE = null;
   if (profile.status === 'pending' || profile.status === 'invited') {
     await LS_API.signOut();
     showAuthStatus('Awaiting Approval',
@@ -2364,6 +2452,7 @@ function friendlyAuthError(err) {
 
 // Setup-mode only: explore the portal before Supabase is connected.
 function previewBypass() {
+  window.LS_PROFILE = null;
   hideGate();
   const so = document.getElementById('nav-signout');
   if (so) so.style.display = 'none';
@@ -2427,12 +2516,16 @@ function handleRoute() {
 window.addEventListener('popstate', handleRoute);
 
 function toggleNav() {
-  document.getElementById('navLinks').classList.toggle('open');
-  document.getElementById('navCta').classList.toggle('open');
+  const open = document.getElementById('navLinks').classList.toggle('open');
+  const h = document.getElementById('hamburger');
+  h.classList.toggle('open', open);
+  h.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 function closeNav() {
   document.getElementById('navLinks').classList.remove('open');
-  document.getElementById('navCta').classList.remove('open');
+  const h = document.getElementById('hamburger');
+  h.classList.remove('open');
+  h.setAttribute('aria-expanded', 'false');
 }
 
 /* ============================================================
@@ -2464,6 +2557,39 @@ function imageClass(type) {
   return 'residential';
 }
 
+// Three labelled figures per card, chosen by strategy so the card leads with
+// the numbers an investor scans for (never a mislabelled fallback).
+function cardFigures(opp) {
+  const m = opp.metrics || {};
+  const psf = (opp.entryPsf || m['Entry Metric'] || '').split(' /')[0];
+  const pa = v => v ? String(v).replace(' per annum', ' p.a.') : '';
+  let candidates;
+  if (opp.assetProfile === 'Value Add') {
+    candidates = [['Net Initial Yield', m['Net Initial Yield'] || opp.netYield], ['Reversionary Yield', m['Reversionary Yield']],
+                  ['Stabilised NOI', pa(m['Stabilised NOI'])], ['Day-One Income', pa(m['Day-One Income'])], ['Entry PSF', psf],
+                  ['Market Rent (ERV)', m['Market Rent (ERV)']]];
+  } else if (opp.assetProfile === 'Development') {
+    candidates = [['Entry PSF', psf], ['GDV', pa(m['Base-Case GDV'] || m['GDV (Estimated)'])], ['Handover', m['Handover']],
+                  ['Gross Yield', opp.grossYield], ['Land-to-GDV', m['Land-to-GDV Ratio']], ['Payment Plan', m['Payment Plan']],
+                  ['Units', m['Units'] || m['Total Units']]];
+  } else {
+    candidates = [['Gross Yield', opp.grossYield], ['Net Yield', opp.netYield], ['Entry PSF', psf],
+                  ['NOI', pa(m['Current NOI'] || m['Net Income'])], ['Occupancy', m['Occupancy']], ['WAULT', m['WAULT']]];
+  }
+  const cells = candidates.filter(c => c[1]).slice(0, 3);
+  // Last resort: any other short metric, so a card never shows an empty cell.
+  const skipKeys = new Set(['Asset Class', 'Asset Profile', 'Tenure', 'Deal Status', 'Guide Price', 'Asking Price', 'Entry Metric']);
+  for (const [k, v] of Object.entries(m)) {
+    if (cells.length >= 3) break;
+    const raw = pa(v);
+    if (skipKeys.has(k) || raw.length > 26 || cells.some(c => c[0] === k || c[1] === raw)) continue;
+    cells.push([k, raw]);
+  }
+  while (cells.length < 3) cells.push(['—', '—']);
+  // data-aed keeps the AED source so the currency toggle can update in place.
+  return cells.map(([k, v]) => `<div><span class="label">${k}</span><strong data-aed="${String(v).replace(/"/g, '&quot;')}">${convertAedDisplay(String(v))}</strong></div>`).join('');
+}
+
 function cardHTML(opp) {
   const isNew = opp.createdAt && (Date.now() - new Date(opp.createdAt).getTime()) < 21*24*60*60*1000;
   const statusBadge =
@@ -2473,13 +2599,7 @@ function cardHTML(opp) {
     : isNew                            ? `<span class="card-status-badge status-new">New</span>`
     : '';
 
-  const yieldRow = (opp.grossYield || opp.netYield) ? `
-    <div class="card-yields">
-      ${opp.grossYield ? `<div class="card-yield-item">Gross Yield <strong>${opp.grossYield}</strong></div>` : ''}
-      ${opp.netYield ? `<div class="card-yield-item">Net Yield <strong>${opp.netYield}</strong></div>` : ''}
-    </div>` : '';
-
-  const psfRow = opp.entryPsf ? `<div class="card-meta-item">Entry <span>${opp.entryPsf}</span></div>` : '';
+  const figures = cardFigures(opp);
   const isSold = opp.dealStatus === 'Sold';
   const ctaBtn = isSold
     ? `<button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:default">Transaction Complete</button>`
@@ -2496,7 +2616,7 @@ function cardHTML(opp) {
             <span class="location-text">${opp.location}</span>
           </div>
         </div>
-        ${opp.image ? `<img class="card-image-photo" src="${opp.image}" alt="${opp.location}" loading="lazy" onerror="this.remove()">` : ''}
+        ${opp.image ? `<img class="card-image-photo" src="${opp.image}" alt="${opp.location}" loading="lazy" onload="this.classList.add('is-loaded')" onerror="this.remove()">` : ''}
         <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}">${opp.assetProfile}</span>
         ${statusBadge}
       </div>
@@ -2506,10 +2626,9 @@ function cardHTML(opp) {
         <div class="card-meta">
           <div class="card-meta-item"><span>${opp.assetType}</span></div>
           <div class="card-meta-item"><span>${opp.tenure.split(' ')[0]}</span></div>
-          ${psfRow}
         </div>
-        <div class="card-price">${convertAedDisplay(opp.price)}</div>
-        ${yieldRow}
+        <div class="card-price" data-aed="${opp.price}">${convertAedDisplay(opp.price)}</div>
+        <div class="card-figures">${figures}</div>
         <p class="card-angle">${opp.shortAngle}</p>
         <div class="card-cta">
           ${ctaBtn}
@@ -2567,6 +2686,18 @@ function renderLibrary() {
 /* ============================================================
    FILTERS
    ============================================================ */
+// Home page gallery: up to three featured live deals (falls back to the first three).
+function renderFeatured() {
+  const sec = document.getElementById('featuredSection'), g = document.getElementById('featuredGrid');
+  if (!sec || !g) return;
+  const live = OPPORTUNITIES.filter(o => o.dealStatus !== 'Sold').sort((a, b) => a.order - b.order);
+  let list = live.filter(o => o.featured).slice(0, 3);
+  if (!list.length) list = live.slice(0, 3);
+  sec.hidden = !list.length;
+  g.innerHTML = list.map(cardHTML).join('');
+  if (typeof applyReveal === 'function') applyReveal();
+}
+
 function setFilter(dimension, value, btn) {
   currentFilter[dimension] = value;
   // Update active state on buttons
@@ -2814,24 +2945,25 @@ const HEADLINE_KEYS = {
 function tidyMetric(v) { return convertAedDisplay(String(v).replace(' per annum', ' p.a.')); }
 function figureLabel(k, v) { return (k === 'Entry Metric' && /psf/i.test(String(v))) ? 'Entry PSF' : k; }
 
+const rawMetric = v => String(v).replace(' per annum', ' p.a.');
 function heroFigures(opp) {
   const m = opp.metrics || {};
-  const cells = [{ label: opp.priceLabel, value: convertAedDisplay(opp.price), large: true }];
+  const cells = [{ label: opp.priceLabel, raw: opp.price, large: true }];
   const keys = (HERO_KEYS[opp.assetProfile] || []).filter(k => m[k]);
   if (keys.length) {
-    keys.slice(0, 3).forEach(k => cells.push({ label: figureLabel(k, m[k]), value: tidyMetric(m[k]) }));
+    keys.slice(0, 3).forEach(k => cells.push({ label: figureLabel(k, m[k]), raw: rawMetric(m[k]) }));
   } else {
-    if (opp.grossYield) cells.push({ label: 'Gross Yield', value: opp.grossYield });
-    if (opp.netYield)   cells.push({ label: 'Net Yield',   value: opp.netYield });
-    if (opp.entryPsf)   cells.push({ label: 'Entry PSF',   value: convertAedDisplay(opp.entryPsf) });
+    if (opp.grossYield) cells.push({ label: 'Gross Yield', raw: opp.grossYield });
+    if (opp.netYield)   cells.push({ label: 'Net Yield',   raw: opp.netYield });
+    if (opp.entryPsf)   cells.push({ label: 'Entry PSF',   raw: opp.entryPsf });
   }
-  return cells.map(c => `<div class="detail-price-item"><div class="detail-price-label">${c.label}</div><div class="detail-price-value${c.large ? ' large' : ''}">${c.value}</div></div>`).join('');
+  return cells.map(c => `<div class="detail-price-item"><div class="detail-price-label">${c.label}</div><div class="detail-price-value${c.large ? ' large' : ''}" data-aed="${c.raw}">${convertAedDisplay(c.raw)}</div></div>`).join('');
 }
 
 function derivedHeadline(opp) {
   const m = opp.metrics || {};
   return (HEADLINE_KEYS[opp.assetProfile] || []).filter(k => m[k]).slice(0, 3)
-    .map(k => ({ label: figureLabel(k, m[k]), value: tidyMetric(m[k]) }));
+    .map(k => ({ label: figureLabel(k, m[k]), value: `<span data-aed="${rawMetric(m[k])}">${convertAedDisplay(rawMetric(m[k]))}</span>` }));
 }
 
 function renderOpportunityDetail(slug) {
@@ -2856,7 +2988,7 @@ function renderOpportunityDetail(slug) {
   const metricsHTML = grouped.filter(g => g.rows.length).map(g => `
     <details class="metric-group" open>
       <summary class="metric-group-label">${g.name}</summary>
-      ${g.rows.map(([k, v]) => `<div class="metric-row"><span class="metric-key">${k}</span><span class="metric-val">${convertAedDisplay(String(v))}</span></div>`).join('')}
+      ${g.rows.map(([k, v]) => `<div class="metric-row"><span class="metric-key">${k}</span><span class="metric-val" data-aed="${String(v).replace(/"/g, '&quot;')}">${convertAedDisplay(String(v))}</span></div>`).join('')}
     </details>`).join('');
 
   const summaryParas = opp.summary.split('\n\n').map(p => `<p>${p}</p>`).join('');
@@ -2943,7 +3075,7 @@ function renderOpportunityDetail(slug) {
             </div>
 
             <div class="detail-footer-note">
-              This information is provided for qualified recipients only and does not constitute an offer or contract. Further financial, legal and technical information may be released following appropriate confidentiality protocols. Viewings and data room access are strictly by appointment with Land Sterling Advisory.
+              This information is provided for qualified recipients only and does not constitute an offer or contract. Further financial, legal and technical information may be released following appropriate confidentiality protocols. Viewings and data room access are strictly by appointment with Land Sterling Investment Advisory.
             </div>
           </div>
 
@@ -2962,7 +3094,7 @@ function renderOpportunityDetail(slug) {
       </div>
     </div>
     <div class="detail-action-bar" id="detailActionBar">
-      <div class="dab-price"><span class="label">${opp.priceLabel}</span><strong>${priceShown}</strong></div>
+      <div class="dab-price"><span class="label">${opp.priceLabel}</span><strong data-aed="${opp.price}">${priceShown}</strong></div>
       <button class="btn btn-primary btn-sm" onclick="openParticularsModal('${opp.id}','data_room')">Data Room</button>
       <button class="btn btn-secondary btn-sm" onclick="openParticularsModal('${opp.id}')">Particulars</button>
     </div>
@@ -2995,6 +3127,37 @@ document.addEventListener('ls-consent', () => {
 /* ============================================================
    MODALS
    ============================================================ */
+// Signed-in investors: prefill and collapse the identity rows (only when every
+// required value is present, so native validation is never hidden).
+function prefillIdentity(prefix, form) {
+  const el = k => document.getElementById(prefix + k);
+  const nameEl = el('Name'), emailEl = el('Email'), phoneEl = el('Phone'), companyEl = el('Company');
+  const rows = [nameEl, phoneEl].map(e => e && e.closest('.form-row')).filter(Boolean);
+  const old = form.querySelector('.form-identity'); if (old) old.remove();
+  rows.forEach(r => r.classList.remove('is-collapsed'));
+  const p = window.LS_PROFILE;
+  if (!p) return;
+  const name = p.full_name || ((p.first_name || '') + ' ' + (p.last_name || '')).trim();
+  if (nameEl)    nameEl.value    = name;
+  if (emailEl)   emailEl.value   = p.email || '';
+  if (phoneEl)   phoneEl.value   = p.mobile || '';
+  if (companyEl) companyEl.value = p.company || '';
+  const required = [nameEl, emailEl, phoneEl, companyEl].filter(e => e && e.required);
+  if (!required.every(e => e.value.trim())) return;
+  rows.forEach(r => r.classList.add('is-collapsed'));
+  const strip = document.createElement('div');
+  strip.className = 'form-identity';
+  const text = document.createElement('span');
+  text.append('Requesting as ');
+  const b = document.createElement('strong'); b.textContent = name; text.append(b);
+  text.append((p.company ? ' · ' + p.company : '') + ' · ' + (p.email || ''));
+  const edit = document.createElement('button');
+  edit.type = 'button'; edit.className = 'form-identity-edit'; edit.textContent = 'Edit';
+  edit.onclick = () => { rows.forEach(r => r.classList.remove('is-collapsed')); strip.remove(); if (nameEl) nameEl.focus(); };
+  strip.append(text, edit);
+  form.querySelector('.form-grid').prepend(strip);
+}
+
 // Dialog behaviour shared by both modals: scroll-lock, focus hand-off and return.
 let lastFocusedBeforeModal = null;
 function openModalDialog(id) {
@@ -3043,6 +3206,7 @@ function openParticularsModal(oppId, mode) {
   document.getElementById('particularsSuccess').style.display = 'none';
   document.getElementById('particularsError').style.display = 'none';
   document.getElementById('particularsConsent').checked = false;
+  prefillIdentity('part', document.getElementById('particularsForm'));
   openModalDialog('particularsModal');
 }
 
@@ -3054,6 +3218,7 @@ function openEnquireModal(oppId) {
   document.getElementById('enquireSuccess').style.display = 'none';
   document.getElementById('enquireError').style.display = 'none';
   document.getElementById('enquireConsent').checked = false;
+  prefillIdentity('enq', document.getElementById('enquireForm'));
   openModalDialog('enquireModal');
 }
 
@@ -3216,8 +3381,14 @@ document.addEventListener('keydown', e => {
 async function init() {
   renderMetrics();
   await checkGate();
+  // Skeleton cards while the live listings load (visible if landing on the library).
+  const skGrid = document.getElementById('libraryGrid');
+  if (skGrid && !skGrid.children.length) {
+    skGrid.innerHTML = Array(3).fill('<div class="opp-card opp-skeleton" aria-hidden="true"><div class="card-image"></div><div class="card-body"><div class="sk sk-t"></div><div class="sk sk-s"></div><div class="sk sk-s"></div></div></div>').join('');
+  }
   await loadOpportunities();
   renderLibrary();
+  renderFeatured();
   handleRoute();
   applyReveal();
   enhanceA11y();

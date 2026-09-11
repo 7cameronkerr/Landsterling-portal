@@ -171,8 +171,16 @@
         const { data: { user } } = await sb.auth.getUser();
         if (user) record = { ...payload, user_id: user.id };
       } catch (e) {}
-      // 1. Save to the database (your admin inbox)
-      const { error } = await sb.from('enquiries').insert([record]);
+      // 1. Save to the database (your admin inbox). If the newer columns
+      // (user_id/budget/target_location) haven't been migrated in yet, retry
+      // without them rather than losing the lead — never let a schema-timing
+      // gap break the portal's core conversion action.
+      let { error } = await sb.from('enquiries').insert([record]);
+      if (error && (error.code === 'PGRST204' || error.code === '42703')) {
+        const { user_id, budget, target_location, ...legacy } = record;
+        ({ error } = await sb.from('enquiries').insert([legacy]));
+        if (!error) record = legacy;
+      }
       // 2. Also email you via Formspree, if configured (best-effort)
       notifyByEmail(record);
       if (error) throw error;

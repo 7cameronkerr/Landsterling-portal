@@ -8,7 +8,7 @@
 <!-- Leaflet (maps) is loaded on demand the first time a map is shown — see ensureLeaflet() -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 <!-- Backend: Supabase SDK + portal config + API layer -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
@@ -26,6 +26,7 @@
   --text:        #1A1A1A;
   --text-sec:    #6B6560;
   --red:         #C0272D;
+  --red-on-dark: #F0707A;  /* brand red is ~2.2:1 on --navy-card — fails WCAG large-text (3:1); this passes ~4.4:1 */
   --navy:        #1A1F2E;
   --navy-card:   #2C3340;
   --divider:     #D0CBC4;
@@ -434,53 +435,42 @@ h4 { font-size: 1.15rem; }
 }
 
 /* ============================================================
-   METRICS PANEL
+   METRICS PANEL — editorial-framed live KPI grid (dark navy field)
    ============================================================ */
-.metrics-section {
-  background: var(--navy);
-  padding: 60px 0;
+.metrics-section { background: var(--navy); padding: 72px 0 64px; }
+
+.metrics-intro { max-width: 640px; margin-bottom: 44px; }
+.metrics-kicker {
+  display: block; font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--red-on-dark); margin-bottom: 14px;
 }
-.metrics-header {
-  text-align: center;
-  margin-bottom: 48px;
-}
-.metrics-header .label { color: rgba(255,255,255,0.45); margin-bottom: 8px; display: block; }
-.metrics-header h2 { color: #fff; font-size: 1.5rem; font-weight: 300; }
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: rgba(255,255,255,0.08);
-}
+.metrics-heading { font-family: var(--font-serif); font-weight: 300; font-size: clamp(1.9rem, 3vw, 2.6rem); line-height: 1.18; }
+.metrics-heading .accent-line { display: block; color: var(--red-on-dark); }
+.metrics-heading .primary-line { display: block; color: #fff; }
+.metrics-rule { display: block; width: 32px; height: 2px; background: var(--red-on-dark); margin: 22px 0 18px; }
+.metrics-bridge { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.75; max-width: 520px; }
+
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .metric-card {
-  background: var(--navy);
-  padding: 32px 28px;
+  display: flex; flex-direction: column;
+  background: var(--navy-card);
+  padding: 34px 28px 26px;
   border-top: 2px solid var(--red);
-  transition: background var(--transition);
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+  transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
 }
-.metric-card:hover { background: rgba(255,255,255,0.03); }
+.metric-card:hover { background: #333b4a; transform: translateY(-3px); box-shadow: 0 12px 28px -14px rgba(0,0,0,0.5); }
 .metric-label {
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.45);
-  margin-bottom: 12px;
-  display: block;
+  order: 2; font-size: 10.5px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255,255,255,0.72); margin-bottom: 10px; display: block;
 }
 .metric-value {
-  font-family: var(--font-mono);
-  font-size: clamp(1.3rem, 2.2vw, 1.75rem);
-  color: #fff;
-  font-weight: 400;
-  line-height: 1;
-  margin-bottom: 10px;
-  display: block;
+  order: 1; font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums;
+  font-size: clamp(1.7rem, 2.6vw, 2.3rem); color: var(--red-on-dark); line-height: 1; margin-bottom: 12px; display: block;
 }
 .metric-desc {
-  font-size: 11px;
-  color: rgba(255,255,255,0.38);
-  line-height: 1.5;
+  order: 3; font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5;
+  padding-top: 12px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08);
 }
 
 /* ============================================================
@@ -1643,12 +1633,24 @@ footer {
   .hero { min-height: auto; padding: 72px 0 64px; }
   .hero-bg { background-image: url('https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=900&q=75'); }
 }
-/* Light ground for the achievements band restores light/dark rhythm on the home page */
-.proof-band { background: var(--card-bg); border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider); padding: 48px 0; color: var(--text); }
-.proof-num { font-family: var(--font-mono); font-size: 1.9rem; font-weight: 400; letter-spacing: 0.02em; color: var(--navy); line-height: 1.1; }
-.proof-label { font-size: 11px; letter-spacing: 0.14em; color: var(--text-sec); margin-top: 9px; }
-.proof-caption { text-align: center; font-size: 12px; color: var(--text-sec); margin-top: 20px; }
-.metrics-section { padding: 64px 0 56px; }
+/* Light ground for the credentials band restores light/dark rhythm on the home page —
+   shares grid geometry + the red-figure/editorial-heading language with .metrics-section
+   above so the two bands read as one considered "by the numbers" section, not two. */
+.proof-band { background: var(--card-bg); border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider); padding: 56px 0 64px; color: var(--text); }
+.credentials-kicker {
+  display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-sec); margin-bottom: 24px;
+}
+.credentials-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); }
+.credential-card {
+  background: var(--white); padding: 30px 24px; text-align: center;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.credential-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.credential-num { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; font-size: clamp(1.35rem, 1.9vw, 1.75rem); letter-spacing: 0.01em; color: var(--red); line-height: 1.1; margin-bottom: 8px; }
+.credential-label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-sec); }
+.credentials-caption { text-align: center; font-size: 12px; color: var(--text-sec); margin-top: 24px; }
 .cta-section { border-bottom: 1px solid rgba(255,255,255,0.14); }
 /* Filter bar: identical on desktop; horizontal chip rails on phones */
 .filter-secondary { display: contents; }
@@ -1725,12 +1727,12 @@ button.gate-magic-link:hover { color: var(--red); }
 .detail-summary h2, .detail-highlights h2, .detail-analysis h2, .detail-location-map h2 {
   font-size: clamp(1.75rem, 2.6vw, 2.4rem); font-weight: 400; line-height: 1.12; max-width: 22ch; text-wrap: balance;
 }
-.metric-label, .analysis-metric-label, .analysis-table thead th { font-size: 10.5px; }
-.metric-label, .analysis-metric-label { color: rgba(255,255,255,0.62); }
+.analysis-metric-label, .analysis-table thead th { font-size: 10.5px; }
+.analysis-metric-label { color: rgba(255,255,255,0.62); }
 .analysis-table thead th { font-weight: 500; }
 .card-profile-badge, .card-status-badge, .detail-badge { font-size: 10px; }
 .analysis-table tbody td:not(:first-child), .metric-val { font-variant-numeric: tabular-nums; }
-@media (max-width: 768px) { .metric-label, .analysis-metric-label, .analysis-table thead th { font-size: 11px; } }
+@media (max-width: 768px) { .analysis-metric-label, .analysis-table thead th { font-size: 11px; } }
 
 /* Accessibility helpers */
 .skip-link { position: absolute; left: -9999px; top: 8px; z-index: 10000; background: var(--navy); color: #fff; padding: 10px 16px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -1742,7 +1744,7 @@ button.gate-magic-link:hover { color: var(--red); }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
-  .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+  .metrics-grid, .credentials-grid { grid-template-columns: repeat(3, 1fr); }
   .opps-grid { grid-template-columns: repeat(2, 1fr); }
   .detail-grid { grid-template-columns: 1fr; }
   .metrics-panel { position: static; padding: 24px; }
@@ -1774,7 +1776,8 @@ button.gate-magic-link:hover { color: var(--red); }
   .nav-links.open .nav-link-cta { display: block; margin-top: 14px; }
 
   .hero { padding: 72px 0 64px; }
-  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .metrics-grid, .credentials-grid { grid-template-columns: repeat(2, 1fr); }
+  .metrics-bridge { display: none; } /* keep the dark band tight on phones; kicker+heading still frame it */
   .intro-inner { grid-template-columns: 1fr; gap: 32px; }
   .opps-grid { grid-template-columns: 1fr; }
   .highlights-grid { grid-template-columns: 1fr; }
@@ -1785,7 +1788,8 @@ button.gate-magic-link:hover { color: var(--red); }
   .modal { padding: 36px 24px; }
 }
 @media (max-width: 480px) {
-  .metrics-grid { grid-template-columns: 1fr; }
+  .metrics-grid, .credentials-grid { grid-template-columns: 1fr; }
+  .metric-card, .credential-card { clip-path: none; } /* the folded corner reads as a glitch on full-width, short cards */
   .hero-btns { flex-direction: column; align-items: stretch; }
   .hero-btns .btn { justify-content: center; }
   .gate-card { padding: 40px 28px; }
@@ -2003,6 +2007,15 @@ button.gate-magic-link:hover { color: var(--red); }
     <!-- Dashboard Metrics -->
     <section class="metrics-section">
       <div class="container">
+        <div class="metrics-intro">
+          <span class="label metrics-kicker">Live Portfolio Data</span>
+          <h2 class="metrics-heading">
+            <span class="accent-line">The Numbers</span>
+            <span class="primary-line">Behind Every Opportunity</span>
+          </h2>
+          <span class="metrics-rule"></span>
+          <p class="metrics-bridge">Figures update in real time from our live opportunity set — benchmarked against seventeen years of institutional track record below.</p>
+        </div>
         <div class="metrics-grid" id="metricsGrid"></div>
       </div>
     </section>
@@ -2010,25 +2023,26 @@ button.gate-magic-link:hover { color: var(--red); }
     <!-- Firm credibility / proof points -->
     <section class="proof-band">
       <div class="container">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:28px;text-align:center;">
-          <div>
-            <div class="proof-num">6</div>
-            <div class="label proof-label">International Offices</div>
+        <span class="label credentials-kicker">The Firm Behind The Numbers</span>
+        <div class="credentials-grid">
+          <div class="credential-card">
+            <div class="credential-num">6</div>
+            <div class="credential-label">International Offices</div>
           </div>
-          <div>
-            <div class="proof-num">RICS · IVSC</div>
-            <div class="label proof-label">Accredited Advisory</div>
+          <div class="credential-card">
+            <div class="credential-num">RICS · IVSC</div>
+            <div class="credential-label">Accredited Advisory</div>
           </div>
-          <div>
-            <div class="proof-num">17 yrs</div>
-            <div class="label proof-label">In Business</div>
+          <div class="credential-card">
+            <div class="credential-num">17 yrs</div>
+            <div class="credential-label">In Business</div>
           </div>
-          <div>
-            <div class="proof-num">AED 30B+</div>
-            <div class="label proof-label">Advised On</div>
+          <div class="credential-card">
+            <div class="credential-num">AED 30B+</div>
+            <div class="credential-label">Advised On</div>
           </div>
         </div>
-        <p class="proof-caption">A global real estate solutions provider across Abu Dhabi, Algiers, Dubai, Leeds, London &amp; Riyadh.</p>
+        <p class="credentials-caption">A global real estate solutions provider across Abu Dhabi, Algiers, Dubai, Leeds, London &amp; Riyadh.</p>
       </div>
     </section>
 

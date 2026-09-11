@@ -94,6 +94,42 @@ Deno.serve(async (req) => {
         console.log("crm-sync attio error:", JSON.stringify({ status: res.status, body: bodyText }));
         return ok({ error: bodyText }, 502);
       }
+
+      // Attach the actual enquiry/registration context as a Note on the person —
+      // otherwise only email/name/phone ever reach Attio, with no way to see
+      // which opportunity or what was asked. Best-effort: never fails the sync.
+      try {
+        const person = await res.json();
+        const recordId = person?.data?.id?.record_id;
+        if (recordId) {
+          const title = table === "enquiries"
+            ? `${r.type ?? "Enquiry"} — ${r.opportunity_name ?? "General"}`
+            : "Portal access request";
+          const lines = [
+            `Source: ${contact.source}`,
+            contact.company ? `Company: ${contact.company}` : null,
+            r.opportunity_name ? `Opportunity: ${r.opportunity_name}` : null,
+            r.message ? `Message: ${r.message}` : null,
+          ].filter(Boolean);
+          const noteRes = await fetch("https://api.attio.com/v2/notes", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              data: {
+                parent_object: "people",
+                parent_record_id: recordId,
+                title,
+                format: "plaintext",
+                content: lines.join("\n"),
+              },
+            }),
+          });
+          if (!noteRes.ok) console.log("crm-sync attio note error:", JSON.stringify({ status: noteRes.status, body: await noteRes.text() }));
+        }
+      } catch (noteErr) {
+        console.log("crm-sync attio note exception:", String((noteErr as Error)?.message ?? noteErr));
+      }
+
       return ok({ ok: true, provider });
     }
 

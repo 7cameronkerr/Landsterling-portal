@@ -21,7 +21,7 @@ window.LS_CONFIG = {
 
   /* --- Book a Call (Calendly) ----------------------------------------- */
   // Paste your Calendly scheduling link. Until then the button shows a notice.
-  CALENDLY_URL: '',                 // e.g. 'https://calendly.com/cameron-landsterling/30min'
+  CALENDLY_URL: 'https://calendly.com/cameron-k-landsterling/investment-portal-call',
 
   /* --- Multi-currency display ----------------------------------------- */
   // Indicative FX used only to display the AED guide price in other currencies.

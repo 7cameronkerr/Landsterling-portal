@@ -294,6 +294,35 @@ alter table public.opportunities add column if not exists gallery        jsonb d
 alter table public.opportunities add column if not exists unit_schedule  jsonb default '[]'::jsonb;
 
 -- ============================================================================
+--  PHASE 5 ADDITIONS (a shortlist/watchlist for signed-in investors —
+--  acquisition decisions play out over weeks, not one browsing session)
+-- ============================================================================
+
+-- 15. One row per (investor, opportunity) they've saved. RLS restricts every
+--     operation to the owning user — nobody, including other approved
+--     investors, can see or change another user's shortlist. Admins have no
+--     special access here either; this is genuinely private to each investor.
+create table if not exists public.saved_opportunities (
+  id              uuid primary key default gen_random_uuid(),
+  user_id         uuid not null references auth.users(id) on delete cascade,
+  opportunity_id  uuid not null references public.opportunities(id) on delete cascade,
+  created_at      timestamptz not null default now(),
+  unique (user_id, opportunity_id)
+);
+create index if not exists idx_saved_opportunities_user on public.saved_opportunities (user_id, created_at desc);
+
+alter table public.saved_opportunities enable row level security;
+drop policy if exists "own saved read"   on public.saved_opportunities;
+drop policy if exists "own saved insert" on public.saved_opportunities;
+drop policy if exists "own saved delete" on public.saved_opportunities;
+create policy "own saved read" on public.saved_opportunities
+  for select using ( auth.uid() = user_id );
+create policy "own saved insert" on public.saved_opportunities
+  for insert with check ( auth.uid() = user_id );
+create policy "own saved delete" on public.saved_opportunities
+  for delete using ( auth.uid() = user_id );
+
+-- ============================================================================
 --  DONE. Next: create your own login, then promote yourself to admin with the
 --  one-line command in SETUP.md (Step 6).
 -- ============================================================================

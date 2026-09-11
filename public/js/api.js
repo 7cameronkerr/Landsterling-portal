@@ -160,6 +160,44 @@
       return (data || []).map(rowToOpportunity);
     },
 
+    /* ---- SHORTLIST (saved opportunities) ------------------------------ */
+    // Private per-investor watchlist — acquisition decisions play out over
+    // weeks, not one browsing session. Silently no-ops when signed out
+    // (there's nothing to persist to), never throws into the caller.
+
+    async getSavedOpportunityIds() {
+      if (!sb) return [];
+      try {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) return [];
+        const { data, error } = await sb.from('saved_opportunities').select('opportunity_id').eq('user_id', user.id);
+        if (error) return [];
+        return (data || []).map(r => r.opportunity_id);
+      } catch (e) { return []; }
+    },
+
+    async saveOpportunity(opportunityUuid) {
+      assertReady();
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) throw new Error('Sign in to save opportunities.');
+      const { error } = await sb.from('saved_opportunities')
+        .insert([{ user_id: user.id, opportunity_id: opportunityUuid }]);
+      // Already saved (unique constraint) is not an error from the caller's
+      // point of view — the end state (saved) is what was asked for.
+      if (error && error.code !== '23505') throw error;
+      return true;
+    },
+
+    async unsaveOpportunity(opportunityUuid) {
+      assertReady();
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) throw new Error('Sign in to manage your shortlist.');
+      const { error } = await sb.from('saved_opportunities')
+        .delete().eq('user_id', user.id).eq('opportunity_id', opportunityUuid);
+      if (error) throw error;
+      return true;
+    },
+
     /* ---- ENQUIRIES --------------------------------------------------- */
 
     async submitEnquiry(payload) {

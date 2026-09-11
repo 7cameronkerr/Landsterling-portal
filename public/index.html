@@ -628,6 +628,15 @@ h4 { font-size: 1.15rem; }
 .status-sold { background: #555; color: #fff; }
 .status-new { background: var(--red); color: #fff; }
 
+.card-save-btn {
+  position: absolute; bottom: 14px; right: 14px; z-index: 2;
+  padding: 5px 10px; font-size: 9px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  background: rgba(26,31,46,0.6); color: #fff; border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 1px; cursor: pointer; transition: var(--transition);
+}
+.card-save-btn:hover { background: rgba(26,31,46,0.85); border-color: #fff; }
+.card-save-btn.is-saved { background: var(--red); border-color: var(--red); }
+
 .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
 .card-name {
   font-family: var(--font-serif);
@@ -787,6 +796,11 @@ h4 { font-size: 1.15rem; }
 }
 .detail-breadcrumb a { color: rgba(255,255,255,0.62); cursor: pointer; }
 .detail-breadcrumb a:hover { color: rgba(255,255,255,0.9); }
+.detail-breadcrumb-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
+.detail-breadcrumb-row .detail-breadcrumb { margin-bottom: 0; }
+.detail-prevnext { display: flex; align-items: center; gap: 18px; }
+.detail-prevnext a { font-size: 11px; letter-spacing: 0.06em; color: rgba(255,255,255,0.62); cursor: pointer; white-space: nowrap; }
+.detail-prevnext a:hover { color: #fff; }
 .detail-badges { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
 .detail-badge {
   padding: 5px 12px;
@@ -850,14 +864,18 @@ h4 { font-size: 1.15rem; }
   position: sticky;
   top: calc(var(--nav-h) + 24px);
 }
-.metrics-panel h3 {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--navy);
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--divider);
+.metrics-panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--divider);
 }
+.metrics-panel h3 { font-size: 1rem; font-weight: 500; color: var(--navy); }
+.detail-save-btn {
+  padding: 6px 12px; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-sec); background: var(--white); border: 1px solid var(--border);
+  border-radius: 1px; cursor: pointer; transition: var(--transition); white-space: nowrap;
+}
+.detail-save-btn:hover { border-color: var(--text); color: var(--text); }
+.detail-save-btn.is-saved { background: var(--red); border-color: var(--red); color: #fff; }
 .metrics-table { width: 100%; }
 .metric-row {
   display: grid;
@@ -1473,7 +1491,7 @@ footer {
   padding: 40px 0 44px;
 }
 .detail-hero .container { flex: 1; display: flex; flex-direction: column; width: 100%; }
-.detail-hero .detail-breadcrumb { margin-bottom: auto; padding-bottom: 32px; }
+.detail-hero .detail-breadcrumb-row { margin-bottom: auto; padding-bottom: 32px; }
 .detail-hero-bg { opacity: 1; filter: saturate(0.85); background-position: center 40%; }
 .detail-hero::after {
   background: linear-gradient(180deg, rgba(26,31,46,0.18) 0%, rgba(26,31,46,0.34) 42%, rgba(26,31,46,0.94) 100%);
@@ -1524,7 +1542,8 @@ footer {
 .detail-action-bar { display: none; }
 @media (max-width: 768px) {
   .detail-hero { min-height: 56svh; padding: 28px 0; }
-  .detail-hero .detail-breadcrumb { padding-bottom: 20px; }
+  .detail-hero .detail-breadcrumb-row { padding-bottom: 20px; }
+  .detail-prevnext { width: 100%; justify-content: flex-start; }
   .detail-cta-row .btn { flex: 1 1 auto; justify-content: center; }
   .detail-figures-grid { grid-template-columns: 1fr 1fr; }
   .detail-figures .detail-price-item:first-child { grid-column: 1 / -1; }
@@ -2134,11 +2153,25 @@ button.gate-magic-link:hover { color: var(--red); }
           </div>
           <div class="filter-divider"></div>
           <div class="filter-group">
+            <span class="filter-label-text">Strategy</span>
+            <button class="filter-btn active" data-filter="strategy" data-value="all" onclick="setFilter('strategy','all',this)">All</button>
+            <button class="filter-btn" data-filter="strategy" data-value="Income" onclick="setFilter('strategy','Income',this)">Income</button>
+            <button class="filter-btn" data-filter="strategy" data-value="Value Add" onclick="setFilter('strategy','Value Add',this)">Value Add</button>
+            <button class="filter-btn" data-filter="strategy" data-value="Development" onclick="setFilter('strategy','Development',this)">Development</button>
+            <button class="filter-btn" data-filter="strategy" data-value="Core" onclick="setFilter('strategy','Core',this)">Core</button>
+            <button class="filter-btn" data-filter="strategy" data-value="Opportunistic" onclick="setFilter('strategy','Opportunistic',this)">Opportunistic</button>
+          </div>
+          <div class="filter-divider"></div>
+          <div class="filter-group">
             <span class="filter-label-text">Status</span>
             <button class="filter-btn active" data-filter="status" data-value="all" onclick="setFilter('status','all',this)">All</button>
             <button class="filter-btn" data-filter="status" data-value="Available" onclick="setFilter('status','Available',this)">Available</button>
             <button class="filter-btn" data-filter="status" data-value="Under Offer" onclick="setFilter('status','Under Offer',this)">Under Offer</button>
             <button class="filter-btn" data-filter="status" data-value="Sold" onclick="setFilter('status','Sold',this)">Track Record</button>
+          </div>
+          <div class="filter-divider"></div>
+          <div class="filter-group">
+            <button class="filter-btn" id="savedFilterBtn" onclick="toggleSavedFilter(this)">Saved Only</button>
           </div>
           <div class="filter-divider"></div>
           <div class="filter-secondary">
@@ -2488,6 +2521,7 @@ button.gate-magic-link:hover { color: var(--red); }
    admin panel.
    ============================================================ */
 let OPPORTUNITIES = [];
+let SAVED_IDS = new Set();   // opportunity UUIDs (opp._uuid) the signed-in investor has shortlisted
 const SEED_OPPORTUNITIES = window.SEED_OPPORTUNITIES || [];
 
 /* ============================================================
@@ -2503,7 +2537,7 @@ const METRICS = [
 /* ============================================================
    STATE
    ============================================================ */
-let currentFilter = { country: 'all', type: 'all', status: 'all' };
+let currentFilter = { country: 'all', type: 'all', strategy: 'all', status: 'all', saved: false };
 let currentView   = 'grid';
 let currentCurrency = 'AED';
 let libraryMapInstance = null;
@@ -3018,6 +3052,7 @@ function cardHTML(opp) {
         ${opp.image ? `<img class="card-image-photo" src="${opp.image}" ${imgAttrs} alt="${opp.location}" loading="lazy" onload="this.classList.add('is-loaded')" onerror="this.remove()">` : ''}
         <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}">${opp.assetProfile}</span>
         ${statusBadge}
+        ${(isSold || !opp._uuid) ? '' : `<button type="button" class="card-save-btn${SAVED_IDS.has(opp._uuid) ? ' is-saved' : ''}" onclick="toggleSaved('${opp._uuid}', this, event)">${SAVED_IDS.has(opp._uuid) ? 'Saved' : 'Save'}</button>`}
       </div>
       <div class="card-body">
         <div class="card-name">${opp.name}</div>
@@ -3037,6 +3072,35 @@ function cardHTML(opp) {
   `;
 }
 
+// Shortlist toggle — signed-out visitors get sent to sign in (there's nowhere
+// to persist a shortlist for them); signed-in investors get an optimistic
+// UI flip that reverts if the write fails, so the button never lies about
+// state while a request is in flight.
+async function toggleSaved(uuid, btn, ev) {
+  if (ev) ev.stopPropagation();
+  if (!window.LS_PROFILE) { closeNav(); setAuthTab('signin'); showGate(); return; }
+  const wasSaved = SAVED_IDS.has(uuid);
+  if (wasSaved) SAVED_IDS.delete(uuid); else SAVED_IDS.add(uuid);
+  document.querySelectorAll(`[onclick*="toggleSaved('${uuid}'"]`).forEach(el => {
+    el.classList.toggle('is-saved', !wasSaved);
+    if (el.classList.contains('card-save-btn')) el.textContent = wasSaved ? 'Save' : 'Saved';
+    if (el.classList.contains('detail-save-btn')) el.textContent = wasSaved ? 'Save Opportunity' : 'Saved ✓';
+  });
+  try {
+    if (wasSaved) await LS_API.unsaveOpportunity(uuid); else await LS_API.saveOpportunity(uuid);
+  } catch (e) {
+    if (wasSaved) SAVED_IDS.add(uuid); else SAVED_IDS.delete(uuid);
+    document.querySelectorAll(`[onclick*="toggleSaved('${uuid}'"]`).forEach(el => {
+      el.classList.toggle('is-saved', wasSaved);
+      if (el.classList.contains('card-save-btn')) el.textContent = wasSaved ? 'Saved' : 'Save';
+      if (el.classList.contains('detail-save-btn')) el.textContent = wasSaved ? 'Saved ✓' : 'Save Opportunity';
+    });
+  }
+  // Re-render if the "Saved Only" filter is active — an unsave should drop
+  // the card out of view immediately rather than leaving a stale entry.
+  if (currentFilter.saved && document.getElementById('libraryGrid')) renderLibrary();
+}
+
 /* ============================================================
    RENDER GRIDS
    ============================================================ */
@@ -3051,12 +3115,14 @@ function renderLibrary() {
   if (trackRecordHeader) trackRecordHeader.style.display = isSoldView ? ''      : 'none';
 
   const filtered = OPPORTUNITIES.filter(o => {
-    const countryMatch = currentFilter.country === 'all' || o.country === currentFilter.country;
-    const typeMatch    = currentFilter.type    === 'all' || o.assetType === currentFilter.type;
-    const statusMatch  = isSoldView
+    const countryMatch  = currentFilter.country  === 'all' || o.country === currentFilter.country;
+    const typeMatch     = currentFilter.type     === 'all' || o.assetType === currentFilter.type;
+    const strategyMatch = currentFilter.strategy === 'all' || o.assetProfile === currentFilter.strategy;
+    const statusMatch   = isSoldView
       ? o.dealStatus === 'Sold'
       : (currentFilter.status === 'all' ? o.dealStatus !== 'Sold' : o.dealStatus === currentFilter.status);
-    return countryMatch && typeMatch && statusMatch;
+    const savedMatch    = !currentFilter.saved || (!!o._uuid && SAVED_IDS.has(o._uuid));
+    return countryMatch && typeMatch && strategyMatch && statusMatch && savedMatch;
   }).sort((a,b) => a.order - b.order);
 
   const grid  = document.getElementById('libraryGrid');
@@ -3139,6 +3205,12 @@ function setFilter(dimension, value, btn) {
   // Update active state on buttons
   document.querySelectorAll(`[data-filter="${dimension}"]`).forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  renderLibrary();
+}
+
+function toggleSavedFilter(btn) {
+  currentFilter.saved = !currentFilter.saved;
+  btn.classList.toggle('active', currentFilter.saved);
   renderLibrary();
 }
 
@@ -3557,16 +3629,32 @@ function renderOpportunityDetail(slug) {
       </div>
     </section>`;
 
+  // Prev/Next — steps through the full catalogue in its curated sort order,
+  // independent of whatever Asset Library filter (if any) the visitor arrived
+  // from, so it's always defined rather than depending on carried-over state.
+  const sortedOpps = [...OPPORTUNITIES].sort((a, b) => a.order - b.order);
+  const oppIdx = sortedOpps.findIndex(o => o.id === opp.id);
+  const prevOpp = oppIdx > 0 ? sortedOpps[oppIdx - 1] : null;
+  const nextOpp = (oppIdx > -1 && oppIdx < sortedOpps.length - 1) ? sortedOpps[oppIdx + 1] : null;
+  const prevNextHTML = (prevOpp || nextOpp) ? `
+    <div class="detail-prevnext">
+      ${prevOpp ? `<a onclick="navigate('opportunity','${prevOpp.id}')">← Previous</a>` : ''}
+      ${nextOpp ? `<a onclick="navigate('opportunity','${nextOpp.id}')">Next →</a>` : ''}
+    </div>` : '';
+
   document.getElementById('opportunityContent').innerHTML = `
     <div class="detail-hero${opp.image ? '' : ' no-image'}">
       ${opp.image ? `<div class="detail-hero-bg" style="background-image:url('${opp.image}')"></div>` : ''}
       <div class="container">
-        <div class="detail-breadcrumb">
-          <a onclick="navigate('home')">Home</a>
-          <span>→</span>
-          <a onclick="navigate('asset-library')">Asset Library</a>
-          <span>→</span>
-          <span style="color:rgba(255,255,255,0.6)">${opp.name}</span>
+        <div class="detail-breadcrumb-row">
+          <div class="detail-breadcrumb">
+            <a onclick="navigate('home')">Home</a>
+            <span>→</span>
+            <a onclick="navigate('asset-library')">Asset Library</a>
+            <span>→</span>
+            <span style="color:rgba(255,255,255,0.6)">${opp.name}</span>
+          </div>
+          ${prevNextHTML}
         </div>
         <div class="detail-badges">
           <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}" style="position:static">${opp.assetProfile}</span>
@@ -3637,7 +3725,10 @@ function renderOpportunityDetail(slug) {
 
           <div class="detail-sidebar">
             <div class="metrics-panel">
-              <h3>Key Metrics</h3>
+              <div class="metrics-panel-head">
+                <h3>Key Metrics</h3>
+                ${opp._uuid ? `<button type="button" class="detail-save-btn${SAVED_IDS.has(opp._uuid) ? ' is-saved' : ''}" onclick="toggleSaved('${opp._uuid}', this)">${SAVED_IDS.has(opp._uuid) ? 'Saved ✓' : 'Save Opportunity'}</button>` : ''}
+              </div>
               <div class="metrics-table">${metricsHTML}</div>
               <div class="metrics-panel-cta">
                 <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
@@ -3991,6 +4082,7 @@ async function init() {
     skGrid.innerHTML = Array(3).fill('<div class="opp-card opp-skeleton" aria-hidden="true"><div class="card-image"></div><div class="card-body"><div class="sk sk-t"></div><div class="sk sk-s"></div><div class="sk sk-s"></div></div></div>').join('');
   }
   await loadOpportunities();
+  if (LS_API.configured) SAVED_IDS = new Set(await LS_API.getSavedOpportunityIds());
   renderMetrics();                 // re-run now that the live listings are known
   renderLibrary();
   renderFeatured();

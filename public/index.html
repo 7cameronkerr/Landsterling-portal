@@ -1394,13 +1394,104 @@ footer {
 }
 
 /* ============================================================
+   DEAL PAGE UPGRADES — image-led hero, key-figures band, grouped
+   metrics panel, mobile action bar, analysis disclosure
+   ============================================================ */
+.detail-hero {
+  min-height: clamp(420px, 62vh, 680px);
+  display: flex;
+  flex-direction: column;
+  padding: 40px 0 44px;
+}
+.detail-hero .container { flex: 1; display: flex; flex-direction: column; width: 100%; }
+.detail-hero .detail-breadcrumb { margin-bottom: auto; padding-bottom: 32px; }
+.detail-hero-bg { opacity: 1; filter: saturate(0.85); background-position: center 40%; }
+.detail-hero::after {
+  background: linear-gradient(180deg, rgba(26,31,46,0.18) 0%, rgba(26,31,46,0.34) 42%, rgba(26,31,46,0.94) 100%);
+}
+.detail-hero.no-image { min-height: auto; padding: 80px 0 56px; }
+.detail-badge.type, .detail-badge.tenure { border-color: rgba(255,255,255,0.35); color: rgba(255,255,255,0.88); }
+.detail-location { color: rgba(255,255,255,0.8); margin-bottom: 28px; }
+
+/* Key-figures band beneath the hero */
+.detail-figures { background: var(--white); border-bottom: 1px solid var(--divider); }
+.detail-figures-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--divider); }
+.detail-figures .detail-price-item { background: var(--white); padding: 22px 24px; }
+.detail-figures .detail-price-label { color: var(--text-sec); }
+.detail-figures .detail-price-value { color: var(--navy); font-size: 1.5rem; }
+.detail-figures .detail-price-value.large { font-size: 1.9rem; }
+
+/* Grouped metrics panel */
+.metric-group { margin-bottom: 16px; }
+.metric-group-label {
+  display: block; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--navy); padding-bottom: 6px; margin-bottom: 4px;
+  border-bottom: 1px solid var(--navy); cursor: pointer; list-style: none;
+}
+.metric-group-label::-webkit-details-marker { display: none; }
+.metric-group-label::after { content: '–'; float: right; color: var(--text-sec); }
+.metric-group:not([open]) .metric-group-label::after { content: '+'; }
+.metrics-panel-cta { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--divider); }
+@media (min-width: 1101px) {
+  .metrics-panel { max-height: calc(100vh - var(--nav-h) - 48px); overflow-y: auto; scrollbar-width: thin; padding-bottom: 0; }
+  .metrics-panel-cta { position: sticky; bottom: 0; background: var(--white); padding-bottom: 28px; }
+}
+
+/* Analysis disclosure + holding state */
+.analysis-disclose { margin-top: 18px; border: 1px solid var(--border); border-radius: 3px; background: var(--white); }
+.analysis-disclose summary {
+  cursor: pointer; padding: 14px 18px; font-size: 12px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--navy); list-style: none;
+}
+.analysis-disclose summary::-webkit-details-marker { display: none; }
+.analysis-disclose summary::after { content: '+'; float: right; }
+.analysis-disclose[open] summary::after { content: '–'; }
+.analysis-disclose-body { padding: 4px 18px 18px; }
+.analysis-holding { border-left-color: var(--navy); margin-top: 18px; }
+.analysis-holding .label { display: block; margin-bottom: 8px; color: var(--navy); }
+.analysis-holding p { margin: 0 0 14px; }
+
+/* Mobile action bar (deal page) */
+.detail-action-bar { display: none; }
+@media (max-width: 768px) {
+  .detail-hero { min-height: 56svh; padding: 28px 0; }
+  .detail-hero .detail-breadcrumb { padding-bottom: 20px; }
+  .detail-cta-row .btn { flex: 1 1 auto; justify-content: center; }
+  .detail-figures-grid { grid-template-columns: 1fr 1fr; }
+  .detail-figures .detail-price-item:first-child { grid-column: 1 / -1; }
+  .detail-figures .detail-price-value { font-size: 1.25rem; }
+  .detail-figures .detail-price-value.large { font-size: 1.5rem; }
+  .detail-body { padding-bottom: 100px; }
+  .detail-action-bar {
+    display: flex; align-items: center; gap: 8px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 400;
+    background: var(--white); border-top: 1px solid var(--divider);
+    box-shadow: 0 -4px 20px rgba(26,31,46,0.08);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    transform: translateY(100%); transition: transform 0.25s ease;
+  }
+  .detail-action-bar.show { transform: none; }
+  .dab-price { flex: 1; min-width: 0; }
+  .dab-price .label { font-size: 9px; display: block; }
+  .dab-price strong {
+    font-family: var(--font-mono); font-weight: 400; font-size: 0.95rem; color: var(--navy);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
+  }
+  .detail-action-bar .btn { justify-content: center; padding: 11px 12px; white-space: nowrap; }
+  .analysis-holding .btn { width: 100%; justify-content: center; }
+}
+@media (max-width: 380px) { .dab-price .label { display: none; } }
+@media (prefers-reduced-motion: reduce) { .detail-action-bar { transition: none; } }
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
   .metrics-grid { grid-template-columns: repeat(3, 1fr); }
   .opps-grid { grid-template-columns: repeat(2, 1fr); }
   .detail-grid { grid-template-columns: 1fr; }
-  .metrics-panel { position: static; }
+  .metrics-panel { position: static; padding: 24px; }
+  .detail-sidebar { order: -1; margin-bottom: 48px; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 768px) {
@@ -2612,13 +2703,21 @@ function buildAnalysisHTML(opp) {
 
   // Holding state — shown until profile-specific analysis is supplied
   if (!a) {
-    const frameworkByProfile = {
-      'Value Add': 'Capital expenditure schedule, stabilisation timeline and return sensitivities to exit yield and ERV will be presented here.',
-      'Development': 'Residual land appraisal, development costing, GDV build-up and profit-on-cost sensitivities will be presented here.',
-      'Stabilised Income': 'Hold-period cash flow, levered and unlevered IRR, equity multiple and yield-on-cost analysis will be presented here.'
+    // No underwriting model attached yet: show the profile-defining figures we do
+    // have, and make the offer explicit rather than leaving a placeholder.
+    const frameworkList = {
+      'Stabilised Income': 'hold-period cash flow, levered and unlevered IRR, equity multiple',
+      'Value Add':         'cap-ex schedule, stabilisation timeline, exit-yield and ERV sensitivities',
+      'Development':       'residual land appraisal, GDV build-up, profit-on-cost sensitivities'
     };
-    const note = frameworkByProfile[opp.assetProfile] || 'Detailed return analysis will be presented here.';
-    return `<div class="analysis-holding">Detailed investment analysis for this opportunity is available within the full particulars. ${note} Request particulars or contact the advisory team for the underwriting model and supporting evidence.</div>`;
+    const framework = frameworkList[opp.assetProfile] || 'return analysis';
+    const tiles = derivedHeadline(opp);
+    return (tiles.length ? analysisMetricGrid(tiles) : '') +
+      `<div class="analysis-holding">
+        <span class="label">Available with the particulars</span>
+        <p>The full underwriting model — ${framework} — is released under NDA with the particulars.</p>
+        <button class="btn btn-secondary btn-sm" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
+      </div>`;
   }
 
   let html = '';
@@ -2699,18 +2798,66 @@ function yieldChartHTML(opp) {
     </div>`;
 }
 
+// ---- Profile-aware figures -------------------------------------------------
+// The number an investor scans for differs by strategy: yield for income deals,
+// reversion for value-add, GDV for development. Pulled from opp.metrics.
+const HERO_KEYS = {
+  'Stabilised Income': ['Gross Yield', 'Current Net Yield', 'Net Yield', 'Current NOI', 'Net Income', 'Entry Metric'],
+  'Value Add':         ['Net Initial Yield', 'Reversionary Yield', 'Day-One Income', 'Stabilised NOI', 'Passing Rent', 'Entry Metric'],
+  'Development':       ['Entry Metric', 'Base-Case GDV', 'GDV (Estimated)', 'Land-to-GDV Ratio', 'Handover']
+};
+const HEADLINE_KEYS = {
+  'Stabilised Income': ['Gross Yield', 'Net Yield', 'Stabilised Net Yield', 'Current NOI', 'Net Income'],
+  'Value Add':         ['Net Initial Yield', 'Reversionary Yield', 'Yield Spread', 'Day-One Income', 'Stabilised NOI', 'Market Rent (ERV)'],
+  'Development':       ['Entry Metric', 'Base-Case GDV', 'GDV (Estimated)', 'Land-to-GDV Ratio', 'Stabilised ERV', 'Handover']
+};
+function tidyMetric(v) { return convertAedDisplay(String(v).replace(' per annum', ' p.a.')); }
+function figureLabel(k, v) { return (k === 'Entry Metric' && /psf/i.test(String(v))) ? 'Entry PSF' : k; }
+
+function heroFigures(opp) {
+  const m = opp.metrics || {};
+  const cells = [{ label: opp.priceLabel, value: convertAedDisplay(opp.price), large: true }];
+  const keys = (HERO_KEYS[opp.assetProfile] || []).filter(k => m[k]);
+  if (keys.length) {
+    keys.slice(0, 3).forEach(k => cells.push({ label: figureLabel(k, m[k]), value: tidyMetric(m[k]) }));
+  } else {
+    if (opp.grossYield) cells.push({ label: 'Gross Yield', value: opp.grossYield });
+    if (opp.netYield)   cells.push({ label: 'Net Yield',   value: opp.netYield });
+    if (opp.entryPsf)   cells.push({ label: 'Entry PSF',   value: convertAedDisplay(opp.entryPsf) });
+  }
+  return cells.map(c => `<div class="detail-price-item"><div class="detail-price-label">${c.label}</div><div class="detail-price-value${c.large ? ' large' : ''}">${c.value}</div></div>`).join('');
+}
+
+function derivedHeadline(opp) {
+  const m = opp.metrics || {};
+  return (HEADLINE_KEYS[opp.assetProfile] || []).filter(k => m[k]).slice(0, 3)
+    .map(k => ({ label: figureLabel(k, m[k]), value: tidyMetric(m[k]) }));
+}
+
 function renderOpportunityDetail(slug) {
   const opp = OPPORTUNITIES.find(o => o.id === slug);
   if (!opp) { navigate('asset-library'); return; }
   currentOpportunity = opp;
   if (LS_API && LS_API.logActivity) LS_API.logActivity('view_opportunity', opp.id);
 
-  const metricsHTML = Object.entries(opp.metrics).map(([k,v]) => `
-    <div class="metric-row">
-      <span class="metric-key">${k}</span>
-      <span class="metric-val">${v}</span>
-    </div>
-  `).join('');
+  // Group the metrics so the panel reads as three short lists, not one wall.
+  const SKIP_KEYS = ['Asset Class', 'Asset Profile', 'Tenure'];   // already shown as hero badges
+  const GROUPS = [
+    ['Pricing & Returns', /price|entry|yield|spread|gdv|ratio/i],
+    ['Income & Tenancy',  /income|rent|noi|erv|revenue|service charge|wault|occupancy|leaseback|payment plan/i],
+    ['Asset', null]
+  ];
+  const grouped = GROUPS.map(g => ({ name: g[0], rows: [] }));
+  Object.entries(opp.metrics || {}).forEach(([k, v]) => {
+    if (SKIP_KEYS.includes(k)) return;
+    const gi = GROUPS.findIndex(g => g[1] && g[1].test(k));
+    grouped[gi === -1 ? 2 : gi].rows.push([k, v]);
+  });
+  const metricsHTML = grouped.filter(g => g.rows.length).map(g => `
+    <details class="metric-group" open>
+      <summary class="metric-group-label">${g.name}</summary>
+      ${g.rows.map(([k, v]) => `<div class="metric-row"><span class="metric-key">${k}</span><span class="metric-val">${convertAedDisplay(String(v))}</span></div>`).join('')}
+    </details>`).join('');
 
   const summaryParas = opp.summary.split('\n\n').map(p => `<p>${p}</p>`).join('');
 
@@ -2725,29 +2872,11 @@ function renderOpportunityDetail(slug) {
 
   const analysisHTML = buildAnalysisHTML(opp);
 
-  const priceShown = convertAedDisplay(opp.price);
-  const psfShown   = convertAedDisplay(opp.entryPsf);
-  const priceDisplay = opp.grossYield ? `
-    <div class="detail-price-item">
-      <div class="detail-price-label">${opp.priceLabel}</div>
-      <div class="detail-price-value large">${priceShown}</div>
-    </div>
-    <div class="detail-price-item">
-      <div class="detail-price-label">Gross Yield</div>
-      <div class="detail-price-value">${opp.grossYield}</div>
-    </div>
-    ${opp.netYield ? `<div class="detail-price-item"><div class="detail-price-label">Net Yield</div><div class="detail-price-value">${opp.netYield}</div></div>` : ''}
-    ${opp.entryPsf ? `<div class="detail-price-item"><div class="detail-price-label">Entry Price PSF</div><div class="detail-price-value">${psfShown}</div></div>` : ''}
-  ` : `
-    <div class="detail-price-item">
-      <div class="detail-price-label">${opp.priceLabel}</div>
-      <div class="detail-price-value large">${priceShown}</div>
-    </div>
-    ${opp.entryPsf ? `<div class="detail-price-item"><div class="detail-price-label">Entry Metric</div><div class="detail-price-value">${psfShown}</div></div>` : ''}
-  `;
+  const priceShown  = convertAedDisplay(opp.price);
+  const figuresHTML = heroFigures(opp);
 
   document.getElementById('opportunityContent').innerHTML = `
-    <div class="detail-hero">
+    <div class="detail-hero${opp.image ? '' : ' no-image'}">
       ${opp.image ? `<div class="detail-hero-bg" style="background-image:url('${opp.image}')"></div>` : ''}
       <div class="container">
         <div class="detail-breadcrumb">
@@ -2764,13 +2893,17 @@ function renderOpportunityDetail(slug) {
         </div>
         <h1 class="detail-name">${opp.name}</h1>
         <p class="detail-location">↗ ${opp.location}</p>
-        <div class="detail-price-row">${priceDisplay}</div>
         <div class="detail-cta-row">
-          <button class="btn btn-primary" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
+          <button class="btn btn-primary" onclick="openParticularsModal('${opp.id}','data_room')">Request Data Room Access</button>
+          <button class="btn btn-outline-white" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
           <button class="btn btn-outline-white" onclick="openBookACall()">Book a Call</button>
         </div>
       </div>
     </div>
+
+    <section class="detail-figures" aria-label="Key figures">
+      <div class="container"><div class="detail-figures-grid">${figuresHTML}</div></div>
+    </section>
 
     <div class="detail-body">
       <div class="container">
@@ -2795,10 +2928,10 @@ function renderOpportunityDetail(slug) {
               <span class="section-rule"></span>
               <h2>Returns &amp; Sensitivities</h2>
               ${yieldChartHTML(opp)}
-              <details class="analysis-disclose" style="margin-top:18px;border:1px solid var(--border);border-radius:3px;background:#fff;">
-                <summary style="cursor:pointer;padding:14px 18px;font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--red);">Show full underwriting analysis</summary>
-                <div style="padding:4px 18px 18px;">${analysisHTML}</div>
-              </details>
+              ${opp.analysis ? `<details class="analysis-disclose">
+                <summary>View underwriting analysis</summary>
+                <div class="analysis-disclose-body">${analysisHTML}</div>
+              </details>` : analysisHTML}
             </div>
 
             <div class="detail-location-map">
@@ -2818,7 +2951,7 @@ function renderOpportunityDetail(slug) {
             <div class="metrics-panel">
               <h3>Key Metrics</h3>
               <div class="metrics-table">${metricsHTML}</div>
-              <div style="margin-top:24px; display:flex; flex-direction:column; gap:10px;">
+              <div class="metrics-panel-cta">
                 <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}','data_room')">Request Data Room Access</button>
                 <button class="btn btn-secondary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
                 <button class="btn btn-secondary" style="width:100%; justify-content:center" onclick="openBookACall()">Book a Call</button>
@@ -2828,10 +2961,36 @@ function renderOpportunityDetail(slug) {
         </div>
       </div>
     </div>
+    <div class="detail-action-bar" id="detailActionBar">
+      <div class="dab-price"><span class="label">${opp.priceLabel}</span><strong>${priceShown}</strong></div>
+      <button class="btn btn-primary btn-sm" onclick="openParticularsModal('${opp.id}','data_room')">Data Room</button>
+      <button class="btn btn-secondary btn-sm" onclick="openParticularsModal('${opp.id}')">Particulars</button>
+    </div>
   `;
   // Initialise detail page map after DOM is written
   initDetailMap(opp.lat, opp.lng, opp.name, opp.location);
+
+  // Phones: the action bar slides up once the hero CTAs leave the viewport
+  // (held back while the cookie bar is on screen so the two never stack).
+  if (window.detailCtaObs) window.detailCtaObs.disconnect();
+  const bar = document.getElementById('detailActionBar');
+  const ctaRow = document.querySelector('.detail-cta-row');
+  if (bar && ctaRow && 'IntersectionObserver' in window) {
+    window.detailCtaObs = new IntersectionObserver(([en]) => {
+      window.detailBarWanted = !en.isIntersecting;
+      bar.classList.toggle('show', window.detailBarWanted && !document.getElementById('ls-cookie-bar'));
+    }, { threshold: 0 });
+    window.detailCtaObs.observe(ctaRow);
+  }
+  // Phones: keep the metrics panel short — only the first group open.
+  if (window.matchMedia('(max-width: 1100px)').matches) {
+    document.querySelectorAll('.metric-group').forEach((d, i) => { if (i > 0) d.removeAttribute('open'); });
+  }
 }
+document.addEventListener('ls-consent', () => {
+  const bar = document.getElementById('detailActionBar');
+  if (bar && window.detailBarWanted) bar.classList.add('show');
+});
 
 /* ============================================================
    MODALS

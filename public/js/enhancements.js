@@ -41,7 +41,11 @@
         '</div>' +
       '</div>';
     document.body.appendChild(bar);
-    const close = (choice) => { localStorage.setItem('ls_cookie_consent', choice); bar.remove(); if (choice === 'accepted') loadAnalytics(); };
+    const close = (choice) => {
+      localStorage.setItem('ls_cookie_consent', choice); bar.remove();
+      if (choice === 'accepted') loadAnalytics();
+      document.dispatchEvent(new CustomEvent('ls-consent'));   // lets the deal-page action bar appear
+    };
     document.getElementById('ls-cc-accept').onclick  = () => close('accepted');
     document.getElementById('ls-cc-decline').onclick = () => close('declined');
   }

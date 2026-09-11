@@ -1622,6 +1622,43 @@ button.gate-forgot:hover { color: var(--red); }
 @media (max-width: 768px) { .gate-form .gate-pw-wrap input[type="password"], .gate-form .gate-pw-wrap input[type="text"] { font-size: 16px; } }
 
 /* ============================================================
+   INSIGHTS PAGE
+   ============================================================ */
+.insights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.insight-card { background: var(--white); border: 1px solid var(--border); padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+.insight-type { font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); }
+.insight-title { font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; color: var(--navy); line-height: 1.2; }
+.insight-date { font-size: 11.5px; color: var(--text-sec); }
+.insight-summary { font-size: 14px; color: var(--text-sec); line-height: 1.7; flex: 1; }
+.insight-card .btn { align-self: flex-start; }
+.insight-sample { font-size: 10.5px; color: var(--amber); }
+.insights-note { font-size: 12.5px; color: var(--text-sec); margin-top: 28px; max-width: 65ch; }
+@media (max-width: 1100px) { .insights-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px)  { .insights-grid { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   TYPE SYSTEM — reading measure, one heading spec, label floor
+   ============================================================ */
+.intro-right p, .about-intro-right p, .detail-summary p, .analysis-narrative p { font-size: 15px; line-height: 1.8; max-width: 65ch; }
+.detail-footer-note { max-width: 65ch; font-size: 12.5px; }
+.intro-left h2, .about-intro-left h2, .about-pillars-header h2, .about-team-header h2,
+.detail-summary h2, .detail-highlights h2, .detail-analysis h2, .detail-location-map h2 {
+  font-size: clamp(1.75rem, 2.6vw, 2.4rem); font-weight: 400; line-height: 1.12; max-width: 22ch; text-wrap: balance;
+}
+.metric-label, .analysis-metric-label, .analysis-table thead th { font-size: 10.5px; }
+.metric-label, .analysis-metric-label { color: rgba(255,255,255,0.62); }
+.analysis-table thead th { font-weight: 500; }
+.card-profile-badge, .card-status-badge, .detail-badge { font-size: 10px; }
+.analysis-table tbody td:not(:first-child), .metric-val { font-variant-numeric: tabular-nums; }
+@media (max-width: 768px) { .metric-label, .analysis-metric-label, .analysis-table thead th { font-size: 11px; } }
+
+/* Accessibility helpers */
+.skip-link { position: absolute; left: -9999px; top: 8px; z-index: 10000; background: var(--navy); color: #fff; padding: 10px 16px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+.skip-link:focus { left: 16px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.opp-card:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
@@ -1721,6 +1758,7 @@ button.gate-forgot:hover { color: var(--red); }
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
 <!-- ============================================================
      EMAIL GATE
@@ -1838,6 +1876,7 @@ button.gate-forgot:hover { color: var(--red); }
     <ul class="nav-links" id="navLinks">
       <li><span class="nav-link active" id="nav-home" onclick="navigate('home')">Home</span></li>
       <li><span class="nav-link" id="nav-asset-library" onclick="navigate('asset-library')">Asset Library</span></li>
+      <li><span class="nav-link" id="nav-insights" onclick="navigate('insights')">Insights</span></li>
       <li><span class="nav-link" id="nav-about" onclick="navigate('about')">About Us</span></li>
       <li><span class="nav-link" id="nav-signout" onclick="handleSignOut()" style="display:none;">Sign Out</span></li>
       <li class="nav-link-cta"><button class="btn btn-primary btn-sm" onclick="closeNav(); openEnquireModal(null)">Request Further Details</button></li>
@@ -2020,6 +2059,7 @@ button.gate-forgot:hover { color: var(--red); }
           </div>
         </div>
         <p class="fx-note" id="fxNote" style="display:none;font-size:11px;color:var(--text-sec);margin:-8px 0 18px;">Non-AED figures are indicative, converted at a stored rate for guidance only.</p>
+        <div id="filterStatus" class="sr-only" aria-live="polite"></div>
         <div class="opps-grid" id="libraryGrid"></div>
         <div class="library-map-wrap" id="libraryMapWrap" style="display:none;">
           <div id="libraryMap" style="width:100%;height:560px;"></div>
@@ -2038,6 +2078,25 @@ button.gate-forgot:hover { color: var(--red); }
     <div id="opportunityContent"></div>
   </div>
 
+
+  <!-- INSIGHTS PAGE — Land Sterling research -->
+  <div class="page" id="page-insights">
+    <div class="about-hero">
+      <div class="container">
+        <span class="label">Land Sterling Research</span>
+        <span class="section-rule"></span>
+        <h1>Insights</h1>
+        <p>Market intelligence from Land Sterling's research and valuation practice — the evidence base behind every opportunity on this portal.</p>
+        <div style="margin-top:28px;"><button class="btn btn-outline-white" onclick="openEnquireModal(null); document.getElementById('enquireOppTag').textContent = 'Research briefing'; window.LS_ENQ_TYPE = 'research';">Request a briefing</button></div>
+      </div>
+    </div>
+    <div class="about-body">
+      <div class="container">
+        <div class="insights-grid" id="insightsGrid"></div>
+        <p class="insights-note" id="insightsNote"></p>
+      </div>
+    </div>
+  </div>
 
   <!-- ABOUT US PAGE -->
   <div class="page" id="page-about">
@@ -2188,18 +2247,18 @@ button.gate-forgot:hover { color: var(--red); }
     <form id="particularsForm" onsubmit="handleParticularsSubmit(event)">
       <div class="form-grid">
         <div class="form-row">
-          <div class="form-field"><label>Full Name *</label><input id="partName" type="text" required placeholder="Your full name"></div>
-          <div class="form-field"><label>Email Address *</label><input id="partEmail" type="email" required placeholder="your@email.com"></div>
+          <div class="form-field"><label for="partName">Full Name *</label><input id="partName" type="text" required placeholder="Your full name" autocomplete="name"></div>
+          <div class="form-field"><label for="partEmail">Email Address *</label><input id="partEmail" type="email" required placeholder="your@email.com" autocomplete="email"></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>Phone Number *</label><input id="partPhone" type="tel" required placeholder="+971 ..."></div>
-          <div class="form-field"><label>Company *</label><input id="partCompany" type="text" required placeholder="Organisation"></div>
+          <div class="form-field"><label for="partPhone">Phone Number *</label><input id="partPhone" type="tel" inputmode="tel" required placeholder="+971 ..." autocomplete="tel"></div>
+          <div class="form-field"><label for="partCompany">Company *</label><input id="partCompany" type="text" required placeholder="Organisation" autocomplete="organization"></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>Acquisition Budget</label><input id="partBudget" type="text" placeholder="e.g. AED 100M–200M"></div>
-          <div class="form-field"><label>Area of Interest</label><input id="partInterest" type="text" placeholder="e.g. Commercial Dubai"></div>
+          <div class="form-field"><label for="partBudget">Acquisition Budget</label><input id="partBudget" type="text" placeholder="e.g. AED 100M–200M"></div>
+          <div class="form-field"><label for="partInterest">Area of Interest</label><input id="partInterest" type="text" placeholder="e.g. Commercial Dubai"></div>
         </div>
-        <div class="form-field full"><label>Message</label><textarea id="partMessage" placeholder="Any additional context..." rows="3"></textarea></div>
+        <div class="form-field full"><label for="partMessage">Message</label><textarea id="partMessage" placeholder="Any additional context..." rows="3"></textarea></div>
         <div class="form-consent">
           <input type="checkbox" id="particularsConsent" required>
           <label for="particularsConsent">I confirm I agree to be contacted by Land Sterling Investment Advisory in connection with this opportunity.</label>
@@ -2231,14 +2290,14 @@ button.gate-forgot:hover { color: var(--red); }
     <form id="enquireForm" onsubmit="handleEnquireSubmit(event)">
       <div class="form-grid">
         <div class="form-row">
-          <div class="form-field"><label>Full Name *</label><input id="enqName" type="text" required placeholder="Your full name"></div>
-          <div class="form-field"><label>Email Address *</label><input id="enqEmail" type="email" required placeholder="your@email.com"></div>
+          <div class="form-field"><label for="enqName">Full Name *</label><input id="enqName" type="text" required placeholder="Your full name" autocomplete="name"></div>
+          <div class="form-field"><label for="enqEmail">Email Address *</label><input id="enqEmail" type="email" required placeholder="your@email.com" autocomplete="email"></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>Phone *</label><input id="enqPhone" type="tel" required placeholder="+971 ..."></div>
-          <div class="form-field"><label>Company</label><input id="enqCompany" type="text" placeholder="Organisation"></div>
+          <div class="form-field"><label for="enqPhone">Phone *</label><input id="enqPhone" type="tel" inputmode="tel" required placeholder="+971 ..." autocomplete="tel"></div>
+          <div class="form-field"><label for="enqCompany">Company</label><input id="enqCompany" type="text" placeholder="Organisation" autocomplete="organization"></div>
         </div>
-        <div class="form-field full"><label>Message</label><textarea id="enqMessage" placeholder="Please describe your interest..." rows="3"></textarea></div>
+        <div class="form-field full"><label for="enqMessage">Message</label><textarea id="enqMessage" placeholder="Please describe your interest..." rows="3"></textarea></div>
         <div class="form-consent">
           <input type="checkbox" id="enquireConsent" required>
           <label for="enquireConsent">I agree to be contacted by Land Sterling Investment Advisory in connection with this opportunity.</label>
@@ -2289,6 +2348,7 @@ button.gate-forgot:hover { color: var(--red); }
         <ul>
           <li><span onclick="navigate('home')">Home</span></li>
           <li><span onclick="navigate('asset-library')">Asset Library</span></li>
+          <li><span onclick="navigate('insights')">Insights</span></li>
           <li><span onclick="navigate('about')">About Us</span></li>
         </ul>
       </div>
@@ -2388,8 +2448,11 @@ function convertAedDisplay(str) {
 
 function setCurrency(code) {
   currentCurrency = code;
-  document.querySelectorAll('.currency-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.cur === code));
+  document.querySelectorAll('.currency-btn').forEach(b => {
+    const on = b.dataset.cur === code;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
   const note = document.getElementById('fxNote');
   if (note) note.style.display = code === 'AED' ? 'none' : 'block';
   // Update every priced element in place — no page rebuild, no map reload.
@@ -2598,7 +2661,7 @@ async function checkGate() {
    ============================================================ */
 function navigate(page, slug) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => { l.classList.remove('active'); l.removeAttribute('aria-current'); });
   closeNav();
   // Jump, don't glide: a smooth scroll over a freshly swapped page reads as a glitch.
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -2610,7 +2673,7 @@ function navigate(page, slug) {
     const el = document.getElementById('page-' + page);
     if (el) el.classList.add('active');
     const navEl = document.getElementById('nav-' + page);
-    if (navEl) navEl.classList.add('active');
+    if (navEl) { navEl.classList.add('active'); navEl.setAttribute('aria-current', 'page'); }
   }
 
   // Update URL hash
@@ -2751,7 +2814,7 @@ function cardHTML(opp) {
        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openParticularsModal('${opp.id}')">Request Particulars</button>`;
 
   return `
-    <div class="opp-card" ${opp.dealStatus !== 'Sold' ? `onclick="navigate('opportunity','${opp.id}')"` : ''}>
+    <div class="opp-card" ${opp.dealStatus !== 'Sold' ? `role="link" tabindex="0" aria-label="View ${String(opp.name).replace(/"/g, '&quot;')}" onclick="navigate('opportunity','${opp.id}')" onkeydown="if(event.key==='Enter'){navigate('opportunity','${opp.id}')}"` : ''}>
       <div class="card-image">
         <div class="card-image-bg ${imageClass(opp.assetType)}">
           <div class="card-image-pattern"></div>
@@ -2824,12 +2887,49 @@ function renderLibrary() {
     grid.innerHTML = filtered.map(cardHTML).join('');
     if (empty) empty.style.display = 'none';
   }
+  const status = document.getElementById('filterStatus');
+  if (status) status.textContent = filtered.length + (filtered.length === 1 ? ' opportunity shown' : ' opportunities shown');
   if (typeof applyReveal === 'function') applyReveal();
 }
 
 /* ============================================================
    FILTERS
    ============================================================ */
+/* ============================================================
+   INSIGHTS — Land Sterling research. Replace the sample entries
+   with real pieces (title, type, date, summary, url to the PDF/page).
+   ============================================================ */
+const INSIGHTS = [
+  { title: 'Dubai Office Market — H1 2026', type: 'Market Report', date: 'July 2026',
+    summary: 'Prime and Grade A rental evidence across DIC, DMC and DIFC, with vacancy, absorption and the freehold premium.', url: '', sample: true },
+  { title: 'Dubai Islands: Off-Plan Pricing Evidence', type: 'Research Note', date: 'June 2026',
+    summary: 'Registered Island A transactions by unit type and the implied entry discount available on forward purchases.', url: '', sample: true },
+  { title: 'UAE Residential Yield Map — Q2 2026', type: 'Data Release', date: 'May 2026',
+    summary: 'Gross and net yield ranges by community, and the drivers of the current spread between prime and value locations.', url: '', sample: true }
+];
+function openInsightRequest(index) {
+  const it = INSIGHTS[index]; if (!it) return;
+  openEnquireModal(null);
+  document.getElementById('enquireOppTag').textContent = 'Research: ' + it.title;
+  window.LS_ENQ_TYPE = 'research';
+}
+function renderInsights() {
+  const g = document.getElementById('insightsGrid'), note = document.getElementById('insightsNote');
+  if (!g) return;
+  g.innerHTML = INSIGHTS.map((it, i) => `
+    <article class="insight-card">
+      <span class="insight-type">${it.type}</span>
+      <h3 class="insight-title">${it.title}</h3>
+      <span class="insight-date">${it.date}</span>
+      <p class="insight-summary">${it.summary}</p>
+      ${it.url
+        ? `<a class="btn btn-secondary btn-sm" href="${it.url}" target="_blank" rel="noopener">Read the report</a>`
+        : `<button class="btn btn-secondary btn-sm" onclick="openInsightRequest(${i})">Request this report</button>`}
+      ${it.sample ? '<span class="insight-sample">Sample entry — replace with your latest research</span>' : ''}
+    </article>`).join('');
+  if (note) note.textContent = 'Research is issued to portal members on request and, where indicated, under the confidentiality agreement.';
+}
+
 // Home page gallery: up to three featured live deals (falls back to the first three).
 function renderFeatured() {
   const sec = document.getElementById('featuredSection'), g = document.getElementById('featuredGrid');
@@ -3061,26 +3161,67 @@ function parsePct(s) {
   return m ? parseFloat(m[1]) : null;
 }
 
-// Simple, on-brand SVG yield chart (gross vs net) — shown when yields exist.
-function yieldChartHTML(opp) {
-  const g = parsePct(opp.grossYield), n = parsePct(opp.netYield);
-  const bars = [];
-  if (g !== null) bars.push({ label: 'Gross Yield', val: g, color: '#C0272D' });
-  if (n !== null) bars.push({ label: 'Net Yield',   val: n, color: '#1A1F2E' });
-  if (!bars.length) return '';
-  const max = Math.max(...bars.map(b => b.val)) * 1.3;
-  const W = 320, H = 170, pad = 34, bw = 58, gap = 84, base = H - pad;
-  const svg = bars.map((b, i) => {
-    const h = (b.val / max) * (base - 18);
-    const x = pad + i * gap, y = base - h;
-    return `<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="${b.color}" rx="2"></rect>
-      <text x="${x+bw/2}" y="${y-7}" text-anchor="middle" font-size="14" font-weight="600" fill="#1A1A1A" font-family="DM Sans,sans-serif">${b.val}%</text>
-      <text x="${x+bw/2}" y="${base+17}" text-anchor="middle" font-size="10" fill="#6B6560" font-family="DM Sans,sans-serif" letter-spacing="0.04em">${b.label.toUpperCase()}</text>`;
+// Honest return chart: shows a real relationship from the metrics — income
+// reversion (passing vs stabilised) or entry vs GDV — instead of restating
+// two headline numbers. Emphasis form: navy reference bar, red target bar,
+// thin marks, values labelled directly, currency-aware via data-aed.
+function parseAed(s) {
+  if (!s || /psf|sq\s?ft|per\s?unit/i.test(String(s))) return null;
+  const m = String(s).match(/AED\s*([\d,]+)/);
+  const n = m ? Number(m[1].replace(/,/g, '')) : NaN;
+  return isFinite(n) && n > 0 ? n : null;
+}
+function returnChartHTML(opp) {
+  const m = opp.metrics || {};
+  const pick = keys => { for (const k of keys) { const v = parseAed(m[k]); if (v) return { key: k, value: v }; } return null; };
+  let title = '', rows = [], delta = '', caption = 'Derived from the opportunity metrics; indicative.';
+  if (opp.assetProfile === 'Development') {
+    const b = pick(['Guide Price', 'Asking Price']), t = pick(['Base-Case GDV', 'GDV (Estimated)']);
+    if (b && t && t.value > b.value) {
+      title = 'Entry vs Gross Development Value';
+      rows = [{ label: 'Entry (guide price)', value: b.value }, { label: 'Base-case GDV', value: t.value, accent: true }];
+      delta = Math.round(b.value / t.value * 100) + '% of GDV';
+    }
+  } else {
+    const b = pick(['Passing Rent', 'Gross Passing Income', 'Day-One Income', 'Annual Revenue', 'Current NOI']);
+    const t = pick(['Schedule Market Rent', 'Stabilised Gross Income', 'Stabilised NOI', 'Market Rent (ERV)']);
+    if (b && t && t.value > b.value) {
+      title = 'Income Reversion';
+      rows = [{ label: b.key, value: b.value }, { label: t.key, value: t.value, accent: true }];
+      delta = '+' + Math.round((t.value / b.value - 1) * 100) + '%';
+    }
+  }
+  if (!rows.length) {
+    const g = parsePct(opp.grossYield), n = parsePct(opp.netYield);
+    if (g === null && n === null) return '';
+    title = 'Yield Profile';
+    if (g !== null) rows.push({ label: 'Gross yield', value: g, pct: true });
+    if (n !== null) rows.push({ label: 'Net yield', value: n, pct: true, accent: true });
+    caption = 'Headline yields as quoted; net is after costs where stated.';
+  }
+  const max = Math.max(...rows.map(r => r.value));
+  const stacked = window.innerWidth < 480;
+  const W = stacked ? 320 : 560, rowH = stacked ? 64 : 38, barX = stacked ? 0 : 190, barMax = stacked ? 320 : 240;
+  const H = rows.length * rowH + 6;
+  const fmt = r => r.pct ? r.value + '%' : convertAedDisplay('AED ' + r.value.toLocaleString());
+  const raw = r => r.pct ? r.value + '%' : 'AED ' + r.value.toLocaleString();
+  const svgRows = rows.map((r, i) => {
+    const y = i * rowH + 4;
+    const len = Math.max(6, Math.round((r.value / max) * barMax));
+    const fill = r.accent ? '#C0272D' : '#1A1F2E';
+    const label = `<text x="0" y="${stacked ? y + 10 : y + 13}" font-size="10" fill="#6B6560" font-family="DM Sans,sans-serif" letter-spacing="0.06em">${r.label.toUpperCase()}</text>`;
+    const by = stacked ? y + 18 : y;
+    const bar = `<rect x="${barX}" y="${by}" width="${len}" height="18" fill="${fill}" rx="2"></rect>`;
+    const vx = stacked ? 0 : barX + len + 10, vy = stacked ? by + 34 : by + 13;
+    const value = `<text x="${vx}" y="${vy}" font-size="12" font-weight="500" fill="#1A1A1A" font-family="DM Sans,sans-serif"><tspan data-aed="${raw(r)}">${fmt(r)}</tspan>${(r.accent && delta) ? `<tspan fill="#C0272D" dx="8">${delta}</tspan>` : ''}</text>`;
+    return label + bar + value;
   }).join('');
-  return `<div class="detail-yield-chart" style="background:#fff;border:1px solid var(--border);border-radius:3px;padding:24px;margin-top:18px;">
-      <svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:360px;display:block;margin:0 auto;" role="img" aria-label="Yield profile chart">
-        <line x1="${pad}" y1="${base}" x2="${W-12}" y2="${base}" stroke="#E0DBD5"></line>${svg}
+  return `<div class="detail-yield-chart" style="background:#fff;border:1px solid var(--border);border-radius:3px;padding:22px 24px 16px;margin-top:18px;">
+      <div class="analysis-subtitle" style="margin-bottom:12px;">${title}</div>
+      <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;" role="img" aria-label="${title}">
+        ${stacked ? '' : `<line x1="${barX}" y1="0" x2="${barX}" y2="${H}" stroke="#E0DBD5"></line>`}${svgRows}
       </svg>
+      <p style="font-size:11px;color:#6B6560;margin:10px 0 0;">${caption}</p>
     </div>`;
 }
 
@@ -3214,7 +3355,7 @@ function renderOpportunityDetail(slug) {
               <span class="label">Investment Analysis</span>
               <span class="section-rule"></span>
               <h2>Returns &amp; Sensitivities</h2>
-              ${yieldChartHTML(opp)}
+              ${returnChartHTML(opp)}
               ${opp.analysis ? `<details class="analysis-disclose">
                 <summary>View underwriting analysis</summary>
                 <div class="analysis-disclose-body">${analysisHTML}</div>
@@ -3547,6 +3688,7 @@ async function init() {
   renderMetrics();                 // re-run now that the live listings are known
   renderLibrary();
   renderFeatured();
+  renderInsights();
   handleRoute();
   applyReveal();
   enhanceA11y();

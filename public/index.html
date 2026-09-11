@@ -1573,12 +1573,6 @@ footer {
 /* ============================================================
    HERO COMPOSITION · SECTION RHYTHM · FILTER RAILS · PERFORMANCE
    ============================================================ */
-.hero-title {
-  font-family: var(--font-serif); font-weight: 400;
-  font-size: clamp(2.2rem, 5.5vw, 4.25rem); line-height: 1.08; letter-spacing: -0.01em;
-  max-width: 18ch; margin: 0 auto 20px; color: #fff; text-wrap: balance;
-  text-shadow: 0 2px 24px rgba(16,20,31,0.35);
-}
 .hero-tagline { margin-bottom: 40px; max-width: 600px; }
 .hero::after {
   background: linear-gradient(180deg, rgba(16,20,31,0.42) 0%, rgba(16,20,31,0.34) 45%, rgba(16,20,31,0.74) 100%);
@@ -1935,10 +1929,12 @@ button.gate-magic-link:hover { color: var(--red); }
     <section class="hero">
       <div class="hero-bg"></div>
       <div class="container">
-        <div class="hero-label">Land Sterling · Investment Portal</div>
-        <h1 class="hero-title">Curated UAE real estate investments for qualified capital.</h1>
+        <div class="hero-label">Land Sterling Investment Advisory</div>
+        <h1><span>LAND STERLING</span></h1>
+        <span class="hero-portal">Investment Portal</span>
         <div class="hero-rule"></div>
-        <p class="hero-tagline">Fully underwritten. Directly accessible. Presented for informed capital across income, value-add and development strategies.</p>
+        <p class="hero-tagline">Curated UAE real estate investments for qualified capital — fully underwritten, directly accessible.</p>
+        <p class="hero-desc">The Land Sterling Investment Portal provides direct access to selected UAE real estate opportunities across stabilised income, value-add and development strategies. Each opportunity is structured around clear metrics, asset context and the underlying investment rationale.</p>
         <div class="hero-btns">
           <button class="btn btn-primary" onclick="navigate('asset-library')">View Opportunities</button>
           <button class="btn btn-secondary" onclick="openBookACall()">Book a Call</button>

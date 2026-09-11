@@ -186,7 +186,15 @@ h4 { font-size: 1.15rem; }
   padding: 56px 52px;
   text-align: center;
   margin: auto;               /* vertical centering that still allows scroll */
+  position: relative;
 }
+.gate-close {
+  position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid var(--border); border-radius: 1px;
+  color: var(--text-sec); font-size: 14px; cursor: pointer;
+}
+.gate-close:hover { background: var(--text); color: #fff; border-color: var(--text); }
 .gate-logo-img {
   height: 40px;
   width: auto;
@@ -828,6 +836,18 @@ h4 { font-size: 1.15rem; }
 .detail-price-value { font-family: var(--font-mono); font-size: 1.4rem; color: #fff; }
 .detail-price-value.large { font-size: 1.8rem; }
 .detail-cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+/* Data room sits visually below the enquiry CTA row — a later-stage action,
+   not competing with Request Particulars for attention. */
+.detail-dataroom-link {
+  display: block; margin-top: 14px; background: none; border: none; padding: 0;
+  font-size: 12px; letter-spacing: 0.04em; color: rgba(255,255,255,0.65); text-decoration: underline;
+  text-underline-offset: 2px; cursor: pointer;
+}
+.detail-dataroom-link:hover { color: #fff; }
+.metrics-panel .detail-dataroom-link { color: var(--text-sec); margin-top: 4px; }
+.metrics-panel .detail-dataroom-link:hover { color: var(--red); }
+.metrics-panel-contact-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.metrics-panel-contact-row .btn { padding: 9px 6px; font-size: 10.5px; justify-content: center; }
 
 /* Detail sections */
 .detail-body { padding: 80px 0; }
@@ -1503,13 +1523,16 @@ footer {
 .card-angle { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .featured-section { padding: 96px 0; border-bottom: 1px solid var(--divider); }
 .form-row.is-collapsed { display: none; }
-.form-identity {
+.form-identity, .form-identity-known {
   display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   padding: 10px 12px; background: var(--card-bg); border: 1px solid var(--divider); border-radius: 1px;
   font-size: 12px; color: var(--text-sec);
 }
-.form-identity strong { color: var(--text); font-weight: 500; }
+.form-identity strong, .form-identity-known strong { color: var(--text); font-weight: 500; }
 .form-identity-edit { font: inherit; font-size: 11px; color: var(--red); text-decoration: underline; background: none; border: 0; padding: 6px 0; cursor: pointer; min-height: 32px; }
+/* Success states: three equal contact routes, never another capture form */
+.form-success-contact-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.form-success-contact-row .btn { flex: 1 1 auto; justify-content: center; min-width: 100px; }
 @media (max-width: 768px) {
   .featured-section { padding: 56px 0; }
   .card-figures strong { font-size: 0.9rem; }
@@ -1618,6 +1641,11 @@ footer {
 .gate-pw-toggle:hover { color: var(--red); }
 button.gate-forgot { background: none; border: 0; padding: 0; align-self: flex-end; font: inherit; font-size: 11.5px; color: var(--text-sec); cursor: pointer; }
 button.gate-forgot:hover { color: var(--red); }
+button.gate-magic-link {
+  background: none; border: 0; padding: 8px 0 0; margin-top: 2px; font: inherit; font-size: 11.5px;
+  color: var(--text-sec); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; text-align: center;
+}
+button.gate-magic-link:hover { color: var(--red); }
 @media (max-width: 480px) { .gate-trust { flex-direction: column; gap: 4px; } .gate-trust span + span::before { content: none; margin: 0; } }
 @media (max-width: 768px) { .gate-form .gate-pw-wrap input[type="password"], .gate-form .gate-pw-wrap input[type="text"] { font-size: 16px; } }
 
@@ -1790,6 +1818,7 @@ button.gate-forgot:hover { color: var(--red); }
 </style>
 <div id="gate">
   <div class="gate-card" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <button type="button" class="gate-close" id="gateClose" onclick="dismissGate()" aria-label="Close" hidden>✕</button>
     <img class="gate-logo-img" src="https://landsterling.sa/wp-content/uploads/2024/08/LS-Logo-Red-English.png" alt="Land Sterling" onerror="this.style.display='none';document.getElementById('gateLogoText').style.display='block';">
     <div class="gate-logo" id="gateLogoText" style="display:none;">Land Sterling</div>
     <div class="gate-rule"></div>
@@ -1818,6 +1847,7 @@ button.gate-forgot:hover { color: var(--red); }
         <button type="button" class="gate-forgot" onclick="handleForgotPassword()">Forgot password?</button>
         <p class="gate-error" id="signinError"></p>
         <button type="submit" class="gate-submit">Sign In</button>
+        <button type="button" class="gate-magic-link" onclick="handleMagicLink()">Email me a sign-in link instead</button>
       </form>
     </div>
 
@@ -1878,6 +1908,7 @@ button.gate-forgot:hover { color: var(--red); }
       <li><span class="nav-link" id="nav-asset-library" onclick="navigate('asset-library')">Asset Library</span></li>
       <li><span class="nav-link" id="nav-insights" onclick="navigate('insights')">Insights</span></li>
       <li><span class="nav-link" id="nav-about" onclick="navigate('about')">About Us</span></li>
+      <li><span class="nav-link" id="nav-signin" onclick="closeNav(); setAuthTab('signin'); showGate();" style="display:none;">Sign In</span></li>
       <li><span class="nav-link" id="nav-signout" onclick="handleSignOut()" style="display:none;">Sign Out</span></li>
       <li class="nav-link-cta"><button class="btn btn-primary btn-sm" onclick="closeNav(); openEnquireModal(null)">Request Further Details</button></li>
     </ul>
@@ -2246,20 +2277,23 @@ button.gate-forgot:hover { color: var(--red); }
     <div class="modal-opp-tag" id="particularsOppTag"></div>
     <form id="particularsForm" onsubmit="handleParticularsSubmit(event)">
       <div class="form-grid">
-        <div class="form-row">
-          <div class="form-field"><label for="partName">Full Name *</label><input id="partName" type="text" required placeholder="Your full name" autocomplete="name"></div>
-          <div class="form-field"><label for="partEmail">Email Address *</label><input id="partEmail" type="email" required placeholder="your@email.com" autocomplete="email"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label for="partPhone">Phone Number *</label><input id="partPhone" type="tel" inputmode="tel" required placeholder="+971 ..." autocomplete="tel"></div>
-          <div class="form-field"><label for="partCompany">Company *</label><input id="partCompany" type="text" required placeholder="Organisation" autocomplete="organization"></div>
+        <div class="form-identity-known" id="partIdentityKnown" hidden></div>
+        <div class="form-contact-fields" id="partContactFields">
+          <div class="form-row">
+            <div class="form-field"><label for="partName">Full Name *</label><input id="partName" type="text" required placeholder="Your full name" autocomplete="name"></div>
+            <div class="form-field"><label for="partEmail">Email Address *</label><input id="partEmail" type="email" required placeholder="your@email.com" autocomplete="email"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="partPhone">Phone Number *</label><input id="partPhone" type="tel" inputmode="tel" required placeholder="+971 ..." autocomplete="tel"></div>
+            <div class="form-field"><label for="partCompany">Company *</label><input id="partCompany" type="text" required placeholder="Organisation" autocomplete="organization"></div>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-field"><label for="partBudget">Acquisition Budget</label><input id="partBudget" type="text" placeholder="e.g. AED 100M–200M"></div>
-          <div class="form-field"><label for="partInterest">Area of Interest</label><input id="partInterest" type="text" placeholder="e.g. Commercial Dubai"></div>
+          <div class="form-field"><label for="partInterest">Target Location</label><input id="partInterest" type="text" placeholder="e.g. Commercial Dubai"></div>
         </div>
-        <div class="form-field full"><label for="partMessage">Message</label><textarea id="partMessage" placeholder="Any additional context..." rows="3"></textarea></div>
-        <div class="form-consent">
+        <div class="form-field full"><label for="partMessage">Comment</label><textarea id="partMessage" placeholder="Any additional context..." rows="3"></textarea></div>
+        <div class="form-consent" id="partConsentWrap">
           <input type="checkbox" id="particularsConsent" required>
           <label for="particularsConsent">I confirm I agree to be contacted by Land Sterling Investment Advisory in connection with this opportunity.</label>
         </div>
@@ -2271,11 +2305,9 @@ button.gate-forgot:hover { color: var(--red); }
     <div class="form-success" id="particularsSuccess">
       <div class="success-icon">✓</div>
       <h4 id="partSuccessTitle">Request Received</h4>
-      <p id="partSuccessBody">Thank you. The particulars will be emailed to you by Cameron Kerr within one working day. To discuss the opportunity sooner, book a call or message us on WhatsApp.</p>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;">
-        <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('particularsModal'); openBookACall();">Book a Call</button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('particularsModal')">Close</button>
-      </div>
+      <p id="partSuccessBody">Thank you for requesting further details. Our team will get back to you shortly.</p>
+      <div class="form-success-contact-row" id="partSuccessContact"></div>
+      <button type="button" class="btn btn-secondary btn-sm" style="margin-top:14px;" onclick="closeModal('particularsModal')">Close</button>
     </div>
   </div>
 </div>
@@ -2289,16 +2321,23 @@ button.gate-forgot:hover { color: var(--red); }
     <div class="modal-opp-tag" id="enquireOppTag"></div>
     <form id="enquireForm" onsubmit="handleEnquireSubmit(event)">
       <div class="form-grid">
-        <div class="form-row">
-          <div class="form-field"><label for="enqName">Full Name *</label><input id="enqName" type="text" required placeholder="Your full name" autocomplete="name"></div>
-          <div class="form-field"><label for="enqEmail">Email Address *</label><input id="enqEmail" type="email" required placeholder="your@email.com" autocomplete="email"></div>
+        <div class="form-identity-known" id="enqIdentityKnown" hidden></div>
+        <div class="form-contact-fields" id="enqContactFields">
+          <div class="form-row">
+            <div class="form-field"><label for="enqName">Full Name *</label><input id="enqName" type="text" required placeholder="Your full name" autocomplete="name"></div>
+            <div class="form-field"><label for="enqEmail">Email Address *</label><input id="enqEmail" type="email" required placeholder="your@email.com" autocomplete="email"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="enqPhone">Phone *</label><input id="enqPhone" type="tel" inputmode="tel" required placeholder="+971 ..." autocomplete="tel"></div>
+            <div class="form-field"><label for="enqCompany">Company</label><input id="enqCompany" type="text" placeholder="Organisation" autocomplete="organization"></div>
+          </div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label for="enqPhone">Phone *</label><input id="enqPhone" type="tel" inputmode="tel" required placeholder="+971 ..." autocomplete="tel"></div>
-          <div class="form-field"><label for="enqCompany">Company</label><input id="enqCompany" type="text" placeholder="Organisation" autocomplete="organization"></div>
+          <div class="form-field"><label for="enqBudget">Budget</label><input id="enqBudget" type="text" placeholder="e.g. AED 100M–200M"></div>
+          <div class="form-field"><label for="enqLocation">Target Location</label><input id="enqLocation" type="text" placeholder="e.g. Commercial Dubai"></div>
         </div>
-        <div class="form-field full"><label for="enqMessage">Message</label><textarea id="enqMessage" placeholder="Please describe your interest..." rows="3"></textarea></div>
-        <div class="form-consent">
+        <div class="form-field full"><label for="enqMessage">Comment</label><textarea id="enqMessage" placeholder="Please describe your interest..." rows="3"></textarea></div>
+        <div class="form-consent" id="enqConsentWrap">
           <input type="checkbox" id="enquireConsent" required>
           <label for="enquireConsent">I agree to be contacted by Land Sterling Investment Advisory in connection with this opportunity.</label>
         </div>
@@ -2310,17 +2349,9 @@ button.gate-forgot:hover { color: var(--red); }
     <div class="form-success" id="enquireSuccess">
       <div class="success-icon">✓</div>
       <h4>Enquiry Sent</h4>
-      <p>Thank you. Cameron Kerr will respond personally within one working day. If it is time-sensitive, book a call below or message us on WhatsApp.</p>
-      <button type="button" class="btn btn-secondary btn-sm" style="margin-top:18px;" onclick="closeModal('enquireModal')">Close</button>
-    </div>
-
-    <!-- Secondary option: book a call directly (keeps a path for active enquirers) -->
-    <div class="enquire-bookcall">
-      <div style="display:flex;align-items:center;gap:12px;margin:24px 0 16px;color:var(--text-sec);font-size:10px;letter-spacing:0.12em;">
-        <span style="flex:1;height:1px;background:var(--border);"></span>OR<span style="flex:1;height:1px;background:var(--border);"></span>
-      </div>
-      <p style="font-size:13px;color:var(--text-sec);text-align:center;margin-bottom:12px;">Prefer to talk it through? Book a call at a time that suits you.</p>
-      <button type="button" class="btn btn-secondary" style="width:100%;justify-content:center;" onclick="openBookACall()">Book a Call</button>
+      <p>Thank you for requesting further details. Our team will get back to you shortly.</p>
+      <div class="form-success-contact-row" id="enqSuccessContact"></div>
+      <button type="button" class="btn btn-secondary btn-sm" style="margin-top:14px;" onclick="closeModal('enquireModal')">Close</button>
     </div>
   </div>
 </div>
@@ -2432,6 +2463,22 @@ function ensureLeaflet() {
 }
 
 /* ============================================================
+   CONTACT SHORTCUTS — WhatsApp / Call, shared by nav, detail page,
+   the mobile action bar and every success state.
+   ============================================================ */
+function waLink(message) {
+  const cfg = (window.LS_CONFIG && window.LS_CONFIG.WHATSAPP) || {};
+  if (!cfg.number) return '#';
+  const text = message || cfg.message || '';
+  return 'https://wa.me/' + String(cfg.number).replace(/\D/g, '') +
+    (text ? '?text=' + encodeURIComponent(text) : '');
+}
+function telHref() {
+  const phone = (window.LS_CONFIG && window.LS_CONFIG.COMPANY && window.LS_CONFIG.COMPANY.phone) || '';
+  return phone.replace(/\s/g, '');
+}
+
+/* ============================================================
    MULTI-CURRENCY DISPLAY (indicative — converts AED guide prices)
    ============================================================ */
 function convertAedDisplay(str) {
@@ -2499,6 +2546,17 @@ function showGate() {
   g.style.display = 'flex';
   g.style.opacity = '1';
   setPortalInert(true);
+  // Dismissible whenever there's public content to return to (i.e. not the
+  // one-time "backend isn't configured at all" case).
+  const close = document.getElementById('gateClose');
+  if (close) close.hidden = !LS_API.configured ? true : false;
+}
+
+// Cancel out of a voluntarily-opened gate (nav "Sign In", or a locked Asset
+// Library prompt) back to public browsing — never a trap.
+function dismissGate() {
+  hideGate();
+  navigate('home');
 }
 
 function hideGate() {
@@ -2577,7 +2635,24 @@ async function handleSignOut() {
   const so = document.getElementById('nav-signout');
   if (so) so.style.display = 'none';
   setAuthTab('signin');
-  showGate();
+  navigate('home');
+  enterPublicMode();
+}
+
+async function handleMagicLink() {
+  const email = document.getElementById('siEmail').value.trim();
+  const errEl = document.getElementById('signinError');
+  if (!email) {
+    errEl.textContent = 'Enter your email above first, then press "Email me a sign-in link instead".';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    await LS_API.sendMagicLink(email, window.location.origin + window.location.pathname);
+  } catch (err) {}
+  // Same message whether or not the account exists — no account enumeration.
+  showAuthStatus('Check Your Email',
+    'If an approved account exists for ' + email + ', a one-click sign-in link is on its way. It will sign you straight in — no password needed.');
 }
 
 async function handleForgotPassword() {
@@ -2606,10 +2681,20 @@ async function routeAfterAuth(profile) {
     hideGate();
     const so = document.getElementById('nav-signout');
     if (so) so.style.display = '';
+    const si = document.getElementById('nav-signin');
+    if (si) si.style.display = 'none';
     return true;
   }
   window.LS_PROFILE = null;
-  if (profile.status === 'pending' || profile.status === 'invited') {
+  if (profile.status === 'invited') {
+    // Reachable via the new magic-link sign-in before they've completed activation.
+    await LS_API.signOut();
+    showAuthStatus('Activation Needed',
+      'Your access has been approved, but you have not yet signed the confidentiality agreement and set a password. ' +
+      'Please use the activation link from your invitation email to finish setting up your account.');
+    return false;
+  }
+  if (profile.status === 'pending') {
     await LS_API.signOut();
     showAuthStatus('Awaiting Approval',
       'Your account is pending review by Land Sterling Investment Advisory. ' +
@@ -2637,12 +2722,33 @@ function friendlyAuthError(err) {
 // Setup-mode only: explore the portal before Supabase is connected.
 function previewBypass() {
   window.LS_PROFILE = null;
+  window.LS_PREVIEW_MODE = true;
   hideGate();
+  const so = document.getElementById('nav-signout');
+  if (so) so.style.display = 'none';
+  const si = document.getElementById('nav-signin');
+  if (si) si.style.display = 'none';
+}
+
+// True once someone is signed in AND approved (or admin) — the only state
+// that unlocks the Asset Library. Everything else browses in public mode.
+// (window.LS_PREVIEW_MODE is the setup-mode exception: exploring the design
+// with no backend connected yet — see previewBypass().)
+function isPortalUnlocked() { return !!window.LS_PROFILE || !!window.LS_PREVIEW_MODE; }
+
+// Home / About / Insights are genuine public marketing content — SEO visitors
+// and applicants awaiting approval should never hit a dead end reading them.
+// Only the Asset Library (the actual confidential content) needs approval.
+function enterPublicMode() {
+  hideGate();
+  const si = document.getElementById('nav-signin');
+  if (si) si.style.display = '';
   const so = document.getElementById('nav-signout');
   if (so) so.style.display = 'none';
 }
 
-// On load: if already logged in & approved, skip the gate.
+// On load: if already logged in & approved, unlock the library; otherwise
+// browse in public mode rather than blocking the whole site behind a wall.
 async function checkGate() {
   if (!LS_API.configured) {
     const hint = document.getElementById('previewHint');
@@ -2651,15 +2757,32 @@ async function checkGate() {
     return false;
   }
   const session = await LS_API.getSession();
-  if (!session) { showGate(); return false; }
+  if (!session) { enterPublicMode(); return false; }
   const profile = await LS_API.getProfile();
-  return routeAfterAuth(profile);
+  if (profile && (profile.status === 'approved' || profile.role === 'admin')) {
+    return routeAfterAuth(profile);
+  }
+  // A stray/expired session for a non-approved account: sign out quietly and
+  // fall back to public browsing rather than an interruptive status screen —
+  // that screen is reserved for an explicit sign-in attempt.
+  await LS_API.signOut();
+  enterPublicMode();
+  return false;
 }
 
 /* ============================================================
    NAVIGATION & ROUTING
    ============================================================ */
+// Only the Asset Library (and individual deal pages) require approval —
+// Home / About / Insights are public. Intercept before rendering either.
+const GATED_PAGES = ['asset-library', 'opportunity'];
 function navigate(page, slug) {
+  if (GATED_PAGES.includes(page) && !isPortalUnlocked()) {
+    closeNav();
+    setAuthTab('signin');
+    showGate();
+    return;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => { l.classList.remove('active'); l.removeAttribute('aria-current'); });
   closeNav();
@@ -2808,10 +2931,11 @@ function cardHTML(opp) {
     ? `srcset="${opp.image.replace('w=1200', 'w=600')} 600w, ${opp.image} 1200w" sizes="(max-width:768px) 100vw, (max-width:1100px) 50vw, 33vw" decoding="async"`
     : 'decoding="async"';
   const isSold = opp.dealStatus === 'Sold';
+  // Primary action is always "see the opportunity" — enquiry-strength CTAs live
+  // on the detail page, not competing for attention on the card itself.
   const ctaBtn = isSold
     ? `<button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:default">Transaction Complete</button>`
-    : `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openParticularsModal('${opp.id}','data_room')">Request Data Room</button>
-       <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openParticularsModal('${opp.id}')">Request Particulars</button>`;
+    : `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); navigate('opportunity','${opp.id}')">View Opportunity →</button>`;
 
   return `
     <div class="opp-card" ${opp.dealStatus !== 'Sold' ? `role="link" tabindex="0" aria-label="View ${String(opp.name).replace(/"/g, '&quot;')}" onclick="navigate('opportunity','${opp.id}')" onkeydown="if(event.key==='Enter'){navigate('opportunity','${opp.id}')}"` : ''}>
@@ -3322,10 +3446,12 @@ function renderOpportunityDetail(slug) {
         <h1 class="detail-name">${opp.name}</h1>
         <p class="detail-location">↗ ${opp.location}</p>
         <div class="detail-cta-row">
-          <button class="btn btn-primary" onclick="openParticularsModal('${opp.id}','data_room')">Request Data Room Access</button>
-          <button class="btn btn-outline-white" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
+          <button class="btn btn-primary" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
           <button class="btn btn-outline-white" onclick="openBookACall()">Book a Call</button>
+          <a class="btn btn-outline-white" href="${waLink('Hi Cameron, I’m looking at ' + opp.name + ' on the website and would like to discuss it.')}" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="btn btn-outline-white" href="tel:${telHref()}">Call Now</a>
         </div>
+        <button class="detail-dataroom-link" onclick="openParticularsModal('${opp.id}','data_room')">Request Data Room Access →</button>
       </div>
     </div>
 
@@ -3380,9 +3506,13 @@ function renderOpportunityDetail(slug) {
               <h3>Key Metrics</h3>
               <div class="metrics-table">${metricsHTML}</div>
               <div class="metrics-panel-cta">
-                <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}','data_room')">Request Data Room Access</button>
-                <button class="btn btn-secondary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
-                <button class="btn btn-secondary" style="width:100%; justify-content:center" onclick="openBookACall()">Book a Call</button>
+                <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
+                <div class="metrics-panel-contact-row">
+                  <button class="btn btn-secondary sm" onclick="openBookACall()">Book a Call</button>
+                  <a class="btn btn-secondary sm" href="${waLink('Hi Cameron, I’m looking at ' + opp.name + ' on the website and would like to discuss it.')}" target="_blank" rel="noopener">WhatsApp</a>
+                  <a class="btn btn-secondary sm" href="tel:${telHref()}">Call</a>
+                </div>
+                <button class="detail-dataroom-link" style="width:100%;text-align:center;" onclick="openParticularsModal('${opp.id}','data_room')">Request Data Room Access →</button>
               </div>
             </div>
           </div>
@@ -3391,8 +3521,8 @@ function renderOpportunityDetail(slug) {
     </div>
     <div class="detail-action-bar" id="detailActionBar">
       <div class="dab-price"><span class="label">${opp.priceLabel}</span><strong data-aed="${opp.price}">${priceShown}</strong></div>
-      <button class="btn btn-primary btn-sm" onclick="openParticularsModal('${opp.id}','data_room')">Data Room</button>
-      <button class="btn btn-secondary btn-sm" onclick="openParticularsModal('${opp.id}')">Particulars</button>
+      <button class="btn btn-primary btn-sm" onclick="openParticularsModal('${opp.id}')">Particulars</button>
+      <a class="btn btn-secondary btn-sm" href="${waLink('Hi Cameron, I’m looking at ' + opp.name + ' on the website and would like to discuss it.')}" target="_blank" rel="noopener">WhatsApp</a>
     </div>
   `;
   // Initialise detail page map after DOM is written
@@ -3423,35 +3553,50 @@ document.addEventListener('ls-consent', () => {
 /* ============================================================
    MODALS
    ============================================================ */
-// Signed-in investors: prefill and collapse the identity rows (only when every
-// required value is present, so native validation is never hidden).
+// Signed-in investors: we already know who they are — never re-ask. Their
+// identity fields are hidden entirely (not just prefilled) and a short
+// "Continue as..." line replaces them; only enquiry-specific fields remain.
+// Signed-out visitors still see the full contact form, since we don't know them.
 function prefillIdentity(prefix, form) {
   const el = k => document.getElementById(prefix + k);
   const nameEl = el('Name'), emailEl = el('Email'), phoneEl = el('Phone'), companyEl = el('Company');
-  const rows = [nameEl, phoneEl].map(e => e && e.closest('.form-row')).filter(Boolean);
-  const old = form.querySelector('.form-identity'); if (old) old.remove();
-  rows.forEach(r => r.classList.remove('is-collapsed'));
+  const fieldsBlock = document.getElementById(prefix + 'ContactFields');
+  const knownBlock  = document.getElementById(prefix + 'IdentityKnown');
+  const consentWrap = document.getElementById(prefix + 'ConsentWrap');
+  const consentBox  = consentWrap ? consentWrap.querySelector('input[type=checkbox]') : null;
   const p = window.LS_PROFILE;
-  if (!p) return;
+
+  if (!p) {
+    // Signed out: show the full contact form and require consent as normal.
+    if (fieldsBlock) fieldsBlock.hidden = false;
+    if (knownBlock)  { knownBlock.hidden = true; knownBlock.innerHTML = ''; }
+    if (consentWrap) consentWrap.hidden = false;
+    if (consentBox)  consentBox.required = true;
+    [nameEl, emailEl, phoneEl].forEach(e => { if (e) e.required = true; });
+    return;
+  }
+
+  // Signed in: populate hidden fields (still submitted with the form) and
+  // show only a short confirmation line — no editable contact inputs at all.
   const name = p.full_name || ((p.first_name || '') + ' ' + (p.last_name || '')).trim();
   if (nameEl)    nameEl.value    = name;
   if (emailEl)   emailEl.value   = p.email || '';
   if (phoneEl)   phoneEl.value   = p.mobile || '';
   if (companyEl) companyEl.value = p.company || '';
-  const required = [nameEl, emailEl, phoneEl, companyEl].filter(e => e && e.required);
-  if (!required.every(e => e.value.trim())) return;
-  rows.forEach(r => r.classList.add('is-collapsed'));
-  const strip = document.createElement('div');
-  strip.className = 'form-identity';
-  const text = document.createElement('span');
-  text.append('Requesting as ');
-  const b = document.createElement('strong'); b.textContent = name; text.append(b);
-  text.append((p.company ? ' · ' + p.company : '') + ' · ' + (p.email || ''));
-  const edit = document.createElement('button');
-  edit.type = 'button'; edit.className = 'form-identity-edit'; edit.textContent = 'Edit';
-  edit.onclick = () => { rows.forEach(r => r.classList.remove('is-collapsed')); strip.remove(); if (nameEl) nameEl.focus(); };
-  strip.append(text, edit);
-  form.querySelector('.form-grid').prepend(strip);
+  if (fieldsBlock) fieldsBlock.hidden = true;
+  [nameEl, emailEl, phoneEl].forEach(e => { if (e) e.required = false; });   // hidden fields can't block submit
+  // Already agreed to be contacted at registration/NDA — don't ask again.
+  if (consentWrap) consentWrap.hidden = true;
+  if (consentBox)  { consentBox.checked = true; consentBox.required = false; }
+  if (knownBlock) {
+    knownBlock.hidden = false;
+    knownBlock.innerHTML = '';
+    const text = document.createElement('span');
+    text.append('Continuing as ');
+    const b = document.createElement('strong'); b.textContent = name; text.append(b);
+    text.append(p.company ? ' · ' + p.company : '');
+    knownBlock.append(text);
+  }
 }
 
 // Dialog behaviour shared by both modals: scroll-lock, focus hand-off and return.
@@ -3550,6 +3695,16 @@ document.addEventListener('keydown', e => {
 // (via Formspree, if FORMSPREE_ENDPOINT is set in config.js).
 // Shared submit flow: real pending → saved → success (or a recoverable error).
 // Success is only shown once the lead is actually stored; nothing is faked.
+// Three clear next actions after any submission — never another info-capture form.
+function successContactRow(opportunityName) {
+  const msg = opportunityName && opportunityName !== 'General Enquiry'
+    ? 'Hi Cameron, I’m looking at ' + opportunityName + ' on the website and would like to discuss it.'
+    : undefined;
+  return '<button type="button" class="btn btn-primary btn-sm" onclick="openBookACall()">Book a Call</button>' +
+    '<a class="btn btn-secondary btn-sm" href="' + waLink(msg) + '" target="_blank" rel="noopener">WhatsApp</a>' +
+    '<a class="btn btn-secondary btn-sm" href="tel:' + telHref() + '">Call Now</a>';
+}
+
 async function submitLead(form, errorId, successId, payload) {
   const btn   = form.querySelector('button[type="submit"]');
   const errEl = document.getElementById(errorId);
@@ -3564,6 +3719,8 @@ async function submitLead(form, errorId, successId, payload) {
     form.style.display = 'none';
     const ok = document.getElementById(successId);
     ok.style.display = 'block';
+    const contactRow = ok.querySelector('.form-success-contact-row');
+    if (contactRow) contactRow.innerHTML = successContactRow(payload.opportunity_name);
     const h = ok.querySelector('h4');
     if (h) { h.setAttribute('tabindex', '-1'); h.focus(); }
   } catch (err) {
@@ -3588,6 +3745,8 @@ function handleEnquireSubmit(e) {
     email:   document.getElementById('enqEmail').value.trim(),
     phone:   document.getElementById('enqPhone').value.trim(),
     company: document.getElementById('enqCompany').value.trim(),
+    budget:          document.getElementById('enqBudget').value.trim() || null,
+    target_location: document.getElementById('enqLocation').value.trim() || null,
     message: document.getElementById('enqMessage').value.trim(),
     consent: document.getElementById('enquireConsent').checked
   });
@@ -3597,10 +3756,6 @@ function handleParticularsSubmit(e) {
   e.preventDefault();
   const oppName = document.getElementById('particularsOppTag').textContent;
   const opp = OPPORTUNITIES.find(o => o.name === oppName);
-  const budget   = document.getElementById('partBudget').value.trim();
-  const interest = document.getElementById('partInterest').value.trim();
-  const extra = [budget && ('Budget: ' + budget), interest && ('Interest: ' + interest),
-                 document.getElementById('partMessage').value.trim()].filter(Boolean).join(' | ');
   submitLead(e.target, 'particularsError', 'particularsSuccess', {
     type: particularsMode,
     opportunity_slug: opp ? opp.id : null,
@@ -3609,7 +3764,9 @@ function handleParticularsSubmit(e) {
     email:   document.getElementById('partEmail').value.trim(),
     phone:   document.getElementById('partPhone').value.trim(),
     company: document.getElementById('partCompany').value.trim(),
-    message: extra,
+    budget:          document.getElementById('partBudget').value.trim() || null,
+    target_location: document.getElementById('partInterest').value.trim() || null,
+    message: document.getElementById('partMessage').value.trim(),
     consent: document.getElementById('particularsConsent').checked
   });
 }
@@ -3695,11 +3852,7 @@ async function init() {
 
   // WhatsApp button: number + pre-filled message come from config.js
   const wa = document.getElementById('navWhatsApp');
-  const waCfg = window.LS_CONFIG && window.LS_CONFIG.WHATSAPP;
-  if (wa && waCfg && waCfg.number) {
-    wa.href = 'https://wa.me/' + String(waCfg.number).replace(/\D/g, '') +
-      (waCfg.message ? '?text=' + encodeURIComponent(waCfg.message) : '');
-  }
+  if (wa) wa.href = waLink();
 
   // Log a sign-in event for engagement tracking (best-effort).
   if (LS_API.configured) {

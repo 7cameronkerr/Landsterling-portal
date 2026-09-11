@@ -3726,7 +3726,14 @@ function prefillIdentity(prefix, form) {
   if (phoneEl)   phoneEl.value   = p.mobile || '';
   if (companyEl) companyEl.value = p.company || '';
   if (fieldsBlock) fieldsBlock.hidden = true;
-  [nameEl, emailEl, phoneEl].forEach(e => { if (e) e.required = false; });   // hidden fields can't block submit
+  // A `hidden` ancestor does NOT reliably exempt a `required` input from
+  // native constraint validation (confirmed: it doesn't in this markup) —
+  // every identity field must be explicitly un-required here, company
+  // included, or the browser silently blocks submission with no visible
+  // error at all (this was a real production bug: partCompany was missing
+  // from this list, so any signed-in profile with no company on file could
+  // never submit the Particulars form).
+  [nameEl, emailEl, phoneEl, companyEl].forEach(e => { if (e) e.required = false; });
   // Already agreed to be contacted at registration/NDA — don't ask again.
   if (consentWrap) consentWrap.hidden = true;
   if (consentBox)  { consentBox.checked = true; consentBox.required = false; }

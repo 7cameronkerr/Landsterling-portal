@@ -48,14 +48,17 @@
     // then signs the NDA and sets a password in one step (activation.html).
     async requestAccess({ firstName, lastName, email, mobile, company, consent }) {
       assertReady();
-      return sb.from('access_requests').insert([{
+      const record = {
         first_name: firstName,
         last_name:  lastName,
         email,
         mobile,
         company,
         consent: !!consent
-      }]);
+      };
+      const result = await sb.from('access_requests').insert([record]);
+      syncToCrm('access_requests', record);
+      return result;
     },
 
     async signIn(email, password) {
@@ -159,9 +162,18 @@
         }).catch(() => {});
       }
       if (error) throw error;
+      syncToCrm('enquiries', payload);
       return true;
     }
   };
+
+  // Push a new row straight to the CRM from the browser (best-effort, never
+  // blocks or fails the caller). Stands in for a database webhook — some
+  // projects don't have the internal schema Database Webhooks depends on.
+  function syncToCrm(table, record) {
+    if (!sb) return;
+    sb.functions.invoke('crm-sync', { body: { table, record } }).catch(() => {});
+  }
 
   // Map a DB row to the exact object shape the design's render code expects.
   function rowToOpportunity(r) {

@@ -1156,6 +1156,64 @@ body.modal-open { overflow: hidden; }
 .detail-map-address { font-size: 13px; color: var(--text-sec); margin-bottom: 0; }
 .detail-location-map .leaflet-container { border: 1px solid var(--border); }
 
+/* Accommodation / unit schedule — floor-by-floor breakdown table */
+.detail-accommodation { margin-bottom: 64px; }
+.detail-accommodation .label { display: block; margin-bottom: 12px; }
+.detail-accommodation h2 { color: var(--navy); margin-bottom: 24px; font-size: 1.9rem; }
+.schedule-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.schedule-table thead th {
+  text-align: left; font-family: var(--font-sans); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-sec);
+  padding: 10px 14px; background: var(--card-bg); border-bottom: 1px solid var(--divider);
+}
+.schedule-table thead th:not(:first-child) { text-align: right; }
+.schedule-table tbody td { padding: 11px 14px; border-bottom: 1px solid var(--divider); color: var(--text); }
+.schedule-table tbody td:not(:first-child) { text-align: right; font-family: var(--font-mono); font-weight: 400; }
+.schedule-table tbody tr:last-child td { border-bottom: 2px solid var(--navy); font-weight: 500; color: var(--navy); }
+.schedule-avail {
+  display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 3px 9px; border-radius: 20px;
+}
+.schedule-avail.available { background: #e4f0e9; color: #2C6E49; }
+.schedule-avail.let       { background: #eef0f5; color: var(--navy); }
+.schedule-avail.under-offer { background: #fef3e2; color: var(--amber); }
+
+/* Gallery */
+.detail-gallery { margin-bottom: 64px; }
+.detail-gallery .label { display: block; margin-bottom: 12px; }
+.detail-gallery h2 { color: var(--navy); margin-bottom: 24px; font-size: 1.9rem; }
+.gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--divider); }
+.gallery-grid a { display: block; aspect-ratio: 4/3; overflow: hidden; }
+.gallery-grid img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+.gallery-grid a:hover img { transform: scale(1.04); }
+@media (max-width: 700px) { .gallery-grid { grid-template-columns: 1fr; } }
+
+/* Advisor contact band — a direct human point of contact on every asset,
+   not just anonymous CTA buttons. */
+.detail-advisor { background: var(--navy); padding: 48px 0; }
+.advisor-card { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.advisor-photo {
+  width: 84px; height: 84px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--red); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--navy-card);
+}
+.advisor-photo img { width: 100%; height: 100%; object-fit: cover; }
+.advisor-photo .initials { font-family: var(--font-serif); font-size: 1.7rem; color: #fff; }
+.advisor-info { margin-right: auto; }
+.advisor-eyebrow {
+  font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5); display: block; margin-bottom: 6px;
+}
+.advisor-name { font-family: var(--font-serif); font-size: 1.4rem; color: #fff; margin-bottom: 2px; }
+.advisor-title { font-size: 12.5px; color: rgba(255,255,255,0.65); }
+.advisor-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 700px) {
+  .advisor-card { justify-content: center; text-align: center; }
+  .advisor-info { margin-right: 0; width: 100%; }
+  .advisor-actions { width: 100%; justify-content: center; }
+}
+
 /* Custom Leaflet marker popup */
 .ls-popup .leaflet-popup-content-wrapper {
   background: var(--navy);
@@ -3423,6 +3481,68 @@ function renderOpportunityDetail(slug) {
   const priceShown  = convertAedDisplay(opp.price);
   const figuresHTML = heroFigures(opp);
 
+  // Accommodation schedule — a floor-by-floor breakdown, JLL/CBRE-style.
+  // Optional: only renders once an opportunity actually has schedule rows.
+  const schedule = opp.unitSchedule || [];
+  const scheduleTotal = schedule.reduce((sum, r) => sum + (parseFloat(String(r.sqft).replace(/,/g, '')) || 0), 0);
+  const accommodationHTML = !schedule.length ? '' : `
+    <div class="detail-accommodation">
+      <span class="label">Accommodation</span>
+      <span class="section-rule"></span>
+      <h2>Floor-by-Floor Schedule</h2>
+      <div style="overflow-x:auto;">
+        <table class="schedule-table">
+          <thead><tr><th>Name</th><th>Sq Ft</th><th>Sq M</th><th>Availability</th></tr></thead>
+          <tbody>
+            ${schedule.map(r => `<tr>
+              <td>${r.name}</td>
+              <td>${r.sqft || '—'}</td>
+              <td>${r.sqm || '—'}</td>
+              <td><span class="schedule-avail ${String(r.availability || '').toLowerCase().replace(/\s+/g, '-')}">${r.availability || '—'}</span></td>
+            </tr>`).join('')}
+            ${scheduleTotal ? `<tr><td>Total</td><td>${scheduleTotal.toLocaleString()}</td><td>—</td><td></td></tr>` : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  // Gallery — optional, only renders once an opportunity has extra photos
+  // beyond the single hero image.
+  const gallery = opp.gallery || [];
+  const galleryHTML = !gallery.length ? '' : `
+    <div class="detail-gallery">
+      <span class="label">Gallery</span>
+      <span class="section-rule"></span>
+      <h2>Photos</h2>
+      <div class="gallery-grid">
+        ${gallery.map((url, i) => `<a href="${url}" target="_blank" rel="noopener" aria-label="Open photo ${i+1} of ${opp.name}"><img src="${url}" alt="${opp.name} — photo ${i+1}" loading="lazy"></a>`).join('')}
+      </div>
+    </div>`;
+
+  // Advisor contact band — a direct, named human point of contact (not just
+  // anonymous CTA buttons) on every asset, the single strongest trust signal
+  // on comparable institutional broker listing pages.
+  const advisor = (window.LS_CONFIG && window.LS_CONFIG.ADVISOR) || {};
+  const advisorInitials = (advisor.name || 'LS').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const advisorHTML = `
+    <section class="detail-advisor">
+      <div class="container">
+        <div class="advisor-card">
+          <div class="advisor-photo">${advisor.photo ? `<img src="${advisor.photo}" alt="${advisor.name}">` : `<span class="initials">${advisorInitials}</span>`}</div>
+          <div class="advisor-info">
+            <span class="advisor-eyebrow">Your Advisor</span>
+            <h3 class="advisor-name">${advisor.name || 'Land Sterling'}</h3>
+            <p class="advisor-title">${advisor.title || 'Investment Advisory'}</p>
+          </div>
+          <div class="advisor-actions">
+            <a class="btn btn-outline-white" href="tel:${telHref()}">Call ${advisor.phone || ''}</a>
+            <a class="btn btn-outline-white" href="${waLink('Hi Cameron, I’m looking at ' + opp.name + ' on the website and would like to discuss it.')}" target="_blank" rel="noopener">WhatsApp</a>
+            <button class="btn btn-primary" onclick="openParticularsModal('${opp.id}')">Request Particulars</button>
+          </div>
+        </div>
+      </div>
+    </section>`;
+
   document.getElementById('opportunityContent').innerHTML = `
     <div class="detail-hero${opp.image ? '' : ' no-image'}">
       ${opp.image ? `<div class="detail-hero-bg" style="background-image:url('${opp.image}')"></div>` : ''}
@@ -3466,6 +3586,8 @@ function renderOpportunityDetail(slug) {
               ${summaryParas}
             </div>
 
+            ${accommodationHTML}
+
             <div class="detail-highlights">
               <span class="label">Investment Highlights</span>
               <span class="section-rule"></span>
@@ -3492,6 +3614,8 @@ function renderOpportunityDetail(slug) {
               <div id="detailMap" style="width:100%;height:380px;margin-top:20px;"></div>
             </div>
 
+            ${galleryHTML}
+
             <div class="detail-footer-note">
               This information is provided for qualified recipients only and does not constitute an offer or contract. Further financial, legal and technical information may be released following appropriate confidentiality protocols. Viewings and data room access are strictly by appointment with Land Sterling Investment Advisory.
             </div>
@@ -3515,6 +3639,9 @@ function renderOpportunityDetail(slug) {
         </div>
       </div>
     </div>
+
+    ${advisorHTML}
+
     <div class="detail-action-bar" id="detailActionBar">
       <div class="dab-price"><span class="label">${opp.priceLabel}</span><strong data-aed="${opp.price}">${priceShown}</strong></div>
       <button class="btn btn-primary btn-sm" onclick="openParticularsModal('${opp.id}')">Particulars</button>

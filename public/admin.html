@@ -73,6 +73,8 @@
   .repeater-row{display:grid;gap:8px;margin-bottom:8px;align-items:center;}
   .repeater-row.metrics{grid-template-columns:1fr 1.4fr auto;}
   .repeater-row.highlights{grid-template-columns:1fr 2fr 1fr auto;}
+  .repeater-row.gallery{grid-template-columns:1fr auto;}
+  .repeater-row.schedule{grid-template-columns:1.6fr 1fr 1fr 1fr auto;}
   .x{background:none;color:var(--red);font-size:16px;padding:0 6px;}
   .modal-bg{position:fixed;inset:0;background:rgba(26,31,46,.55);display:none;align-items:flex-start;justify-content:center;
             padding:40px 16px;overflow-y:auto;z-index:40;}
@@ -111,7 +113,7 @@
     .modal-bg{padding:16px 8px;}
     .sec-head h2{font-size:1.3rem;}
     /* Stack the metric/highlight editor rows vertically on phones */
-    .repeater-row.metrics,.repeater-row.highlights{grid-template-columns:1fr;gap:6px;
+    .repeater-row.metrics,.repeater-row.highlights,.repeater-row.gallery,.repeater-row.schedule{grid-template-columns:1fr;gap:6px;
       padding:10px;border:1px solid var(--border);border-radius:3px;background:#fff;position:relative;}
     .repeater-row .x{position:absolute;top:6px;right:6px;}
     /* Keep data tables readable by scrolling rather than crushing columns */
@@ -248,6 +250,18 @@
       <label>Investment Highlights</label>
       <div id="highlightsRepeater"></div>
       <button class="btn ghost sm" type="button" onclick="addHighlightRow()">+ Add highlight</button>
+    </div>
+
+    <div class="field full" style="margin-top:14px;">
+      <label>Gallery Images (shown on the detail page below the map)</label>
+      <div id="galleryRepeater"></div>
+      <button class="btn ghost sm" type="button" onclick="addGalleryRow()">+ Add image</button>
+    </div>
+
+    <div class="field full" style="margin-top:14px;">
+      <label>Accommodation Schedule (floor-by-floor breakdown — leave empty to hide this section)</label>
+      <div id="scheduleRepeater"></div>
+      <button class="btn ghost sm" type="button" onclick="addScheduleRow()">+ Add row</button>
     </div>
 
     <div style="display:flex;gap:18px;align-items:center;margin:16px 0;">
@@ -441,6 +455,18 @@ function highlightRow(t='',d='',m=''){return `<div class="repeater-row highlight
 function addMetricRow(){document.getElementById('metricsRepeater').insertAdjacentHTML('beforeend',metricRow());}
 function addHighlightRow(){document.getElementById('highlightsRepeater').insertAdjacentHTML('beforeend',highlightRow());}
 
+function galleryRow(url=''){return `<div class="repeater-row gallery">
+  <input placeholder="https://…" value="${esc(url)}">
+  <button class="x" type="button" onclick="this.parentNode.remove()">✕</button></div>`;}
+function scheduleRow(name='',sqft='',sqm='',availability='Available'){return `<div class="repeater-row schedule">
+  <input placeholder="e.g. 1st Floor" value="${esc(name)}">
+  <input placeholder="Sq Ft" value="${esc(sqft)}">
+  <input placeholder="Sq M" value="${esc(sqm)}">
+  <select><option${availability==='Available'?' selected':''}>Available</option><option${availability==='Let'?' selected':''}>Let</option><option${availability==='Under Offer'?' selected':''}>Under Offer</option></select>
+  <button class="x" type="button" onclick="this.parentNode.remove()">✕</button></div>`;}
+function addGalleryRow(){document.getElementById('galleryRepeater').insertAdjacentHTML('beforeend',galleryRow());}
+function addScheduleRow(){document.getElementById('scheduleRepeater').insertAdjacentHTML('beforeend',scheduleRow());}
+
 function openOpp(id){
   const o = id ? OPPS.find(x=>x.id===id) : null;
   document.getElementById('oppModalTitle').textContent = o ? 'Edit Opportunity' : 'New Opportunity';
@@ -462,6 +488,12 @@ function openOpp(id){
   const hr=document.getElementById('highlightsRepeater'); hr.innerHTML='';
   (o?.highlights||[]).forEach(h=>hr.insertAdjacentHTML('beforeend',highlightRow(h.title,h.desc,h.metric)));
   if(!(o?.highlights||[]).length){hr.insertAdjacentHTML('beforeend',highlightRow());}
+  const gr=document.getElementById('galleryRepeater'); gr.innerHTML='';
+  (o?.gallery||[]).forEach(url=>gr.insertAdjacentHTML('beforeend',galleryRow(url)));
+  if(!(o?.gallery||[]).length){gr.insertAdjacentHTML('beforeend',galleryRow());}
+  const sr=document.getElementById('scheduleRepeater'); sr.innerHTML='';
+  (o?.unit_schedule||[]).forEach(s=>sr.insertAdjacentHTML('beforeend',scheduleRow(s.name,s.sqft,s.sqm,s.availability)));
+  if(!(o?.unit_schedule||[]).length){sr.insertAdjacentHTML('beforeend',scheduleRow());}
   document.getElementById('oppDelete').style.display = o ? '' : 'none';
   document.getElementById('oppModal').classList.add('open');
 }
@@ -474,6 +506,13 @@ function collectOpp(){
   document.querySelectorAll('#highlightsRepeater .repeater-row').forEach(r=>{
     const[t,d,m]=r.querySelectorAll('input');
     if(t.value.trim()||d.value.trim())highlights.push({title:t.value.trim(),desc:d.value.trim(),metric:m.value.trim()||null});});
+  const gallery=[];
+  document.querySelectorAll('#galleryRepeater .repeater-row').forEach(r=>{
+    const url=r.querySelector('input').value.trim(); if(url)gallery.push(url);});
+  const unit_schedule=[];
+  document.querySelectorAll('#scheduleRepeater .repeater-row').forEach(r=>{
+    const[n,sf,sm]=r.querySelectorAll('input'); const av=r.querySelector('select').value;
+    if(n.value.trim())unit_schedule.push({name:n.value.trim(),sqft:sf.value.trim(),sqm:sm.value.trim(),availability:av});});
   const name=document.getElementById('f_name').value.trim();
   return {
     name, slug:(document.getElementById('f_slug').value.trim()||slugify(name)),
@@ -485,7 +524,7 @@ function collectOpp(){
     entry_psf:document.getElementById('f_entryPsf').value.trim()||null, sort_order:parseInt(document.getElementById('f_order').value)||100,
     lat:parseFloat(document.getElementById('f_lat').value)||null, lng:parseFloat(document.getElementById('f_lng').value)||null,
     image:document.getElementById('f_image').value.trim(), short_angle:document.getElementById('f_shortAngle').value.trim(),
-    summary:document.getElementById('f_summary').value.trim(), metrics, highlights,
+    summary:document.getElementById('f_summary').value.trim(), metrics, highlights, gallery, unit_schedule,
     featured:document.getElementById('f_featured').checked, is_published:document.getElementById('f_published').checked
   };
 }
@@ -498,9 +537,19 @@ async function saveOpp(){
   let res;
   if(id) res=await sb.from('opportunities').update(payload).eq('id',id);
   else   res=await sb.from('opportunities').insert([payload]);
+  // Gallery/Accommodation Schedule are a newer migration (schema.sql Phase 4).
+  // If it hasn't been run yet, retry without those two columns rather than
+  // losing the rest of the edit.
+  let schemaPending=false;
+  if(res.error && (res.error.code==='PGRST204'||res.error.code==='42703')){
+    const{gallery,unit_schedule,...legacy}=payload;
+    res = id ? await sb.from('opportunities').update(legacy).eq('id',id) : await sb.from('opportunities').insert([legacy]);
+    schemaPending = !res.error;
+  }
   btn.disabled=false; btn.textContent='Save';
   if(res.error){err.textContent=res.error.message;return;}
-  toast(id?'Opportunity updated':'Opportunity added'); closeModal('oppModal'); loadOpps();
+  toast(schemaPending ? 'Saved — Gallery/Schedule need schema.sql run first' : (id?'Opportunity updated':'Opportunity added'));
+  closeModal('oppModal'); loadOpps();
 }
 async function deleteOpp(){
   const id=document.getElementById('oppId').value; if(!id)return;

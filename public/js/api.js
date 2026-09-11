@@ -239,6 +239,8 @@
       summary: r.summary,
       metrics: r.metrics || {},
       highlights: r.highlights || [],
+      gallery: r.gallery || [],
+      unitSchedule: r.unit_schedule || [],
       featured: r.featured,
       order: r.sort_order,
       createdAt: r.created_at

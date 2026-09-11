@@ -23,6 +23,15 @@ window.LS_CONFIG = {
   // Paste your Calendly scheduling link. Until then the button shows a notice.
   CALENDLY_URL: 'https://calendly.com/cameron-k-landsterling/investment-portal-call',
 
+  /* --- Advisor contact card (shown on every opportunity page) --------- */
+  // Add a headshot URL to switch the avatar from initials to your photo.
+  ADVISOR: {
+    name:  'Cameron Kerr',
+    title: 'Investment Advisory · Land Sterling',
+    phone: '+971 50 900 5736',
+    photo: ''
+  },
+
   /* --- Multi-currency display ----------------------------------------- */
   // Indicative FX used only to display the AED guide price in other currencies.
   // Update periodically; shown with an "indicative" note.

@@ -280,6 +280,20 @@ create index if not exists idx_enquiries_user on public.enquiries (user_id, crea
 --  front-end fix in the invite modal + activation page, not a schema change.)
 
 -- ============================================================================
+--  PHASE 4 ADDITIONS (asset-detail page elevated to institutional-brochure
+--  standard — photo gallery + a floor-by-floor accommodation schedule,
+--  matching how JLL/CBRE present individual assets)
+-- ============================================================================
+
+-- 14. A photo gallery (array of image URLs) and an accommodation/unit
+--     schedule (array of {name, sqft, sqm, availability} rows) per
+--     opportunity. Both default to an empty array, so every existing
+--     opportunity keeps rendering exactly as before until you add data —
+--     the front-end only shows these sections when there's something to show.
+alter table public.opportunities add column if not exists gallery        jsonb default '[]'::jsonb;
+alter table public.opportunities add column if not exists unit_schedule  jsonb default '[]'::jsonb;
+
+-- ============================================================================
 --  DONE. Next: create your own login, then promote yourself to admin with the
 --  one-line command in SETUP.md (Step 6).
 -- ============================================================================

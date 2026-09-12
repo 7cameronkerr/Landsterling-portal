@@ -135,13 +135,15 @@
     },
 
     // Lightweight engagement logging (sign-in, opportunity views) — feeds CRM.
+    // Anonymous callers are tracked too (user_id null) — shared-link visits,
+    // gate impressions and CTA clicks from an anonymous session are real
+    // acquisition-funnel signal now that opportunity links are shareable.
     async logActivity(eventType, oppSlug) {
       if (!sb) return;
       try {
         const { data: { user } } = await sb.auth.getUser();
-        if (!user) return;
         await sb.from('activity_log').insert([{
-          user_id: user.id, event_type: eventType, opportunity_slug: oppSlug || null
+          user_id: user ? user.id : null, event_type: eventType, opportunity_slug: oppSlug || null
         }]);
       } catch (e) {}
     },
@@ -158,6 +160,18 @@
         .order('created_at', { ascending: true });
       if (error) throw error;
       return (data || []).map(rowToOpportunity);
+    },
+
+    // Public shared-link path: works for anonymous visitors (RPC, not a
+    // table SELECT — see schema.sql Phase 7 for why that distinction is
+    // what keeps the rest of the library non-enumerable). Returns null
+    // rather than throwing when the slug doesn't exist/isn't published,
+    // so a bad or stale link degrades to "not found" rather than an error.
+    async fetchSharedOpportunity(slug) {
+      assertReady();
+      const { data, error } = await sb.rpc('get_shared_opportunity', { p_slug: slug });
+      if (error || !data || !data.length) return null;
+      return rowToOpportunity(data[0]);
     },
 
     /* ---- SHORTLIST (saved opportunities) ------------------------------ */
@@ -272,6 +286,7 @@
       image: r.image,
       assetType: r.asset_type,
       assetProfile: r.asset_profile,
+      transactionType: r.transaction_type || 'For Sale',
       tenure: r.tenure,
       dealStatus: r.deal_status,
       price: r.price,

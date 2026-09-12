@@ -338,6 +338,14 @@ h4 { font-size: 1.15rem; }
 }
 .nav-link:hover, .nav-link.active { color: var(--text); }
 .nav-cta { flex-shrink: 0; }
+/* Sign Out is intentionally lower-weight than the primary nav links it sits
+   after — smaller, muted, pushed to the far edge — so it reads as a
+   secondary account action, never competing with Home/Library/Insights/About. */
+.nav-link-signout {
+  margin-left: 24px; padding-left: 24px; border-left: 1px solid var(--border);
+  font-size: 10px; font-weight: 400; letter-spacing: 0.06em; color: var(--text-sec); opacity: 0.75;
+}
+.nav-link-signout:hover { opacity: 1; color: var(--text-sec); }
 .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
 .nav-hamburger span {
   display: block; width: 22px; height: 1.5px;
@@ -657,6 +665,7 @@ h4 { font-size: 1.15rem; }
 }
 .card-meta-item { font-size: 10.5px; color: var(--text-sec); letter-spacing: 0.03em; }
 .card-meta-item span { color: var(--text); font-weight: 500; }
+.card-meta-lease span { color: var(--red); }
 .card-price {
   font-family: var(--font-mono);
   font-size: 1.05rem;
@@ -748,17 +757,55 @@ h4 { font-size: 1.15rem; }
 .empty-state p { font-size: 14px; color: var(--text-sec); max-width: 400px; margin: 0 auto; }
 
 /* ============================================================
-   CTA SECTION
+   PRIMARY CONTACT CTAs (home page)
    ============================================================ */
-.cta-section {
-  background: var(--navy);
-  padding: 96px 0;
-  text-align: center;
+.contact-cta-section { padding: 88px 0 96px; background: var(--bg); border-bottom: 1px solid var(--divider); }
+.contact-cta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); margin-top: 48px; }
+.contact-cta-item {
+  background: var(--white); padding: 36px 24px; text-align: center; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border-top: 2px solid transparent; transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  text-decoration: none; color: inherit;
 }
-.cta-section .label { color: rgba(255,255,255,0.62); display: block; margin-bottom: 16px; }
-.cta-section h2 { color: #fff; margin-bottom: 16px; font-weight: 300; }
-.cta-section p { color: rgba(255,255,255,0.55); font-size: 14px; max-width: 520px; margin: 0 auto 40px; line-height: 1.8; }
-.cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.contact-cta-item:hover { border-top-color: var(--red); transform: translateY(-3px); box-shadow: var(--shadow); }
+.contact-cta-icon {
+  width: 52px; height: 52px; border-radius: 50%; background: var(--card-bg); color: var(--red);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+}
+.contact-cta-icon svg { width: 22px; height: 22px; }
+.contact-cta-label { font-family: var(--font-serif); font-size: 1.15rem; color: var(--navy); }
+.contact-cta-desc { font-size: 12px; color: var(--text-sec); line-height: 1.6; margin-top: 4px; }
+
+/* ============================================================
+   OPPORTUNITIES BANNER (home page) — funnels into the library
+   rather than sampling it with individual cards
+   ============================================================ */
+.opps-banner {
+  position: relative; overflow: hidden; background: var(--navy);
+  padding: 100px 0; text-align: center;
+}
+.opps-banner-bg {
+  position: absolute; inset: 0;
+  background: url('https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1800&q=80') center 35% / cover no-repeat;
+  opacity: 0.28; filter: saturate(0.8);
+}
+.opps-banner::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(26,31,46,0.55) 0%, rgba(26,31,46,0.85) 100%);
+}
+.opps-banner .container { position: relative; z-index: 1; }
+.opps-banner .label { color: rgba(255,255,255,0.62); display: block; margin-bottom: 16px; }
+.opps-banner h2 { color: #fff; margin-bottom: 16px; font-weight: 300; font-size: clamp(1.7rem, 3.4vw, 2.4rem); }
+.opps-banner p { color: rgba(255,255,255,0.6); font-size: 14.5px; max-width: 560px; margin: 0 auto 36px; line-height: 1.8; }
+.btn-lg { padding: 16px 36px; font-size: 12.5px; }
+
+@media (max-width: 768px) {
+  .contact-cta-grid { grid-template-columns: 1fr 1fr; }
+  .opps-banner { padding: 72px 0; }
+}
+@media (max-width: 480px) {
+  .contact-cta-grid { grid-template-columns: 1fr; }
+}
 
 /* ============================================================
    OPPORTUNITY DETAIL PAGE
@@ -1269,7 +1316,19 @@ body.modal-open { overflow: hidden; }
   background: var(--navy);
   padding: 80px 0 64px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: relative;
+  overflow: hidden;
 }
+.about-hero-bg {
+  position: absolute; inset: 0;
+  background-position: center 40%; background-size: cover; background-repeat: no-repeat;
+  opacity: 0.32; filter: saturate(0.8);
+}
+.about-hero::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(26,31,46,0.35) 0%, rgba(26,31,46,0.85) 100%);
+}
+.about-hero .container { position: relative; z-index: 1; }
 .about-hero .label { display: block; margin-bottom: 12px; color: rgba(255,255,255,0.62); }
 .about-hero h1 { color: #fff; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; margin-bottom: 16px; }
 .about-hero p { color: rgba(255,255,255,0.55); font-size: 15px; max-width: 640px; line-height: 1.8; }
@@ -1670,7 +1729,6 @@ footer {
 .credential-num { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; font-size: clamp(1.35rem, 1.9vw, 1.75rem); letter-spacing: 0.01em; color: var(--red); line-height: 1.1; margin-bottom: 8px; }
 .credential-label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-sec); }
 .credentials-caption { text-align: center; font-size: 12px; color: var(--text-sec); margin-top: 24px; }
-.cta-section { border-bottom: 1px solid rgba(255,255,255,0.14); }
 /* Filter bar: identical on desktop; horizontal chip rails on phones */
 .filter-secondary { display: contents; }
 #libraryMap, #detailMap { background: var(--card-bg); }
@@ -1696,6 +1754,11 @@ footer {
 /* ============================================================
    AUTH GATE — trust row, password toggle, forgot-password button
    ============================================================ */
+.gate-context {
+  font-size: 13px; color: var(--text-sec); line-height: 1.7; text-align: center;
+  background: var(--card-bg); border: 1px solid var(--divider); border-left: 3px solid var(--red);
+  padding: 16px 20px; margin: -6px 0 20px;
+}
 .gate-trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin: -8px 0 18px; }
 .gate-trust span { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-sec); }
 .gate-trust span + span::before { content: '·'; margin-right: 16px; color: var(--border); }
@@ -1793,6 +1856,9 @@ button.gate-magic-link:hover { color: var(--red); }
   }
   .nav-links.open .nav-link { padding: 10px 0; font-size: 12px; }
   .nav-links.open .nav-link-cta { display: block; margin-top: 14px; }
+  .nav-links.open .nav-link-signout {
+    margin: 14px 0 0; padding: 14px 0 0; border-left: none; border-top: 1px solid var(--divider);
+  }
 
   .hero { padding: 72px 0 64px; }
   .metrics-grid, .credentials-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1898,6 +1964,10 @@ button.gate-magic-link:hover { color: var(--red); }
     <div class="gate-logo" id="gateLogoText" style="display:none;">Land Sterling</div>
     <div class="gate-rule"></div>
     <div class="gate-title" id="gateTitle">Investment Portal</div>
+    <div class="gate-context" id="gateContextMessage" hidden>
+      Access our full investment opportunity library — registration gives you curated UAE real estate
+      opportunities and market intelligence, reviewed personally before you're granted access.
+    </div>
     <div class="gate-trust" aria-label="Portal terms">
       <span>Qualified investors only</span>
       <span>Confidential under NDA</span>
@@ -1984,8 +2054,8 @@ button.gate-magic-link:hover { color: var(--red); }
       <li><span class="nav-link" id="nav-insights" onclick="navigate('insights')">Insights</span></li>
       <li><span class="nav-link" id="nav-about" onclick="navigate('about')">About Us</span></li>
       <li><span class="nav-link" id="nav-signin" onclick="closeNav(); setAuthTab('signin'); showGate();" style="display:none;">Sign In</span></li>
-      <li><span class="nav-link" id="nav-signout" onclick="handleSignOut()" style="display:none;">Sign Out</span></li>
       <li class="nav-link-cta"><button class="btn btn-primary btn-sm" onclick="closeNav(); openEnquireModal(null)">Request Further Details</button></li>
+      <li><span class="nav-link nav-link-signout" id="nav-signout" onclick="handleSignOut()" style="display:none;">Sign Out</span></li>
     </ul>
     <div class="nav-cta" id="navCta">
       <button class="btn btn-primary btn-sm" onclick="openEnquireModal(null)">Request Further Details</button>
@@ -2075,38 +2145,54 @@ button.gate-magic-link:hover { color: var(--red); }
             <h2>Curated access to UAE real estate investment</h2>
           </div>
           <div class="intro-right">
-            <p>The Land Sterling Investment Portal provides selected investors with structured access to curated UAE real estate opportunities across residential, commercial, industrial and land sectors. Each opportunity is reviewed through an investment advisory lens, with emphasis on pricing, income, tenure, asset profile, exit optionality and market context.</p>
-            <p>The platform is designed for informed capital seeking clear access to stabilised income assets, value-add opportunities and development-led acquisitions. Opportunities are presented with full investment metrics, supporting market evidence and direct enquiry access for qualified recipients.</p>
+            <p>Land Sterling Investment Advisory is a specialist real estate advisory practice. The Land Sterling Investment Portal is how we give selected investors structured, direct access to the opportunities we curate — across residential, commercial, industrial and land sectors — alongside the market intelligence behind them, rather than a generic listings feed.</p>
+            <p>Each opportunity is reviewed through an investment advisory lens, with emphasis on pricing, income, tenure, asset profile, exit optionality and market context, and is presented for sale or for lease with full investment metrics, supporting market evidence and direct enquiry access for qualified recipients.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Featured opportunities (imagery-led; renders the `featured` flag) -->
-    <section class="featured-section" id="featuredSection" hidden>
+    <!-- Primary contact CTAs -->
+    <section class="contact-cta-section">
       <div class="container">
-        <div class="section-header-row">
-          <div class="section-header" style="margin:0">
-            <span class="label">Selected Opportunities</span>
-            <span class="section-rule"></span>
-            <h2>Currently presenting</h2>
-          </div>
-          <button class="btn btn-secondary btn-sm" onclick="navigate('asset-library')">View Asset Library</button>
+        <div class="section-header" style="text-align:center;">
+          <span class="label">Speak With Us</span>
+          <span class="section-rule center"></span>
+          <h2>Four direct ways to reach the desk</h2>
         </div>
-        <div class="opps-grid" id="featuredGrid"></div>
+        <div class="contact-cta-grid">
+          <button type="button" class="contact-cta-item" onclick="LS_API.logActivity('send_inquiry_click'); openEnquireModal(null)">
+            <span class="contact-cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M3 6l9 7 9-7"/></svg></span>
+            <span class="contact-cta-label">Send Inquiry</span>
+            <span class="contact-cta-desc">A detailed written enquiry to the desk</span>
+          </button>
+          <button type="button" class="contact-cta-item" onclick="LS_API.logActivity('book_call_click'); openBookACall()">
+            <span class="contact-cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></span>
+            <span class="contact-cta-label">Book Call</span>
+            <span class="contact-cta-desc">Schedule time directly in our calendar</span>
+          </button>
+          <a class="contact-cta-item" href="#" id="homeWhatsApp" onclick="LS_API.logActivity('whatsapp_click')" target="_blank" rel="noopener">
+            <span class="contact-cta-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></span>
+            <span class="contact-cta-label">WhatsApp</span>
+            <span class="contact-cta-desc">Message the desk directly</span>
+          </a>
+          <a class="contact-cta-item" href="#" id="homeCallNow" onclick="LS_API.logActivity('call_click')">
+            <span class="contact-cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span>
+            <span class="contact-cta-label">Call Now</span>
+            <span class="contact-cta-desc">Speak with Land Sterling directly</span>
+          </a>
+        </div>
       </div>
     </section>
 
-    <!-- CTA -->
-    <section class="cta-section">
+    <!-- Opportunities banner — funnels into the library rather than sampling it -->
+    <section class="opps-banner">
+      <div class="opps-banner-bg"></div>
       <div class="container">
-        <span class="label">Investment Advisory</span>
-        <h2>Discuss your acquisition criteria</h2>
-        <p>For further information on live opportunities or to discuss acquisition criteria, contact Land Sterling Investment Advisory.</p>
-        <div class="cta-btns">
-          <button class="btn btn-primary" onclick="navigate('asset-library')">View Asset Library</button>
-          <button class="btn btn-outline-white" onclick="openEnquireModal(null)">Request Further Details</button>
-        </div>
+        <span class="label">The Asset Library</span>
+        <h2>Curated opportunities, updated continuously</h2>
+        <p>Every live acquisition and leasing opportunity Land Sterling is currently presenting — for sale and for lease, across income, value-add and development strategies.</p>
+        <button class="btn btn-primary btn-lg" onclick="LS_API.logActivity('view_opportunities_click'); navigate('asset-library')">View Current Opportunities →</button>
       </div>
     </section>
 
@@ -2135,6 +2221,13 @@ button.gate-magic-link:hover { color: var(--red); }
         </div>
 
         <div class="filter-bar" id="filterBar">
+          <div class="filter-group">
+            <span class="filter-label-text">Transaction</span>
+            <button class="filter-btn active" data-filter="transaction" data-value="all" onclick="setFilter('transaction','all',this)">All</button>
+            <button class="filter-btn" data-filter="transaction" data-value="For Sale" onclick="setFilter('transaction','For Sale',this)">For Sale</button>
+            <button class="filter-btn" data-filter="transaction" data-value="For Lease" onclick="setFilter('transaction','For Lease',this)">For Lease</button>
+          </div>
+          <div class="filter-divider"></div>
           <div class="filter-group">
             <span class="filter-label-text">Country</span>
             <button class="filter-btn active" data-filter="country" data-value="all" onclick="setFilter('country','all',this)">All</button>
@@ -2214,6 +2307,7 @@ button.gate-magic-link:hover { color: var(--red); }
   <!-- INSIGHTS PAGE — Land Sterling research -->
   <div class="page" id="page-insights">
     <div class="about-hero">
+      <div class="about-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1800&q=80');background-position:center 60%;"></div>
       <div class="container">
         <span class="label">Land Sterling Research</span>
         <span class="section-rule"></span>
@@ -2233,6 +2327,7 @@ button.gate-magic-link:hover { color: var(--red); }
   <!-- ABOUT US PAGE -->
   <div class="page" id="page-about">
     <div class="about-hero">
+      <div class="about-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1800&q=80');background-position:center 25%;"></div>
       <div class="container">
         <span class="label">Land Sterling Investment Advisory</span>
         <span class="section-rule"></span>
@@ -2537,7 +2632,7 @@ const METRICS = [
 /* ============================================================
    STATE
    ============================================================ */
-let currentFilter = { country: 'all', type: 'all', strategy: 'all', status: 'all', saved: false };
+let currentFilter = { country: 'all', type: 'all', strategy: 'all', status: 'all', saved: false, transaction: 'all' };
 let currentView   = 'grid';
 let currentCurrency = 'AED';
 let libraryMapInstance = null;
@@ -2643,7 +2738,7 @@ function toggleGatePw(btn) {
   btn.setAttribute('aria-pressed', show ? 'true' : 'false');
 }
 
-function showGate() {
+function showGate(reason) {
   const g = document.getElementById('gate');
   g.style.display = 'flex';
   g.style.opacity = '1';
@@ -2652,6 +2747,11 @@ function showGate() {
   // one-time "backend isn't configured at all" case).
   const close = document.getElementById('gateClose');
   if (close) close.hidden = !LS_API.configured ? true : false;
+  // A visitor who just read a real, specific opportunity for free gets a
+  // different pitch than a cold visitor — name the value they're being
+  // asked to register for, not a generic "please sign in".
+  const ctx = document.getElementById('gateContextMessage');
+  if (ctx) ctx.hidden = (reason !== 'library-from-opportunity');
 }
 
 // Cancel out of a voluntarily-opened gate (nav "Sign In", or a locked Asset
@@ -2785,6 +2885,14 @@ async function routeAfterAuth(profile) {
     if (so) so.style.display = '';
     const si = document.getElementById('nav-signin');
     if (si) si.style.display = 'none';
+    // Send them where they were actually headed (typically the Asset
+    // Library, reached via "View Other Opportunities" on a shared link)
+    // rather than leaving them on whatever page sat underneath the gate —
+    // works even after the multi-day register → approve → activate path,
+    // since this is read from localStorage, not an in-memory variable.
+    let dest = null;
+    try { dest = localStorage.getItem('ls_pending_destination'); localStorage.removeItem('ls_pending_destination'); } catch (e) {}
+    if (dest) navigate(dest);
     return true;
   }
   window.LS_PROFILE = null;
@@ -2875,14 +2983,24 @@ async function checkGate() {
 /* ============================================================
    NAVIGATION & ROUTING
    ============================================================ */
-// Only the Asset Library (and individual deal pages) require approval —
-// Home / About / Insights are public. Intercept before rendering either.
-const GATED_PAGES = ['asset-library', 'opportunity'];
+// Only the Asset Library itself requires approval — Home / About / Insights
+// are public, and an individual opportunity is reachable by direct/shared
+// link without signing in (see renderOpportunityDetail's public-view path).
+// What's NOT possible for an anonymous visitor is enumerating the library —
+// that's enforced at the database layer (schema.sql Phase 7), not just here.
+const GATED_PAGES = ['asset-library'];
 function navigate(page, slug) {
   if (GATED_PAGES.includes(page) && !isPortalUnlocked()) {
     closeNav();
     setAuthTab('signin');
-    showGate();
+    // Remember where they were headed so a successful sign-in/registration
+    // drops them straight there instead of leaving them on the page
+    // underneath the gate (see routeAfterAuth's success branch). In
+    // localStorage, not just a JS variable — registration is reviewed
+    // manually and activation can happen days later in a fresh session.
+    try { localStorage.setItem('ls_pending_destination', page); } catch (e) {}
+    showGate(currentOpportunity ? 'library-from-opportunity' : 'library');
+    if (window.LS_API && LS_API.logActivity) LS_API.logActivity('gate_shown', currentOpportunity ? currentOpportunity.id : null);
     return;
   }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2985,6 +3103,31 @@ function imageClass(type) {
   return 'residential';
 }
 
+// Location-first imagery: when an opportunity has no real asset photograph,
+// prefer a verified aerial/skyline photo of its actual district over any
+// generic "office tower" stock photo picked purely because it matches the
+// asset class. Every entry here was independently confirmed (not just
+// keyword-matched) to genuinely depict that district — see the project
+// notes for how each was verified. Add a new district here as soon as a
+// real photo of it is verified; until then, an opportunity in an
+// unlisted district correctly falls back to the branded placeholder
+// rather than a photo of somewhere else.
+const LOCATION_FALLBACK_IMAGES = [
+  { match: /business bay/i,                    url: 'https://images.unsplash.com/photo-1721807790086-f1a639b15986?q=80&w=1600&auto=format&fit=crop' },
+  { match: /dubai marina/i,                    url: 'https://images.unsplash.com/photo-1721797274558-3684bbcdf197?q=80&w=1600&auto=format&fit=crop' },
+  { match: /downtown dubai/i,                  url: 'https://images.unsplash.com/photo-1721804222962-6a1c9bdbbbe5?q=80&w=1600&auto=format&fit=crop' },
+  { match: /jumeirah village circle|\bjvc\b/i,  url: 'https://images.unsplash.com/photo-1642715350691-7ffde05661c4?q=80&w=1600&auto=format&fit=crop' },
+  { match: /al jaddaf/i,                        url: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Jaddaf_Skyline_View_Dubai_Jul23_A7C_05226.jpg' },
+  { match: /jebel ali/i,                        url: 'https://upload.wikimedia.org/wikipedia/commons/2/23/ISS020-E-28722_-_View_of_United_Arab_Emirates.jpg' },
+  { match: /silicon oasis/i,                    url: 'https://upload.wikimedia.org/wikipedia/commons/4/49/Dubai_Silicon_Oasis_-_Dubai_-_United_Arab_Emirates_-_panoramio_%281%29.jpg' },
+  { match: /\bdeira\b/i,                        url: 'https://images.unsplash.com/photo-1602063807985-2d180b2e4bba?q=80&w=1600&auto=format&fit=crop' }
+];
+function resolveOppImage(opp) {
+  if (opp.image) return opp.image;
+  const hit = LOCATION_FALLBACK_IMAGES.find(l => l.match.test(opp.location || ''));
+  return hit ? hit.url : null;
+}
+
 // Three labelled figures per card, chosen by strategy so the card leads with
 // the numbers an investor scans for (never a mislabelled fallback).
 function cardFigures(opp) {
@@ -3028,9 +3171,12 @@ function cardHTML(opp) {
     : '';
 
   const figures = cardFigures(opp);
+  // Real asset photo first; else a verified photo of the actual district;
+  // else the branded pattern (card-image-bg) shows through on its own.
+  const resolvedImage = resolveOppImage(opp);
   // Serve a 600px source to phones; the 1200px only where a card is wide.
-  const imgAttrs = (opp.image && /[?&]w=1200/.test(opp.image))
-    ? `srcset="${opp.image.replace('w=1200', 'w=600')} 600w, ${opp.image} 1200w" sizes="(max-width:768px) 100vw, (max-width:1100px) 50vw, 33vw" decoding="async"`
+  const imgAttrs = (resolvedImage && /[?&]w=1200/.test(resolvedImage))
+    ? `srcset="${resolvedImage.replace('w=1200', 'w=600')} 600w, ${resolvedImage} 1200w" sizes="(max-width:768px) 100vw, (max-width:1100px) 50vw, 33vw" decoding="async"`
     : 'decoding="async"';
   const isSold = opp.dealStatus === 'Sold';
   // Primary action is always "see the opportunity" — enquiry-strength CTAs live
@@ -3049,7 +3195,7 @@ function cardHTML(opp) {
             <span class="location-text">${opp.location}</span>
           </div>
         </div>
-        ${opp.image ? `<img class="card-image-photo" src="${opp.image}" ${imgAttrs} alt="${opp.location}" loading="lazy" onload="this.classList.add('is-loaded')" onerror="this.remove()">` : ''}
+        ${resolvedImage ? `<img class="card-image-photo" src="${resolvedImage}" ${imgAttrs} alt="${opp.location}" loading="lazy" onload="this.classList.add('is-loaded')" onerror="this.remove()">` : ''}
         <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}">${opp.assetProfile}</span>
         ${statusBadge}
         ${(isSold || !opp._uuid) ? '' : `<button type="button" class="card-save-btn${SAVED_IDS.has(opp._uuid) ? ' is-saved' : ''}" onclick="toggleSaved('${opp._uuid}', this, event)">${SAVED_IDS.has(opp._uuid) ? 'Saved' : 'Save'}</button>`}
@@ -3058,6 +3204,7 @@ function cardHTML(opp) {
         <div class="card-name">${opp.name}</div>
         <div class="card-location">↗ ${opp.location}</div>
         <div class="card-meta">
+          ${opp.transactionType === 'For Lease' ? `<div class="card-meta-item card-meta-lease"><span>For Lease</span></div>` : ''}
           <div class="card-meta-item"><span>${opp.assetType}</span></div>
           <div class="card-meta-item"><span>${opp.tenure.split(' ')[0]}</span></div>
         </div>
@@ -3115,14 +3262,15 @@ function renderLibrary() {
   if (trackRecordHeader) trackRecordHeader.style.display = isSoldView ? ''      : 'none';
 
   const filtered = OPPORTUNITIES.filter(o => {
-    const countryMatch  = currentFilter.country  === 'all' || o.country === currentFilter.country;
-    const typeMatch     = currentFilter.type     === 'all' || o.assetType === currentFilter.type;
-    const strategyMatch = currentFilter.strategy === 'all' || o.assetProfile === currentFilter.strategy;
+    const countryMatch     = currentFilter.country     === 'all' || o.country === currentFilter.country;
+    const typeMatch        = currentFilter.type        === 'all' || o.assetType === currentFilter.type;
+    const strategyMatch    = currentFilter.strategy    === 'all' || o.assetProfile === currentFilter.strategy;
+    const transactionMatch = currentFilter.transaction === 'all' || o.transactionType === currentFilter.transaction;
     const statusMatch   = isSoldView
       ? o.dealStatus === 'Sold'
       : (currentFilter.status === 'all' ? o.dealStatus !== 'Sold' : o.dealStatus === currentFilter.status);
     const savedMatch    = !currentFilter.saved || (!!o._uuid && SAVED_IDS.has(o._uuid));
-    return countryMatch && typeMatch && strategyMatch && statusMatch && savedMatch;
+    return countryMatch && typeMatch && strategyMatch && transactionMatch && statusMatch && savedMatch;
   }).sort((a,b) => a.order - b.order);
 
   const grid  = document.getElementById('libraryGrid');
@@ -3188,18 +3336,6 @@ function renderInsights() {
   if (note) note.textContent = 'Research is issued to portal members on request and, where indicated, under the confidentiality agreement.';
 }
 
-// Home page gallery: up to three featured live deals (falls back to the first three).
-function renderFeatured() {
-  const sec = document.getElementById('featuredSection'), g = document.getElementById('featuredGrid');
-  if (!sec || !g) return;
-  const live = OPPORTUNITIES.filter(o => o.dealStatus !== 'Sold').sort((a, b) => a.order - b.order);
-  let list = live.filter(o => o.featured).slice(0, 3);
-  if (!list.length) list = live.slice(0, 3);
-  sec.hidden = !list.length;
-  g.innerHTML = list.map(cardHTML).join('');
-  if (typeof applyReveal === 'function') applyReveal();
-}
-
 function setFilter(dimension, value, btn) {
   currentFilter[dimension] = value;
   // Update active state on buttons
@@ -3250,8 +3386,12 @@ function drawLibraryMap(opportunities) {
 
   libraryMapInstance = L.map('libraryMap', { zoomControl: true }).setView(centre, opportunities.length === 1 ? 14 : 10);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+  // CARTO's free anonymous basemap tier now requires a registered API key
+  // (it silently serves a watermarked "API key required" placeholder tile
+  // instead of erroring) — switched to OSM's own free, keyless tile server,
+  // which needs no account, no key and no Netlify configuration.
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19
   }).addTo(libraryMapInstance);
 
@@ -3297,8 +3437,8 @@ function initDetailMap(lat, lng, name, location) {
 
     const map = L.map('detailMap', { zoomControl: true, scrollWheelZoom: false }).setView([lat, lng], 15);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19
     }).addTo(map);
 
@@ -3526,11 +3666,33 @@ function derivedHeadline(opp) {
     .map(k => ({ label: figureLabel(k, m[k]), value: `<span data-aed="${rawMetric(m[k])}">${convertAedDisplay(rawMetric(m[k]))}</span>` }));
 }
 
-function renderOpportunityDetail(slug) {
-  const opp = OPPORTUNITIES.find(o => o.id === slug);
-  if (!opp) { navigate('asset-library'); return; }
+async function renderOpportunityDetail(slug) {
+  // Signed-in/approved: use the already-loaded catalogue (fast, no network
+  // round-trip). Signed-out: OPPORTUNITIES may silently be the SEED preview
+  // data (loadOpportunities()'s own fallback when RLS blocks the real
+  // table) — that must never be mistaken for a real row, so the public path
+  // always goes straight to the single-slug RPC instead of trusting it.
+  let opp = isPortalUnlocked() ? OPPORTUNITIES.find(o => o.id === slug) : null;
+  let isPublicView = false;
+  const contentEl = document.getElementById('opportunityContent');
+  if (!opp && !isPortalUnlocked()) {
+    if (contentEl) contentEl.innerHTML = '<div style="padding:120px 24px;text-align:center;color:var(--text-sec);font-size:13px;">Loading opportunity…</div>';
+    opp = await LS_API.fetchSharedOpportunity(slug).catch(() => null);
+    isPublicView = !!opp;
+  }
+  if (!opp) {
+    if (isPortalUnlocked()) { navigate('asset-library'); return; }
+    // Anonymous and no matching published opportunity for this slug — a
+    // stale/mistyped link, not a real gate moment, but the gate is still
+    // the only thing there is to offer.
+    closeNav(); setAuthTab('signin'); showGate();
+    return;
+  }
+  // Route changed while the public fetch was in flight (e.g. user clicked
+  // elsewhere before it resolved) — don't paint a page nobody's looking at.
+  if (!document.getElementById('page-opportunity').classList.contains('active')) return;
   currentOpportunity = opp;
-  if (LS_API && LS_API.logActivity) LS_API.logActivity('view_opportunity', opp.id);
+  if (LS_API && LS_API.logActivity) LS_API.logActivity(isPublicView ? 'view_shared_opportunity' : 'view_opportunity', opp.id);
 
   // Group the metrics so the panel reads as three short lists, not one wall.
   const SKIP_KEYS = ['Asset Class', 'Asset Profile', 'Tenure'];   // already shown as hero badges
@@ -3545,8 +3707,12 @@ function renderOpportunityDetail(slug) {
     const gi = GROUPS.findIndex(g => g[1] && g[1].test(k));
     grouped[gi === -1 ? 2 : gi].rows.push([k, v]);
   });
-  const metricsHTML = grouped.filter(g => g.rows.length).map(g => `
-    <details class="metric-group" open>
+  // Only the first (highest-priority) group starts expanded — with all three
+  // groups open by default the sidebar could run taller than the viewport,
+  // pushing the CTA buttons below the fold. Collapsed groups stay one click
+  // away via their summary row, on every breakpoint, not just mobile.
+  const metricsHTML = grouped.filter(g => g.rows.length).map((g, i) => `
+    <details class="metric-group"${i === 0 ? ' open' : ''}>
       <summary class="metric-group-label">${g.name}</summary>
       ${g.rows.map(([k, v]) => `<div class="metric-row"><span class="metric-key">${k}</span><span class="metric-val" data-aed="${String(v).replace(/"/g, '&quot;')}">${convertAedDisplay(String(v))}</span></div>`).join('')}
     </details>`).join('');
@@ -3566,6 +3732,7 @@ function renderOpportunityDetail(slug) {
 
   const priceShown  = convertAedDisplay(opp.price);
   const figuresHTML = heroFigures(opp);
+  const resolvedImage = resolveOppImage(opp);
 
   // Accommodation schedule — a floor-by-floor breakdown, JLL/CBRE-style.
   // Optional: only renders once an opportunity actually has schedule rows.
@@ -3632,19 +3799,28 @@ function renderOpportunityDetail(slug) {
   // Prev/Next — steps through the full catalogue in its curated sort order,
   // independent of whatever Asset Library filter (if any) the visitor arrived
   // from, so it's always defined rather than depending on carried-over state.
-  const sortedOpps = [...OPPORTUNITIES].sort((a, b) => a.order - b.order);
-  const oppIdx = sortedOpps.findIndex(o => o.id === opp.id);
-  const prevOpp = oppIdx > 0 ? sortedOpps[oppIdx - 1] : null;
-  const nextOpp = (oppIdx > -1 && oppIdx < sortedOpps.length - 1) ? sortedOpps[oppIdx + 1] : null;
-  const prevNextHTML = (prevOpp || nextOpp) ? `
+  // A public/shared view has no real catalogue to step through (OPPORTUNITIES
+  // isn't trustworthy for an anonymous visitor — see above), so this slot
+  // becomes the funnel moment instead: viewing the one they were sent, then
+  // one click from the registration gate rather than a dead end.
+  const prevNextHTML = isPublicView ? `
     <div class="detail-prevnext">
-      ${prevOpp ? `<a onclick="navigate('opportunity','${prevOpp.id}')">← Previous</a>` : ''}
-      ${nextOpp ? `<a onclick="navigate('opportunity','${nextOpp.id}')">Next →</a>` : ''}
-    </div>` : '';
+      <a onclick="LS_API.logActivity('view_other_opportunities_click', '${opp.id}'); navigate('asset-library')">View Other Opportunities →</a>
+    </div>` : (() => {
+      const sortedOpps = [...OPPORTUNITIES].sort((a, b) => a.order - b.order);
+      const oppIdx = sortedOpps.findIndex(o => o.id === opp.id);
+      const prevOpp = oppIdx > 0 ? sortedOpps[oppIdx - 1] : null;
+      const nextOpp = (oppIdx > -1 && oppIdx < sortedOpps.length - 1) ? sortedOpps[oppIdx + 1] : null;
+      return (prevOpp || nextOpp) ? `
+        <div class="detail-prevnext">
+          ${prevOpp ? `<a onclick="navigate('opportunity','${prevOpp.id}')">← Previous</a>` : ''}
+          ${nextOpp ? `<a onclick="navigate('opportunity','${nextOpp.id}')">Next →</a>` : ''}
+        </div>` : '';
+    })();
 
   document.getElementById('opportunityContent').innerHTML = `
-    <div class="detail-hero${opp.image ? '' : ' no-image'}">
-      ${opp.image ? `<div class="detail-hero-bg" style="background-image:url('${opp.image}')"></div>` : ''}
+    <div class="detail-hero${resolvedImage ? '' : ' no-image'}">
+      ${resolvedImage ? `<div class="detail-hero-bg" style="background-image:url('${resolvedImage}')"></div>` : ''}
       <div class="container">
         <div class="detail-breadcrumb-row">
           <div class="detail-breadcrumb">
@@ -3658,6 +3834,7 @@ function renderOpportunityDetail(slug) {
         </div>
         <div class="detail-badges">
           <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}" style="position:static">${opp.assetProfile}</span>
+          ${opp.transactionType === 'For Lease' ? `<span class="detail-badge type" style="background:var(--red);border-color:var(--red);">For Lease</span>` : ''}
           <span class="detail-badge type">${opp.assetType}</span>
           <span class="detail-badge tenure">${opp.tenure}</span>
         </div>
@@ -3767,10 +3944,6 @@ function renderOpportunityDetail(slug) {
       bar.classList.toggle('show', window.detailBarWanted && !document.getElementById('ls-cookie-bar'));
     }, { threshold: 0 });
     window.detailCtaObs.observe(ctaRow);
-  }
-  // Phones: keep the metrics panel short — only the first group open.
-  if (window.matchMedia('(max-width: 1100px)').matches) {
-    document.querySelectorAll('.metric-group').forEach((d, i) => { if (i > 0) d.removeAttribute('open'); });
   }
 }
 document.addEventListener('ls-consent', () => {
@@ -4085,15 +4258,18 @@ async function init() {
   if (LS_API.configured) SAVED_IDS = new Set(await LS_API.getSavedOpportunityIds());
   renderMetrics();                 // re-run now that the live listings are known
   renderLibrary();
-  renderFeatured();
   renderInsights();
   handleRoute();
   applyReveal();
   enhanceA11y();
 
-  // WhatsApp button: number + pre-filled message come from config.js
+  // WhatsApp / Call links: number + pre-filled message come from config.js
   const wa = document.getElementById('navWhatsApp');
   if (wa) wa.href = waLink();
+  const homeWa = document.getElementById('homeWhatsApp');
+  if (homeWa) homeWa.href = waLink();
+  const homeCall = document.getElementById('homeCallNow');
+  if (homeCall) homeCall.href = 'tel:' + telHref();
 
   // Log a sign-in event for engagement tracking (best-effort).
   if (LS_API.configured) {

@@ -220,6 +220,8 @@
       <div class="field"><label>Slug (URL id)</label><input id="f_slug" placeholder="auto from name"></div>
       <div class="field"><label>Location</label><input id="f_location"></div>
       <div class="field"><label>Country</label><input id="f_country" value="UAE"></div>
+      <div class="field"><label>Transaction Type</label>
+        <select id="f_transactionType"><option>For Sale</option><option>For Lease</option></select></div>
       <div class="field"><label>Asset Type</label>
         <select id="f_assetType"><option>Commercial</option><option>Residential</option><option>Land</option><option>Mixed Use</option><option>Hospitality</option><option>Industrial</option></select></div>
       <div class="field"><label>Asset Profile</label>
@@ -474,6 +476,7 @@ function openOpp(id){
   document.getElementById('oppId').value = o ? o.id : '';
   const set=(k,v)=>document.getElementById(k).value=v??'';
   set('f_name',o?.name); set('f_slug',o?.slug); set('f_location',o?.location); set('f_country',o?.country||'UAE');
+  set('f_transactionType',o?.transaction_type||'For Sale');
   set('f_assetType',o?.asset_type||'Commercial'); set('f_assetProfile',o?.asset_profile||'Income');
   set('f_tenure',o?.tenure); set('f_dealStatus',o?.deal_status||'Available'); set('f_price',o?.price);
   set('f_priceLabel',o?.price_label||'Guide Price'); set('f_grossYield',o?.gross_yield); set('f_netYield',o?.net_yield);
@@ -517,6 +520,7 @@ function collectOpp(){
   return {
     name, slug:(document.getElementById('f_slug').value.trim()||slugify(name)),
     location:document.getElementById('f_location').value.trim(), country:document.getElementById('f_country').value.trim(),
+    transaction_type:document.getElementById('f_transactionType').value,
     asset_type:document.getElementById('f_assetType').value, asset_profile:document.getElementById('f_assetProfile').value,
     tenure:document.getElementById('f_tenure').value.trim(), deal_status:document.getElementById('f_dealStatus').value,
     price:document.getElementById('f_price').value.trim(), price_label:document.getElementById('f_priceLabel').value.trim(),
@@ -537,18 +541,18 @@ async function saveOpp(){
   let res;
   if(id) res=await sb.from('opportunities').update(payload).eq('id',id);
   else   res=await sb.from('opportunities').insert([payload]);
-  // Gallery/Accommodation Schedule are a newer migration (schema.sql Phase 4).
-  // If it hasn't been run yet, retry without those two columns rather than
-  // losing the rest of the edit.
+  // Gallery/Accommodation Schedule (Phase 4) and Transaction Type (Phase 6)
+  // are newer migrations. If schema.sql hasn't been run yet, retry without
+  // those columns rather than losing the rest of the edit.
   let schemaPending=false;
   if(res.error && (res.error.code==='PGRST204'||res.error.code==='42703')){
-    const{gallery,unit_schedule,...legacy}=payload;
+    const{gallery,unit_schedule,transaction_type,...legacy}=payload;
     res = id ? await sb.from('opportunities').update(legacy).eq('id',id) : await sb.from('opportunities').insert([legacy]);
     schemaPending = !res.error;
   }
   btn.disabled=false; btn.textContent='Save';
   if(res.error){err.textContent=res.error.message;return;}
-  toast(schemaPending ? 'Saved — Gallery/Schedule need schema.sql run first' : (id?'Opportunity updated':'Opportunity added'));
+  toast(schemaPending ? 'Saved — some newer fields need schema.sql run first' : (id?'Opportunity updated':'Opportunity added'));
   closeModal('oppModal'); loadOpps();
 }
 async function deleteOpp(){

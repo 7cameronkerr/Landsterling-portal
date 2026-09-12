@@ -323,6 +323,58 @@ create policy "own saved delete" on public.saved_opportunities
   for delete using ( auth.uid() = user_id );
 
 -- ============================================================================
+--  PHASE 6 ADDITIONS (transaction type as its own dimension, separate from
+--  asset class — "for sale" vs "for lease", so leasing opportunities filter
+--  cleanly alongside sales rather than being force-fit into asset_type)
+-- ============================================================================
+
+-- 16. Defaults every existing row to 'For Sale' (matching how the portal has
+--     operated to date), so nothing already published changes category.
+alter table public.opportunities add column if not exists transaction_type text not null default 'For Sale';
+alter table public.opportunities drop constraint if exists opportunities_transaction_type_check;
+alter table public.opportunities add constraint opportunities_transaction_type_check
+  check (transaction_type in ('For Sale', 'For Lease'));
+create index if not exists idx_opportunities_transaction_type on public.opportunities (transaction_type);
+
+-- ============================================================================
+--  PHASE 7 ADDITIONS (public shareable opportunity links — a direct link to
+--  one opportunity works without signing in; the library and every OTHER
+--  opportunity stay behind the existing approved-investor gate)
+-- ============================================================================
+
+-- 17. Row-level security is per-row, not per-query-shape — there is no table
+--     policy that means "visible by exact slug, invisible when listed", so
+--     opportunities' existing approved-only RLS is left exactly as it is
+--     (anonymous visitors still cannot SELECT the table directly, and so
+--     cannot enumerate it). Instead, this SECURITY DEFINER function looks up
+--     ONE published opportunity by its exact slug — anonymous callers must
+--     already know the slug (that's what makes a link "shareable"), and
+--     nothing about this function lets them discover any other slug, the
+--     same trust model as an unlisted Google Doc or Notion page.
+create or replace function public.get_shared_opportunity(p_slug text)
+returns setof public.opportunities
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select * from public.opportunities
+  where slug = p_slug and is_published = true
+  limit 1;
+$$;
+revoke all on function public.get_shared_opportunity(text) from public;
+grant execute on function public.get_shared_opportunity(text) to anon, authenticated;
+
+-- 18. Shared links are now a real acquisition channel, so activity_log needs
+--     to accept anonymous events (a shared-opportunity view, a registration
+--     prompt shown, a CTA click) alongside the existing authenticated ones.
+--     The check still prevents an anonymous caller from attributing a row to
+--     someone else's real user_id — it may only insert with user_id null.
+drop policy if exists "own activity insert" on public.activity_log;
+create policy "own activity insert" on public.activity_log
+  for insert with check ( user_id = auth.uid() or (user_id is null and auth.uid() is null) );
+
+-- ============================================================================
 --  DONE. Next: create your own login, then promote yourself to admin with the
 --  one-line command in SETUP.md (Step 6).
 -- ============================================================================

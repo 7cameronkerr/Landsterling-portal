@@ -227,7 +227,7 @@ h4 { font-size: 1.15rem; }
   margin-bottom: 32px;
 }
 .gate-form { display: flex; flex-direction: column; gap: 12px; }
-.gate-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gate-form-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
 .gate-form input[type="email"],
 .gate-form input[type="text"],
 .gate-form input[type="tel"] {
@@ -458,7 +458,7 @@ h4 { font-size: 1.15rem; }
 .metrics-rule { display: block; width: 32px; height: 2px; background: var(--red-on-dark); margin: 22px 0 18px; }
 .metrics-bridge { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.75; max-width: 520px; }
 
-.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
 .metric-card {
   display: flex; flex-direction: column;
   background: var(--navy-card);
@@ -518,7 +518,12 @@ h4 { font-size: 1.15rem; }
 .opps-section { padding: 96px 0; }
 .opps-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0, 1fr), not plain 1fr — a bare 1fr track's implicit min-width
+     is auto, so it refuses to shrink below its item's own content width;
+     minmax(0, 1fr) is what actually makes the column obey the container
+     rather than growing to fit an oversized card (see .card-figures for
+     the same fix applied to what was actually forcing that width). */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
 
@@ -760,7 +765,7 @@ h4 { font-size: 1.15rem; }
    PRIMARY CONTACT CTAs (home page)
    ============================================================ */
 .contact-cta-section { padding: 88px 0 96px; background: var(--bg); border-bottom: 1px solid var(--divider); }
-.contact-cta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); margin-top: 48px; }
+.contact-cta-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--divider); border: 1px solid var(--divider); margin-top: 48px; }
 .contact-cta-item {
   background: var(--white); padding: 36px 24px; text-align: center; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -800,7 +805,7 @@ h4 { font-size: 1.15rem; }
 .btn-lg { padding: 16px 36px; font-size: 12.5px; }
 
 @media (max-width: 768px) {
-  .contact-cta-grid { grid-template-columns: 1fr 1fr; }
+  .contact-cta-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .opps-banner { padding: 72px 0; }
 }
 @media (max-width: 480px) {
@@ -897,7 +902,7 @@ h4 { font-size: 1.15rem; }
 .detail-dataroom-link:hover { color: #fff; }
 .metrics-panel .detail-dataroom-link { color: var(--text-sec); margin-top: 4px; }
 .metrics-panel .detail-dataroom-link:hover { color: var(--red); }
-.metrics-panel-contact-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.metrics-panel-contact-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .metrics-panel-contact-row .btn { padding: 9px 6px; font-size: 10.5px; justify-content: center; }
 
 /* Detail sections */
@@ -946,7 +951,7 @@ h4 { font-size: 1.15rem; }
 .detail-highlights { margin-bottom: 64px; }
 .detail-highlights .label { display: block; margin-bottom: 12px; }
 .detail-highlights h2 { color: var(--navy); margin-bottom: 32px; font-size: 1.9rem; }
-.highlights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--divider); }
+.highlights-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1px; background: var(--divider); }
 .highlight-item {
   background: var(--white);
   padding: 28px;
@@ -991,7 +996,7 @@ h4 { font-size: 1.15rem; }
 
 .analysis-metric-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   background: var(--divider);
   border: 1px solid var(--divider);
@@ -1140,7 +1145,7 @@ body.modal-open { overflow: hidden; }
   border-radius: 1px;
 }
 .form-grid { display: flex; flex-direction: column; gap: 14px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 .form-field { display: flex; flex-direction: column; gap: 5px; }
 .form-field label { font-size: 10.5px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-sec); }
 .form-field input,
@@ -1237,7 +1242,7 @@ body.modal-open { overflow: hidden; }
 .detail-gallery { margin-bottom: 64px; }
 .detail-gallery .label { display: block; margin-bottom: 12px; }
 .detail-gallery h2 { color: var(--navy); margin-bottom: 24px; font-size: 1.9rem; }
-.gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--divider); }
+.gallery-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1px; background: var(--divider); }
 .gallery-grid a { display: block; aspect-ratio: 4/3; overflow: hidden; }
 .gallery-grid img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
 .gallery-grid a:hover img { transform: scale(1.04); }
@@ -1342,7 +1347,7 @@ body.modal-open { overflow: hidden; }
 
 .about-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1px;
   background: var(--divider);
   border: 1px solid var(--divider);
@@ -1373,7 +1378,7 @@ body.modal-open { overflow: hidden; }
 .about-pillars-header { margin-bottom: 48px; }
 .about-pillars-header .label { display: block; margin-bottom: 12px; }
 .about-pillars-header h2 { color: var(--navy); font-size: 2rem; font-weight: 300; }
-.pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--divider); }
+.pillars-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--divider); }
 .pillar-item { background: var(--white); padding: 36px 32px; border-top: 2px solid transparent; transition: border-color 0.2s ease; }
 .pillar-item:hover { border-top-color: var(--red); }
 .pillar-num { font-family: var(--font-mono); font-size: 11px; color: var(--red); display: block; margin-bottom: 16px; }
@@ -1422,8 +1427,8 @@ body.modal-open { overflow: hidden; }
 
 @media (max-width: 1100px) {
   .about-intro { grid-template-columns: 1fr; gap: 32px; }
-  .about-stats { grid-template-columns: 1fr 1fr; }
-  .pillars-grid { grid-template-columns: 1fr 1fr; }
+  .about-stats { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .pillars-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
 @media (max-width: 768px) {
   .pillars-grid { grid-template-columns: 1fr; }
@@ -1561,7 +1566,7 @@ footer {
 
 /* Key-figures band beneath the hero */
 .detail-figures { background: var(--white); border-bottom: 1px solid var(--divider); }
-.detail-figures-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--divider); }
+.detail-figures-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--divider); }
 .detail-figures .detail-price-item { background: var(--white); padding: 22px 24px; }
 .detail-figures .detail-price-label { color: var(--text-sec); }
 .detail-figures .detail-price-value { color: var(--navy); font-size: 1.5rem; }
@@ -1604,7 +1609,7 @@ footer {
   .detail-hero .detail-breadcrumb-row { padding-bottom: 20px; }
   .detail-prevnext { width: 100%; justify-content: flex-start; }
   .detail-cta-row .btn { flex: 1 1 auto; justify-content: center; }
-  .detail-figures-grid { grid-template-columns: 1fr 1fr; }
+  .detail-figures-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .detail-figures .detail-price-item:first-child { grid-column: 1 / -1; }
   .detail-figures .detail-price-value { font-size: 1.25rem; }
   .detail-figures .detail-price-value.large { font-size: 1.5rem; }
@@ -1637,7 +1642,7 @@ footer {
 .card-meta { margin-bottom: 12px; padding-bottom: 0; border-bottom: 0; }
 .card-price { font-size: 1.35rem; margin-bottom: 12px; }
 .card-figures {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
   border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider);
   padding: 12px 0; margin-bottom: 14px;
 }
@@ -1719,7 +1724,7 @@ footer {
   display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 500;
   letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-sec); margin-bottom: 24px;
 }
-.credentials-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); }
+.credentials-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--divider); border: 1px solid var(--divider); }
 .credential-card {
   background: var(--white); padding: 30px 24px; text-align: center;
   clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
@@ -1736,6 +1741,19 @@ footer {
   .filter-bar { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px 0 16px; margin-bottom: 28px; }
   .filter-divider { display: none; }
   .filter-group {
+    /* A flex item's default min-width is auto, not 0 — without this, a
+       column-direction flex child refuses to shrink below its content's
+       natural width no matter what overflow-x says, so the horizontally-
+       scrolling chip rail was bleeding its full unscrolled width (600px+)
+       into the page's real layout width instead of staying clipped at
+       335px with its own internal scrollbar. This was the actual cause
+       of the whole Asset Library page gaining ~260px of horizontal
+       scroll on a 375px phone. min-width:0 alone wasn't enough, though —
+       an overflow-x:auto element resolves its own auto width via
+       shrink-to-fit rather than actually filling a stretched flex
+       parent, so the width has to be pinned explicitly too. */
+    min-width: 0;
+    width: 100%;
     flex-wrap: nowrap; overflow-x: auto; margin: 0 -20px; padding: 2px 20px; gap: 8px;
     scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none;
     -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent); mask-image: linear-gradient(90deg, #000 90%, transparent);
@@ -1788,7 +1806,7 @@ button.gate-magic-link:hover { color: var(--red); }
 /* ============================================================
    INSIGHTS PAGE
    ============================================================ */
-.insights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.insights-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .insight-card { background: var(--white); border: 1px solid var(--border); padding: 28px; display: flex; flex-direction: column; gap: 10px; }
 .insight-type { font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); }
 .insight-title { font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; color: var(--navy); line-height: 1.2; }
@@ -1797,7 +1815,7 @@ button.gate-magic-link:hover { color: var(--red); }
 .insight-card .btn { align-self: flex-start; }
 .insight-sample { font-size: 10.5px; color: var(--amber); }
 .insights-note { font-size: 12.5px; color: var(--text-sec); margin-top: 28px; max-width: 65ch; }
-@media (max-width: 1100px) { .insights-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1100px) { .insights-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 768px)  { .insights-grid { grid-template-columns: 1fr; } }
 
 /* ============================================================
@@ -1826,12 +1844,12 @@ button.gate-magic-link:hover { color: var(--red); }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
-  .metrics-grid, .credentials-grid { grid-template-columns: repeat(3, 1fr); }
-  .opps-grid { grid-template-columns: repeat(2, 1fr); }
+  .metrics-grid, .credentials-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .opps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .detail-grid { grid-template-columns: 1fr; }
   .metrics-panel { position: static; padding: 24px; }
   .detail-sidebar { order: -1; margin-bottom: 48px; }
-  .footer-inner { grid-template-columns: 1fr 1fr; }
+  .footer-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
 @media (max-width: 768px) {
   :root { --nav-h: 56px; }
@@ -1841,7 +1859,15 @@ button.gate-magic-link:hover { color: var(--red); }
   .analysis-table thead th, .analysis-table tbody td { padding: 9px 10px; }
   .nav-links, .nav-cta { display: none; }
   .nav-hamburger { display: block; }
-  .nav-inner { gap: 16px; }
+  /* The logo image's own source file is a wide wordmark (242px at the
+     22px desktop height) — combined with the un-reduced 32px side padding,
+     the "Investment Portal" subtitle and the WhatsApp/hamburger buttons,
+     the nav bar overflowed its container by ~130px on a 375px phone,
+     pushing the hamburger button off-screen. Tightened every dimension in
+     this row, not just one, since no single change closes that much gap. */
+  .nav-inner { gap: 12px; padding: 0 16px; }
+  .nav-logo-img { height: 18px; }
+  .nav-logo-sub { display: none; }
   .nav-links.open {
     display: flex;
     position: fixed;
@@ -1861,10 +1887,10 @@ button.gate-magic-link:hover { color: var(--red); }
   }
 
   .hero { padding: 72px 0 64px; }
-  .metrics-grid, .credentials-grid { grid-template-columns: repeat(2, 1fr); }
+  .metrics-grid, .credentials-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .metrics-bridge { display: none; } /* keep the dark band tight on phones; kicker+heading still frame it */
   .intro-inner { grid-template-columns: 1fr; gap: 32px; }
-  .opps-grid { grid-template-columns: 1fr; }
+  .opps-grid { grid-template-columns: minmax(0, 1fr); }
   .highlights-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr; gap: 32px; }

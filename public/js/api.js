@@ -126,7 +126,13 @@
         nda_signed_at: new Date().toISOString(),
         nda_name:      ndaName,
         nda_version:   ndaVersion,
-        nda_ip:        ip
+        nda_ip:        ip,
+        // This is the actual moment someone becomes "approved" — NDA signed,
+        // password set. Before this, invite-client leaves them at "invited"
+        // specifically so they're never treated as a signed-in approved user
+        // without having completed activation (see invite-client's own notes).
+        status:        'approved',
+        approved_at:   new Date().toISOString()
       };
       if (mobile)  patch.mobile  = mobile;
       if (company) patch.company = company;

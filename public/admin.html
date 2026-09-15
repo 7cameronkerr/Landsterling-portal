@@ -400,6 +400,29 @@ function table(rows, withApprove){
   }</tbody></table>`;
 }
 async function setStatus(id,status){
+  const m = MEMBERS.find(x=>x.id===id);
+  // Approving someone who's never activated (still 'pending'/'invited' —
+  // i.e. they have no password set yet) needs the same real invite email
+  // approveRequest() sends, not just a status flip — otherwise this is the
+  // exact dead end Cameron hit: "approved" with nowhere to set a password.
+  // Re-approving someone previously rejected who HAD already activated
+  // doesn't need a new invite, so this only fires for the never-activated case.
+  if (status === 'approved' && m && (m.status === 'pending' || m.status === 'invited')) {
+    try {
+      const { data, error } = await sb.functions.invoke('invite-client', { body:{
+        email:m.email, first_name:m.first_name, last_name:m.last_name, mobile:m.mobile, company:m.company,
+        redirectTo: new URL('activation.html', location.href).href
+      }});
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+    } catch(e) {
+      toast('Could not send the activation email — is the invite-client function deployed?');
+      return;
+    }
+    toast('Activation email sent to '+m.email);
+    loadMembers();
+    return;
+  }
   const patch={status};
   if(status==='approved'){patch.approved_at=new Date().toISOString();}
   const { error } = await sb.from('profiles').update(patch).eq('id',id);

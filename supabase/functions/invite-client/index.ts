@@ -2,11 +2,14 @@
 //  EDGE FUNCTION: invite-client   (Onboarding Path A — admin invites a client)
 //  - Verifies the caller is an authenticated ADMIN.
 //  - Sends a Supabase invite email so the client can set a password.
-//  - Pre-approves the client (status = 'approved') so they can log in at once.
+//  - Marks the client "invited" (not yet "approved" — that happens once
+//    they actually complete the NDA + password step in activation.html).
 //
 //  Deploy:  supabase functions deploy invite-client   (or paste in the
 //  Supabase dashboard → Edge Functions). No manual secrets needed — Supabase
 //  injects SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY.
+//  IMPORTANT: this file changing does NOT update the deployed function —
+//  redeploy it (same process as above) for the fix to actually take effect.
 // ============================================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -51,17 +54,27 @@ Deno.serve(async (req) => {
 
     // --- 4. Invite via the service-role client ------------------------------
     // Metadata flows into the profile row via the handle_new_user trigger.
+    // Status starts as "invited", NOT "approved" — this person hasn't signed
+    // the NDA or set a password yet. Marking them "approved" here (as this
+    // used to do) meant that if the activation email's link ever landed
+    // anywhere other than activation.html — e.g. a redirect misconfiguration —
+    // routeAfterAuth() would silently treat their one-time invite session as
+    // a fully signed-in approved user instead of showing the existing
+    // "Activation Needed" message, leaving them logged in with no password
+    // ever set and no way back in once that session expired. activateAccount()
+    // (public/js/api.js) is what flips status to "approved", once NDA +
+    // password are actually complete.
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-      data: { first_name, last_name, mobile, company, status: "approved" },
+      data: { first_name, last_name, mobile, company, status: "invited" },
       redirectTo: redirectTo || undefined,
     });
     if (error) return json({ error: error.message }, 400);
 
-    // Ensure the profile is marked approved even if the trigger defaulted it.
+    // Ensure the profile is marked invited even if the trigger defaulted it.
     if (data?.user?.id) {
       await admin.from("profiles")
-        .update({ status: "approved", approved_at: new Date().toISOString() })
+        .update({ status: "invited" })
         .eq("id", data.user.id);
     }
 

@@ -108,7 +108,12 @@ $$;
 -- ---------------------------------------------------------------------------
 -- 5. TRIGGER: auto-create a profile whenever a new auth user is created.
 --    Reads optional metadata set at sign-up / invite time:
---      status  -> 'invited' (admin invite) or 'pending' (self register)
+--      status  -> 'invited' (admin invite) or 'approved' (self register, see
+--                 Phase 8 — instant verified access, no pre-approval queue)
+--      nda_*   -> set only by self-registration, which captures the NDA
+--                 signature in the same step as the password (Phase 8). The
+--                 admin-invite path leaves these null until activation.html's
+--                 activateAccount() records them separately.
 -- ---------------------------------------------------------------------------
 create or replace function public.handle_new_user()
 returns trigger
@@ -117,7 +122,10 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, first_name, last_name, full_name, mobile, company, status)
+  insert into public.profiles (
+    id, email, first_name, last_name, full_name, mobile, company, status,
+    nda_signed_at, nda_name, nda_version, nda_ip
+  )
   values (
     new.id,
     new.email,
@@ -131,7 +139,12 @@ begin
     ),
     new.raw_user_meta_data ->> 'mobile',
     new.raw_user_meta_data ->> 'company',
-    coalesce(new.raw_user_meta_data ->> 'status', 'pending')
+    coalesce(new.raw_user_meta_data ->> 'status', 'pending'),
+    case when new.raw_user_meta_data ->> 'nda_signed_at' is not null
+         then (new.raw_user_meta_data ->> 'nda_signed_at')::timestamptz end,
+    new.raw_user_meta_data ->> 'nda_name',
+    new.raw_user_meta_data ->> 'nda_version',
+    new.raw_user_meta_data ->> 'nda_ip'
   )
   on conflict (id) do nothing;
   return new;
@@ -373,6 +386,27 @@ grant execute on function public.get_shared_opportunity(text) to anon, authentic
 drop policy if exists "own activity insert" on public.activity_log;
 create policy "own activity insert" on public.activity_log
   for insert with check ( user_id = auth.uid() or (user_id is null and auth.uid() is null) );
+
+-- ============================================================================
+--  PHASE 8 ADDITIONS (self-service verified registration — full details,
+--  password and NDA signature captured in one step, status set to 'approved'
+--  immediately. There is no admin pre-approval queue for this path any more:
+--  the only remaining gate is Supabase's own email confirmation, which is
+--  what "verified" means here. Cameron reviews the Members list after the
+--  fact and can Revoke (existing setStatus('rejected') in admin.html) anyone
+--  who turns out not to be a genuine investor — that RLS check (is_approved())
+--  already cuts off access the moment status flips away from 'approved', so
+--  no new revoke mechanism was needed, just the status-at-signup change above.
+--
+--  IMPORTANT — two things this SQL change does NOT control, both in the
+--  Supabase dashboard:
+--   1. Authentication -> Providers -> Email -> "Confirm email" must be ON,
+--      otherwise there is no verification step at all and anyone can type in
+--      any email address and get instant access.
+--   2. Authentication -> Email Templates -> "Confirm signup" should use
+--      supabase/email-templates/confirm-signup.html (branded, matches the
+--      existing "Invite user" template) instead of Supabase's default.
+-- ============================================================================
 
 -- ============================================================================
 --  DONE. Next: create your own login, then promote yourself to admin with the

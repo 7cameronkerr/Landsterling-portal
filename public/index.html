@@ -252,6 +252,19 @@ h4 { font-size: 1.15rem; }
 }
 .gate-checkbox-wrap input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--red); }
 .gate-checkbox-wrap label { font-size: 11.5px; color: var(--text-sec); line-height: 1.5; }
+.gate-nda { margin: 2px 0 4px; text-align: left; }
+.gate-nda summary { font-size: 11.5px; font-weight: 500; color: var(--text-sec); cursor: pointer; padding: 4px 0; list-style: none; }
+.gate-nda summary::-webkit-details-marker { display: none; }
+.gate-nda summary::before { content: '+ '; color: var(--red); }
+.gate-nda[open] summary::before { content: '− '; }
+.gate-nda summary:hover { color: var(--red); }
+.gate-nda-box {
+  max-height: 200px; overflow-y: auto; border: 1px solid var(--border); background: var(--white);
+  padding: 14px 16px; margin-top: 8px; font-size: 11.5px; line-height: 1.6; color: var(--text-sec); border-radius: var(--radius);
+}
+.gate-nda-box h4 { font-family: var(--font-serif); font-weight: 500; font-size: 0.95rem; margin: 10px 0 4px; color: var(--text); }
+.gate-nda-box h4:first-child { margin-top: 0; }
+.gate-nda-box p { margin-bottom: 7px; }
 .gate-submit {
   width: 100%;
   padding: 14px;
@@ -1991,19 +2004,19 @@ button.gate-magic-link:hover { color: var(--red); }
     <div class="gate-rule"></div>
     <div class="gate-title" id="gateTitle">Investment Portal</div>
     <div class="gate-context" id="gateContextMessage" hidden>
-      Access our full investment opportunity library — registration gives you curated UAE real estate
-      opportunities and market intelligence, reviewed personally before you're granted access.
+      Access our full investment opportunity library — create a verified account in one step for curated
+      UAE real estate opportunities and market intelligence.
     </div>
     <div class="gate-trust" aria-label="Portal terms">
       <span>Qualified investors only</span>
       <span>Confidential under NDA</span>
-      <span>Reviewed within one business day</span>
+      <span>Instant access, email-verified</span>
     </div>
 
-    <!-- Tabs: Sign In  /  Request Access -->
+    <!-- Tabs: Sign In  /  Create Account -->
     <div class="gate-tabs" id="gateTabs">
       <button class="gate-tab active" type="button" data-tab="signin" onclick="setAuthTab('signin')">Sign In</button>
-      <button class="gate-tab" type="button" data-tab="register" onclick="setAuthTab('register')">Request Access</button>
+      <button class="gate-tab" type="button" data-tab="register" onclick="setAuthTab('register')">Create Account</button>
     </div>
 
     <!-- SIGN IN -->
@@ -2022,9 +2035,9 @@ button.gate-magic-link:hover { color: var(--red); }
       </form>
     </div>
 
-    <!-- REQUEST ACCESS (self-registration → pending approval) -->
+    <!-- CREATE ACCOUNT (self-registration → instant verified access, no admin pre-approval) -->
     <div class="gate-panel" id="panel-register">
-      <p class="gate-desc">Request access to the Asset Library. Land Sterling reviews each request personally — typically within one business day — and your activation email lets you sign the confidentiality agreement and set a password.</p>
+      <p class="gate-desc">Create your account to unlock the full Asset Library — set your password and sign the confidentiality agreement in one step. Confirm your email and you're straight in.</p>
       <form class="gate-form" id="registerForm" onsubmit="handleRegister(event)">
         <div class="gate-form-row">
           <input type="text" id="rgFirstName" placeholder="First name" required autocomplete="given-name">
@@ -2035,12 +2048,49 @@ button.gate-magic-link:hover { color: var(--red); }
           <input type="tel" id="rgMobile" placeholder="Mobile number" required autocomplete="tel">
           <input type="text" id="rgCompany" placeholder="Company / Organisation" required autocomplete="organization">
         </div>
+        <div class="gate-pw-wrap">
+          <input type="password" id="rgPassword" placeholder="Create a password (min. 8 characters)" required minlength="8" autocomplete="new-password">
+          <button type="button" class="gate-pw-toggle" aria-pressed="false" onclick="toggleGatePw(this)">Show</button>
+        </div>
+        <div class="gate-pw-wrap">
+          <input type="password" id="rgPassword2" placeholder="Confirm password" required minlength="8" autocomplete="new-password">
+          <button type="button" class="gate-pw-toggle" aria-pressed="false" onclick="toggleGatePw(this)">Show</button>
+        </div>
+        <details class="gate-nda">
+          <summary>Non-Disclosure Agreement — read before signing</summary>
+          <div class="gate-nda-box">
+            <h4>Non-Disclosure Agreement</h4>
+            <p>This Non-Disclosure Agreement is made between <strong>Land Sterling Properties LLC</strong>, incorporated and registered in the UAE with Trade Licence 669075, registered office First Floor, Block B, DSO HQ Building, Dubai, UAE (the &ldquo;Discloser&rdquo;), and you, the registering recipient (the &ldquo;Recipient&rdquo;), in connection with your evaluation of real estate investment opportunities and related confidential information made available through the Land Sterling Investment Portal (the &ldquo;Purpose&rdquo;).</p>
+            <h4>1. Confidential Information</h4>
+            <p>&ldquo;Confidential Information&rdquo; means all confidential information relating to the Purpose disclosed by the Discloser or its Representatives, directly or indirectly, before, on or after the date of acceptance — including the fact and status of any discussions, the terms of this Agreement, and all proprietary information, opportunity particulars, financial data, analysis, know-how and materials relating to the opportunities and the business of the Discloser and its Group. It excludes information that is or becomes public other than through breach of this Agreement, was lawfully held by the Recipient before disclosure, is received from a third party not under a confidentiality obligation, or is independently developed by the Recipient.</p>
+            <h4>2. Confidentiality obligations</h4>
+            <p>The Recipient shall: (a) keep the Confidential Information secret and confidential; (b) not use or exploit it in any way except for the Purpose; (c) not disclose or make it available to any person except as expressly permitted by this Agreement; (d) not copy or record it except as strictly necessary for the Purpose; and (e) apply adequate security measures to safeguard it from unauthorised access, copying or use.</p>
+            <h4>3. Permitted disclosure</h4>
+            <p>The Recipient may disclose Confidential Information to its Representatives (its officers, employees and professional advisers who need to know it for the Purpose) provided it first informs them of its confidential nature and procures that they comply with obligations equivalent to those in clause 2. The Recipient remains liable for the acts and omissions of its Representatives.</p>
+            <h4>4. Mandatory disclosure</h4>
+            <p>The Recipient may disclose Confidential Information to the minimum extent required by law, and shall, where lawfully permitted, give the Discloser as much prior notice as possible.</p>
+            <h4>5. Return or destruction</h4>
+            <p>On the Discloser&rsquo;s written request, the Recipient shall as soon as reasonably practicable return or destroy and erase all Confidential Information, save for copies required to be retained by law or regulation, to which this Agreement shall continue to apply.</p>
+            <h4>6. Reservation of rights</h4>
+            <p>The Discloser reserves all rights in its Confidential Information; no licence or other right is granted beyond those expressly set out here. The Confidential Information is provided without any warranty as to its accuracy or completeness, does not constitute an offer, invitation or financial advice, and creates no obligation on either party to proceed with any transaction.</p>
+            <h4>7. Remedies</h4>
+            <p>The Recipient acknowledges that damages alone would not be an adequate remedy for breach, and that the Discloser shall be entitled to injunctive relief, specific performance or other equitable relief for any threatened or actual breach.</p>
+            <h4>8. Duration</h4>
+            <p>The Recipient&rsquo;s obligations under this Agreement continue in full force for a period of 5 years from the date of acceptance.</p>
+            <h4>9. Governing law</h4>
+            <p>This Agreement and any dispute arising out of or in connection with it are governed by the laws of Dubai and the UAE, and the courts of Dubai have exclusive jurisdiction.</p>
+          </div>
+        </details>
+        <div class="gate-checkbox-wrap">
+          <input type="checkbox" id="rgNdaAgree" required>
+          <label for="rgNdaAgree">I have read and agree to be bound by the Non-Disclosure Agreement above. I understand that my name, submitted with this form, constitutes my electronic signature, recorded with the date, time and IP address of this submission.</label>
+        </div>
         <div class="gate-checkbox-wrap">
           <input type="checkbox" id="rgConsent" required>
           <label for="rgConsent">I agree to be contacted by Land Sterling Investment Advisory in connection with investment opportunities.</label>
         </div>
         <p class="gate-error" id="registerError"></p>
-        <button type="submit" class="gate-submit">Request Access</button>
+        <button type="submit" class="gate-submit">Create Account</button>
       </form>
     </div>
 
@@ -2049,6 +2099,7 @@ button.gate-magic-link:hover { color: var(--red); }
       <div class="gate-success-icon">✓</div>
       <div class="gate-title" id="statusTitle" style="font-size:1.25rem;">Request Received</div>
       <p class="gate-note" id="statusBody"></p>
+      <button type="button" class="gate-magic-link" id="statusResendBtn" style="display:none;" onclick="handleResendConfirmation()">Resend confirmation email</button>
       <button type="button" class="btn btn-secondary" style="margin-top:20px;width:100%;justify-content:center;" onclick="openBookACall()">Book an introductory call</button>
       <button type="button" class="gate-submit" style="margin-top:10px;" onclick="setAuthTab('signin')">Back to Sign In</button>
     </div>
@@ -2739,12 +2790,18 @@ function setAuthTab(tab) {
     document.getElementById('panel-' + p).classList.toggle('active', p === tab));
 }
 
-function showAuthStatus(title, body) {
+function showAuthStatus(title, body, opts) {
   document.getElementById('statusTitle').textContent = title;
   document.getElementById('statusBody').textContent  = body;
   document.querySelectorAll('.gate-tab').forEach(t => t.classList.remove('active'));
   ['signin','register'].forEach(p => document.getElementById('panel-' + p).classList.remove('active'));
   document.getElementById('panel-status').classList.add('active');
+  const resend = document.getElementById('statusResendBtn');
+  if (resend) {
+    resend.style.display = (opts && opts.showResend) ? '' : 'none';
+    resend.disabled = false;
+    resend.textContent = 'Resend confirmation email';
+  }
 }
 
 // While the gate is open the portal behind it leaves the tab order and cannot scroll.
@@ -2757,7 +2814,7 @@ function setPortalInert(on) {
   document.body.style.overflow = on ? 'hidden' : '';
 }
 function toggleGatePw(btn) {
-  const input = document.getElementById('siPassword');
+  const input = btn.closest('.gate-pw-wrap').querySelector('input');
   const show = input.type === 'password';
   input.type = show ? 'text' : 'password';
   btn.textContent = show ? 'Hide' : 'Show';
@@ -2822,39 +2879,83 @@ async function handleSignIn(e) {
   }
 }
 
-// Self-registration (Path B) → profile is created with status 'pending'.
+// Self-registration — one step: details + password + NDA. Status is set to
+// 'approved' immediately (LS_API.register, schema.sql Phase 8) — there is no
+// admin pre-approval wait. The only remaining gate is Supabase's own email
+// confirmation, so a genuine client can browse and enquire as soon as they
+// click that link. Cameron reviews new signups in Admin → Members afterwards
+// and can revoke anyone who turns out not to be a real investor.
+let lastRegisteredEmail = null;
 async function handleRegister(e) {
   e.preventDefault();
   const errEl = document.getElementById('registerError');
   errEl.style.display = 'none';
-  const btn = e.target.querySelector('button[type="submit"]');
-  btn.disabled = true; btn.textContent = 'Submitting…';
 
-  // Details only — no password here. The password is created together with the
-  // NDA signature on activation.html, after Land Sterling approves the request.
-  const payload = {
-    firstName: document.getElementById('rgFirstName').value.trim(),
-    lastName:  document.getElementById('rgLastName').value.trim(),
-    email:     document.getElementById('rgEmail').value.trim(),
-    mobile:    document.getElementById('rgMobile').value.trim(),
-    company:   document.getElementById('rgCompany').value.trim(),
-    consent:   document.getElementById('rgConsent').checked
-  };
+  const firstName = document.getElementById('rgFirstName').value.trim();
+  const lastName  = document.getElementById('rgLastName').value.trim();
+  const email     = document.getElementById('rgEmail').value.trim();
+  const mobile    = document.getElementById('rgMobile').value.trim();
+  const company   = document.getElementById('rgCompany').value.trim();
+  const password  = document.getElementById('rgPassword').value;
+  const password2 = document.getElementById('rgPassword2').value;
+  const ndaAgree  = document.getElementById('rgNdaAgree').checked;
+  const consent   = document.getElementById('rgConsent').checked;
+
+  if (password.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; return;
+  }
+  if (password !== password2) {
+    errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return;
+  }
+  if (!ndaAgree) {
+    errEl.textContent = 'Please confirm you agree to the Non-Disclosure Agreement.'; errEl.style.display = 'block'; return;
+  }
+
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true; btn.textContent = 'Creating account…';
 
   try {
-    const { error } = await LS_API.requestAccess(payload);
+    const { data, error } = await LS_API.register({
+      email, password, firstName, lastName, mobile, company, consent,
+      ndaVersion: 'LS-Portal-NDA-v1'
+    });
     if (error) throw error;
-    showAuthStatus(
-      'Request Received',
-      'Thank you. Land Sterling Investment Advisory will review your request. Once approved, you will receive an email ' +
-      'inviting you to sign the confidentiality agreement and set your password — usually within one working day.'
-    );
+    // Supabase's anti-enumeration behaviour: re-registering an email that
+    // already has an account returns success with no error, but an empty
+    // identities array — the only way to detect it without leaking which
+    // emails exist to a genuine attacker probing the form.
+    if (data && data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      showAuthStatus('Account Already Exists',
+        'An account with ' + email + ' already exists. Try signing in, or use "Forgot password?" if you need to reset it.');
+      return;
+    }
+    lastRegisteredEmail = email;
+    if (data && data.session) {
+      // Email confirmation is off for this Supabase project — already signed in.
+      const profile = await LS_API.getProfile();
+      await routeAfterAuth(profile);
+    } else {
+      showAuthStatus(
+        'Check Your Email',
+        'Your account is set up — confirm your email to finish verifying it. We’ve sent a confirmation link to ' + email +
+        '. Once confirmed, you can sign in immediately and browse the full opportunity library.',
+        { showResend: true }
+      );
+    }
   } catch (err) {
     errEl.textContent = friendlyAuthError(err);
     errEl.style.display = 'block';
   } finally {
-    btn.disabled = false; btn.textContent = 'Request Access';
+    btn.disabled = false; btn.textContent = 'Create Account';
   }
+}
+
+async function handleResendConfirmation() {
+  if (!lastRegisteredEmail) return;
+  const btn = document.getElementById('statusResendBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  try { await LS_API.resendConfirmation(lastRegisteredEmail); } catch (err) {}
+  if (btn) { btn.textContent = 'Sent — check your email'; }
 }
 
 async function handleSignOut() {

@@ -24,11 +24,19 @@
 
     /* ---- AUTH -------------------------------------------------------- */
 
-    // Path B — client self-registers with full details + password.
-    // status defaults to 'pending' → you approve them in the admin panel.
-    async register({ email, password, firstName, lastName, mobile, company }) {
+    // Self-registration — full details, password and NDA signature captured
+    // together in one step. status is set to 'approved' immediately (read by
+    // the handle_new_user trigger, schema.sql Phase 8) — there is no admin
+    // pre-approval queue for this path. The only remaining gate is Supabase's
+    // own "Confirm email" step: signUp() won't return a session until the
+    // client clicks that link, so access is real but not usable until the
+    // email address is verified. Cameron reviews new signups in Admin →
+    // Members afterwards and can revoke anyone at any time.
+    async register({ email, password, firstName, lastName, mobile, company, consent, ndaVersion }) {
       assertReady();
-      return sb.auth.signUp({
+      let ip = null;
+      try { const r = await fetch('https://api.ipify.org?format=json'); ip = (await r.json()).ip; } catch (e) {}
+      const result = await sb.auth.signUp({
         email,
         password,
         options: {
@@ -37,30 +45,28 @@
             last_name:  lastName,
             mobile,
             company,
-            status: 'pending'
+            consent: !!consent,
+            status: 'approved',
+            nda_signed_at: new Date().toISOString(),
+            nda_name:      `${firstName} ${lastName}`.trim(),
+            nda_version:   ndaVersion,
+            nda_ip:        ip
           }
         }
       });
+      if (!result.error) {
+        const record = { first_name: firstName, last_name: lastName, email, mobile, company, consent: !!consent };
+        syncToCrm('registrations', record);
+        notifyByEmail({ type: 'New Portal Registration', name: `${firstName} ${lastName}`.trim(), email, phone: mobile, company });
+        notifyByWhatsApp('registrations', record);
+      }
+      return result;
     },
 
-    // Path B (current model) — self-registration captures DETAILS ONLY, no password.
-    // Cameron approves in the admin, which sends the activation invite; the client
-    // then signs the NDA and sets a password in one step (activation.html).
-    async requestAccess({ firstName, lastName, email, mobile, company, consent }) {
+    // Resend the "confirm your email" link (e.g. a client says it never arrived).
+    async resendConfirmation(email) {
       assertReady();
-      const record = {
-        first_name: firstName,
-        last_name:  lastName,
-        email,
-        mobile,
-        company,
-        consent: !!consent
-      };
-      const result = await sb.from('access_requests').insert([record]);
-      syncToCrm('access_requests', record);
-      notifyByEmail({ type: 'Portal Access Request', name: `${firstName} ${lastName}`.trim(), email, phone: mobile, company });
-      notifyByWhatsApp('access_requests', record);
-      return result;
+      return sb.auth.resend({ type: 'signup', email });
     },
 
     async signIn(email, password) {

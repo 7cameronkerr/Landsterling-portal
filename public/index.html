@@ -663,6 +663,15 @@ h4 { font-size: 1.15rem; }
 .card-save-btn:hover { background: rgba(26,31,46,0.85); border-color: #fff; }
 .card-save-btn.is-saved { background: var(--red); border-color: var(--red); }
 
+.card-share-btn {
+  position: absolute; bottom: 14px; left: 14px; z-index: 2;
+  padding: 5px 10px; font-size: 9px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  background: rgba(26,31,46,0.6); color: #fff; border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 1px; cursor: pointer; transition: var(--transition);
+}
+.card-share-btn:hover { background: rgba(26,31,46,0.85); border-color: #fff; }
+.card-share-btn.is-copied { background: var(--red); border-color: var(--red); }
+
 .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
 .card-name {
   font-family: var(--font-serif);
@@ -941,6 +950,14 @@ h4 { font-size: 1.15rem; }
 }
 .detail-save-btn:hover { border-color: var(--text); color: var(--text); }
 .detail-save-btn.is-saved { background: var(--red); border-color: var(--red); color: #fff; }
+.metrics-panel-actions { display: flex; align-items: center; gap: 8px; }
+.detail-share-btn {
+  padding: 6px 12px; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-sec); background: var(--white); border: 1px solid var(--border);
+  border-radius: 1px; cursor: pointer; transition: var(--transition); white-space: nowrap;
+}
+.detail-share-btn:hover { border-color: var(--text); color: var(--text); }
+.detail-share-btn.is-copied { background: var(--red); border-color: var(--red); color: #fff; }
 .metrics-table { width: 100%; }
 .metric-row {
   display: grid;
@@ -3326,6 +3343,7 @@ function cardHTML(opp) {
         <span class="card-profile-badge ${profileBadgeClass(opp.assetProfile)}">${opp.assetProfile}</span>
         ${statusBadge}
         ${(isSold || !opp._uuid) ? '' : `<button type="button" class="card-save-btn${SAVED_IDS.has(opp._uuid) ? ' is-saved' : ''}" onclick="toggleSaved('${opp._uuid}', this, event)">${SAVED_IDS.has(opp._uuid) ? 'Saved' : 'Save'}</button>`}
+        ${isSold ? '' : `<button type="button" class="card-share-btn" onclick="shareOpportunity('${opp.id}', this, event)">Share</button>`}
       </div>
       <div class="card-body">
         <div class="card-name">${opp.name}</div>
@@ -3373,6 +3391,62 @@ async function toggleSaved(uuid, btn, ev) {
   // Re-render if the "Saved Only" filter is active — an unsave should drop
   // the card out of view immediately rather than leaving a stale entry.
   if (currentFilter.saved && document.getElementById('libraryGrid')) renderLibrary();
+}
+
+// Share a direct link to one opportunity. No new backend work needed — an
+// anonymous visitor opening #opportunity/<slug> already gets the full public
+// view via LS_API.fetchSharedOpportunity (schema.sql Phase 7); this button
+// just puts that URL in someone's hands. Uses the native share sheet on
+// mobile (WhatsApp, Messages, email, ...) and falls back to copying the link
+// on desktop. Tracked so Cameron can see which opportunities get forwarded.
+async function shareOpportunity(slug, btn, ev) {
+  if (ev) ev.stopPropagation();
+  const opp = (typeof OPPORTUNITIES !== 'undefined' ? OPPORTUNITIES.find(o => o.id === slug) : null)
+    || (currentOpportunity && currentOpportunity.id === slug ? currentOpportunity : null);
+  const url = window.location.origin + window.location.pathname + '#opportunity/' + slug;
+  if (window.LS_API && LS_API.logActivity) LS_API.logActivity('share_opportunity', slug);
+
+  if (navigator.share) {
+    try { await navigator.share({ title: opp ? opp.name : 'Land Sterling Opportunity', url }); } catch (e) {}
+    return;
+  }
+  const copied = await copyToClipboard(url);
+  flashShareButton(btn, copied ? 'Copied!' : 'Copy failed');
+}
+
+// navigator.clipboard needs a secure context and can still be blocked by
+// permissions; document.execCommand('copy') is the older but more widely
+// supported fallback. Both are wrapped so a failure here never throws —
+// window.prompt() was tried first and turned out to throw outright in some
+// embedded/automated browser contexts instead of just being unavailable.
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+function flashShareButton(btn, label) {
+  if (!btn) return;
+  const original = btn.textContent;
+  btn.textContent = label;
+  btn.classList.add('is-copied');
+  setTimeout(() => { btn.textContent = original; btn.classList.remove('is-copied'); }, 1800);
 }
 
 /* ============================================================
@@ -4031,7 +4105,10 @@ async function renderOpportunityDetail(slug) {
             <div class="metrics-panel">
               <div class="metrics-panel-head">
                 <h3>Key Metrics</h3>
-                ${opp._uuid ? `<button type="button" class="detail-save-btn${SAVED_IDS.has(opp._uuid) ? ' is-saved' : ''}" onclick="toggleSaved('${opp._uuid}', this)">${SAVED_IDS.has(opp._uuid) ? 'Saved ✓' : 'Save Opportunity'}</button>` : ''}
+                <div class="metrics-panel-actions">
+                  ${opp._uuid ? `<button type="button" class="detail-save-btn${SAVED_IDS.has(opp._uuid) ? ' is-saved' : ''}" onclick="toggleSaved('${opp._uuid}', this)">${SAVED_IDS.has(opp._uuid) ? 'Saved ✓' : 'Save Opportunity'}</button>` : ''}
+                  <button type="button" class="detail-share-btn" onclick="shareOpportunity('${opp.id}', this, event)">Share</button>
+                </div>
               </div>
               <div class="metrics-table">${metricsHTML}</div>
               <div class="metrics-panel-cta">

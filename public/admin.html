@@ -623,6 +623,7 @@ async function loadEnq(){
         </div>
       </div>
       ${e.message?`<div style="margin-top:4px;">${esc(e.message)}</div>`:''}
+      ${(e.budget || e.target_location) ? `<div class="muted" style="margin-top:4px;">${e.budget?`Budget: ${esc(e.budget)}`:''}${(e.budget && e.target_location)?' · ':''}${e.target_location?`Target location: ${esc(e.target_location)}`:''}</div>` : ''}
       <div class="muted" style="margin-top:6px;">Type: ${esc(e.type)}</div>
     </div>`).join('') : '<div class="empty">No enquiries yet.</div>';
 }

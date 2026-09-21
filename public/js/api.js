@@ -186,6 +186,24 @@
       return rowToOpportunity(data[0]);
     },
 
+    // Redacted listing for anonymous/unapproved Asset Library browsing — see
+    // schema.sql Phase 9. Only ever returns the four fields Cameron approved
+    // (location, asset type, transaction type, image); everything else stays
+    // server-side. Never throws — an empty array degrades to an empty grid.
+    async fetchOpportunityTeasers() {
+      if (!sb) return [];
+      const { data, error } = await sb.rpc('get_public_opportunity_teasers');
+      if (error || !data) return [];
+      return data.map(r => ({
+        id: r.slug,
+        location: r.location,
+        country: r.country,
+        assetType: r.asset_type,
+        transactionType: r.transaction_type || 'For Sale',
+        image: r.image
+      }));
+    },
+
     /* ---- SHORTLIST (saved opportunities) ------------------------------ */
     // Private per-investor watchlist — acquisition decisions play out over
     // weeks, not one browsing session. Silently no-ops when signed out

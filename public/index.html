@@ -672,6 +672,14 @@ h4 { font-size: 1.15rem; }
 .card-share-btn:hover { background: rgba(26,31,46,0.85); border-color: #fff; }
 .card-share-btn.is-copied { background: var(--red); border-color: var(--red); }
 
+.teaser-lock {
+  position: absolute; bottom: 14px; left: 14px; z-index: 2;
+  padding: 5px 10px; font-size: 9px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  background: rgba(26,31,46,0.7); color: #fff; border-radius: 1px;
+}
+.teaser-card .card-image-bg { filter: saturate(0.6); }
+.teaser-card .card-image-photo { filter: saturate(0.6) brightness(0.9); }
+
 .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
 .card-name {
   font-family: var(--font-serif);
@@ -2378,6 +2386,9 @@ button.gate-magic-link:hover { color: var(--red); }
           </div>
         </div>
         <p class="fx-note" id="fxNote" style="display:none;font-size:11px;color:var(--text-sec);margin:-8px 0 18px;">Non-AED figures are indicative, converted at a stored rate for guidance only.</p>
+        <div class="gate-context" id="teaserBanner" hidden style="margin-bottom:24px;">
+          Sign in or create a free account to see full pricing, returns and details — location and asset type are shown below.
+        </div>
         <div id="filterStatus" class="sr-only" aria-live="polite"></div>
         <div class="opps-grid" id="libraryGrid"></div>
         <div class="library-map-wrap" id="libraryMapWrap" style="display:none;">
@@ -3036,7 +3047,14 @@ async function routeAfterAuth(profile) {
     // since this is read from localStorage, not an in-memory variable.
     let dest = null;
     try { dest = localStorage.getItem('ls_pending_destination'); localStorage.removeItem('ls_pending_destination'); } catch (e) {}
-    if (dest) navigate(dest);
+    if (dest) {
+      navigate(dest);
+    } else if (document.getElementById('page-asset-library').classList.contains('active')) {
+      // They signed in voluntarily (e.g. nav "Sign In") while already sitting
+      // on the redacted teaser grid, rather than being redirected here after
+      // a gate — nothing else refreshes it from teaser to the full grid.
+      renderLibrary();
+    }
     return true;
   }
   window.LS_PROFILE = null;
@@ -3127,26 +3145,18 @@ async function checkGate() {
 /* ============================================================
    NAVIGATION & ROUTING
    ============================================================ */
-// Only the Asset Library itself requires approval — Home / About / Insights
-// are public, and an individual opportunity is reachable by direct/shared
-// link without signing in (see renderOpportunityDetail's public-view path).
-// What's NOT possible for an anonymous visitor is enumerating the library —
-// that's enforced at the database layer (schema.sql Phase 7), not just here.
-const GATED_PAGES = ['asset-library'];
+// No page is hard-gated any more. Home / About / Insights are public; an
+// individual opportunity is reachable by direct/shared link without signing
+// in (see renderOpportunityDetail's public-view path); and the Asset Library
+// itself now renders a redacted "teaser" grid for anonymous visitors instead
+// of blocking the page outright (see renderLibrary's isPortalUnlocked()
+// branch) — location/asset type/transaction type/image only, enforced at the
+// database layer via get_public_opportunity_teasers (schema.sql Phase 9), not
+// just hidden in the UI. What's NOT possible for an anonymous visitor is
+// seeing real pricing/yield/metrics, or enumerating full opportunity rows —
+// clicking a teaser card, or attempting a member action (Save, filtering,
+// etc.), is what actually triggers the registration gate.
 function navigate(page, slug) {
-  if (GATED_PAGES.includes(page) && !isPortalUnlocked()) {
-    closeNav();
-    setAuthTab('signin');
-    // Remember where they were headed so a successful sign-in/registration
-    // drops them straight there instead of leaving them on the page
-    // underneath the gate (see routeAfterAuth's success branch). In
-    // localStorage, not just a JS variable — registration is reviewed
-    // manually and activation can happen days later in a fresh session.
-    try { localStorage.setItem('ls_pending_destination', page); } catch (e) {}
-    showGate(currentOpportunity ? 'library-from-opportunity' : 'library');
-    if (window.LS_API && LS_API.logActivity) LS_API.logActivity('gate_shown', currentOpportunity ? currentOpportunity.id : null);
-    return;
-  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => { l.classList.remove('active'); l.removeAttribute('aria-current'); });
   closeNav();
@@ -3161,6 +3171,9 @@ function navigate(page, slug) {
     if (el) el.classList.add('active');
     const navEl = document.getElementById('nav-' + page);
     if (navEl) { navEl.classList.add('active'); navEl.setAttribute('aria-current', 'page'); }
+    // Re-render every visit, not just once at init — auth state (and
+    // therefore full-vs-teaser mode) can change mid-session.
+    if (page === 'asset-library') renderLibrary();
   }
 
   // Update URL hash
@@ -3454,6 +3467,14 @@ function flashShareButton(btn, label) {
    ============================================================ */
 
 function renderLibrary() {
+  if (!isPortalUnlocked()) { renderPublicLibraryTeaser(); return; }
+  // Signed in / approved — filters (and therefore map view, currency toggle)
+  // apply again, so make sure the bar is visible (the teaser render hides it;
+  // fxNote's own visibility stays owned by setCurrency(), untouched here).
+  const filterBar = document.getElementById('filterBar');
+  if (filterBar) filterBar.style.display = '';
+  const teaserBanner = document.getElementById('teaserBanner');
+  if (teaserBanner) teaserBanner.hidden = true;
   const isSoldView = currentFilter.status === 'Sold';
 
   // Toggle page headers
@@ -3497,6 +3518,87 @@ function renderLibrary() {
   const status = document.getElementById('filterStatus');
   if (status) status.textContent = filtered.length + (filtered.length === 1 ? ' opportunity shown' : ' opportunities shown');
   if (typeof applyReveal === 'function') applyReveal();
+}
+
+// Redacted grid for anonymous/unapproved visitors — schema.sql Phase 9's
+// get_public_opportunity_teasers is the only thing that can ever reach the
+// browser here, so there is no real pricing/yield/name/metrics to
+// accidentally leak client-side even if this rendering code has a bug.
+// Filters, map view and currency don't apply to four redacted fields, so the
+// whole filter bar is hidden rather than half-wired to a fraction of it.
+let PUBLIC_TEASERS = null;
+let publicTeasersPromise = null;
+async function getPublicTeasers() {
+  if (PUBLIC_TEASERS !== null) return PUBLIC_TEASERS;
+  if (!publicTeasersPromise) publicTeasersPromise = LS_API.fetchOpportunityTeasers().catch(() => []);
+  PUBLIC_TEASERS = await publicTeasersPromise;
+  return PUBLIC_TEASERS;
+}
+
+async function renderPublicLibraryTeaser() {
+  document.getElementById('libraryHeader').style.display = '';
+  document.getElementById('trackRecordHeader').style.display = 'none';
+  const filterBar = document.getElementById('filterBar');
+  if (filterBar) filterBar.style.display = 'none';
+  const teaserBanner = document.getElementById('teaserBanner');
+  if (teaserBanner) teaserBanner.hidden = false;
+  document.getElementById('libraryMapWrap').style.display = 'none';
+
+  const grid = document.getElementById('libraryGrid');
+  const empty = document.getElementById('emptyState');
+  grid.style.display = '';
+  if (empty) empty.style.display = 'none';
+
+  const wasEmpty = PUBLIC_TEASERS === null;
+  if (wasEmpty) grid.innerHTML = Array(3).fill('<div class="opp-card opp-skeleton" aria-hidden="true"><div class="card-image"></div><div class="card-body"><div class="sk sk-t"></div><div class="sk sk-s"></div><div class="sk sk-s"></div></div></div>').join('');
+  const teasers = await getPublicTeasers();
+  // Auth state or page may have moved on while the fetch was in flight.
+  if (isPortalUnlocked() || !document.getElementById('page-asset-library').classList.contains('active')) return;
+  if (window.LS_API && LS_API.logActivity) LS_API.logActivity('view_teaser_library');
+
+  if (!teasers.length) {
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+  } else {
+    grid.innerHTML = teasers.map(teaserCardHTML).join('');
+  }
+  const status = document.getElementById('filterStatus');
+  if (status) status.textContent = 'Sign in to see full pricing, returns and details';
+  if (typeof applyReveal === 'function') applyReveal();
+}
+
+function teaserCardHTML(t) {
+  const resolvedImage = resolveOppImage(t);
+  return `
+    <div class="opp-card teaser-card" role="link" tabindex="0" aria-label="Sign in to view this ${String(t.assetType || 'opportunity').toLowerCase()} opportunity in ${t.location}" onclick="handleTeaserCardClick('${t.id}')" onkeydown="if(event.key==='Enter'){handleTeaserCardClick('${t.id}')}">
+      <div class="card-image">
+        <div class="card-image-bg ${imageClass(t.assetType)}">
+          <div class="card-image-pattern"></div>
+          <div class="card-image-label">
+            <span class="building-icon">▣</span>
+            <span class="location-text">${t.location}</span>
+          </div>
+        </div>
+        ${resolvedImage ? `<img class="card-image-photo" src="${resolvedImage}" alt="${t.location}" loading="lazy" decoding="async" onload="this.classList.add('is-loaded')" onerror="this.remove()">` : ''}
+        ${t.transactionType === 'For Lease' ? `<span class="card-status-badge" style="background:var(--navy);">For Lease</span>` : ''}
+        <div class="teaser-lock">🔒 Sign in to view</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${t.location}</div>
+        <div class="card-meta"><div class="card-meta-item"><span>${t.assetType || 'Opportunity'}</span></div></div>
+        <div class="card-cta">
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); handleTeaserCardClick('${t.id}')">Sign In to View →</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function handleTeaserCardClick(slug) {
+  closeNav(); setAuthTab('signin');
+  try { localStorage.setItem('ls_pending_destination', 'asset-library'); } catch (e) {}
+  showGate('library');
+  if (window.LS_API && LS_API.logActivity) LS_API.logActivity('gate_shown_teaser', slug);
 }
 
 /* ============================================================

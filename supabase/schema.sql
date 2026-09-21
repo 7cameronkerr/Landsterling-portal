@@ -409,6 +409,42 @@ create policy "own activity insert" on public.activity_log
 -- ============================================================================
 
 -- ============================================================================
+--  PHASE 9 ADDITIONS (minimal public "teaser" listing — Cameron's approved
+--  scope: an unapproved visitor browsing the Asset Library sees location,
+--  asset type, transaction type and image ONLY. No name, no price, no yield,
+--  no metrics. Same SECURITY DEFINER pattern as get_shared_opportunity: this
+--  function is the ONLY thing anon/authenticated may call for a multi-row
+--  opportunity listing, and it is the one place in the whole schema that
+--  decides which columns are safe to expose pre-approval — the projection
+--  can never silently widen just because a column gets added to
+--  `opportunities` later, since this function has to be edited explicitly
+--  to add anything to it.
+-- ============================================================================
+
+-- 19. Redacted multi-row listing for anonymous/unapproved browsing.
+create or replace function public.get_public_opportunity_teasers()
+returns table (
+  slug             text,
+  location         text,
+  country          text,
+  asset_type       text,
+  transaction_type text,
+  image            text
+)
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select slug, location, country, asset_type, transaction_type, image
+  from public.opportunities
+  where is_published = true
+  order by sort_order, created_at;
+$$;
+revoke all on function public.get_public_opportunity_teasers() from public;
+grant execute on function public.get_public_opportunity_teasers() to anon, authenticated;
+
+-- ============================================================================
 --  DONE. Next: create your own login, then promote yourself to admin with the
 --  one-line command in SETUP.md (Step 6).
 -- ============================================================================

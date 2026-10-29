@@ -1384,100 +1384,27 @@ body.modal-open { overflow: hidden; }
 .about-hero p { color: rgba(255,255,255,0.55); font-size: 15px; max-width: 640px; line-height: 1.8; }
 
 .about-body { padding: 96px 0; }
-.about-intro { display: grid; grid-template-columns: 1fr 2fr; gap: 80px; align-items: start; margin-bottom: 80px; padding-bottom: 80px; border-bottom: 1px solid var(--divider); }
-.about-intro-left .label { display: block; margin-bottom: 16px; }
-.about-intro-left h2 { color: var(--navy); font-size: 2rem; font-weight: 300; line-height: 1.2; }
-.about-intro-right p { font-size: 14px; color: var(--text-sec); line-height: 1.85; margin-bottom: 18px; }
-.about-intro-right p:last-child { margin-bottom: 0; }
+.about-copy { max-width: 760px; }
+.about-copy p { font-size: 15px; color: var(--text-sec); line-height: 1.85; margin: 0 0 18px; }
+.about-copy p:last-child { margin-bottom: 0; }
 
-.about-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--divider);
-  border: 1px solid var(--divider);
-  margin-bottom: 80px;
+/* "Why we are different?": a checklist beside a photograph, as on landsterling.com/about-us. */
+.about-why {
+  display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 64px; align-items: start;
+  margin-top: 64px; padding-top: 64px; border-top: 1px solid var(--divider);
 }
-.about-stat {
-  background: var(--navy);
-  padding: 44px 32px;
-  text-align: center;
-}
-.about-stat-num {
-  font-family: var(--font-serif);
-  font-size: 2.6rem;
-  font-weight: 300;
-  color: #fff;
-  line-height: 1;
-  margin-bottom: 12px;
-}
-.about-stat-label {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.62);
-}
+.about-why-head { padding-bottom: 18px; border-bottom: 1px solid var(--divider); margin-bottom: 28px; }
+.about-why-head h2 { color: var(--navy); margin: 0; }
+.why-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.why-list li { display: flex; align-items: flex-start; gap: 14px; font-size: 15px; line-height: 1.5; color: var(--text); }
+.why-list svg { width: 18px; height: 18px; flex: none; margin-top: 2px; color: var(--red); }
+.why-list strong { font-weight: 600; color: var(--navy); }
+.about-why-photo { margin: 0; }
+.about-why-photo img { display: block; width: 100%; height: auto; aspect-ratio: 457 / 487; object-fit: cover; border-radius: 4px; background: var(--card-bg); }
 
-.about-pillars { margin-bottom: 80px; padding-bottom: 80px; border-bottom: 1px solid var(--divider); }
-.about-pillars-header { margin-bottom: 48px; }
-.about-pillars-header .label { display: block; margin-bottom: 12px; }
-.about-pillars-header h2 { color: var(--navy); font-size: 2rem; font-weight: 300; }
-.pillars-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--divider); }
-.pillar-item { background: var(--white); padding: 36px 32px; border-top: 2px solid transparent; transition: border-color 0.2s ease; }
-.pillar-item:hover { border-top-color: var(--red); }
-.pillar-num { font-family: var(--font-mono); font-size: 11px; color: var(--red); display: block; margin-bottom: 16px; }
-.pillar-title { font-family: var(--font-serif); font-size: 1.2rem; color: var(--navy); margin-bottom: 12px; }
-.pillar-desc { font-size: 13px; color: var(--text-sec); line-height: 1.7; }
-
-.about-team { margin-bottom: 80px; }
-.about-team-header { margin-bottom: 48px; }
-.about-team-header .label { display: block; margin-bottom: 12px; }
-.about-team-header h2 { color: var(--navy); font-size: 2rem; font-weight: 300; }
-.team-card {
-  background: var(--navy);
-  padding: 40px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 40px;
-  align-items: start;
-  max-width: 680px;
-}
-.team-card-initials {
-  width: 72px; height: 72px;
-  border: 1px solid rgba(255,255,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  color: rgba(255,255,255,0.5);
-  flex-shrink: 0;
-}
-.team-card-name { font-family: var(--font-serif); font-size: 1.4rem; color: #fff; margin-bottom: 4px; }
-.team-card-title { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.62); margin-bottom: 20px; display: block; }
-.team-card-bio { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.75; margin-bottom: 20px; }
-.team-card-contact { display: flex; flex-direction: column; gap: 6px; }
-.team-card-contact a { font-size: 12.5px; color: rgba(255,255,255,0.68); transition: color 0.2s ease; }
-.team-card-contact a:hover { color: #fff; }
-
-.about-holding {
-  background: var(--card-bg);
-  border: 1px solid var(--divider);
-  border-left: 3px solid var(--divider);
-  padding: 28px 32px;
-  font-size: 13px;
-  color: var(--text-sec);
-  line-height: 1.7;
-
-}
-
-@media (max-width: 1100px) {
-  .about-intro { grid-template-columns: 1fr; gap: 32px; }
-  .about-stats { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .pillars-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-}
-@media (max-width: 768px) {
-  .pillars-grid { grid-template-columns: 1fr; }
-  .team-card { grid-template-columns: 1fr; gap: 20px; }
+@media (max-width: 900px) {
+  .about-why { grid-template-columns: minmax(0, 1fr); gap: 40px; margin-top: 48px; padding-top: 48px; }
+  .about-why-photo { max-width: 420px; }
 }
 footer {
   background: var(--navy);
@@ -1795,24 +1722,6 @@ footer {
   .hero { min-height: auto; padding: 72px 0 64px; }
   .hero-bg { background-image: url('https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=900&q=75'); }
 }
-/* Light ground for the credentials band restores light/dark rhythm on the home page —
-   shares grid geometry + the red-figure/editorial-heading language with .metrics-section
-   above so the two bands read as one considered "by the numbers" section, not two. */
-.proof-band { background: var(--card-bg); border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider); padding: 56px 0 64px; color: var(--text); }
-.credentials-kicker {
-  display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 500;
-  letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-sec); margin-bottom: 24px;
-}
-.credentials-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--divider); border: 1px solid var(--divider); }
-.credential-card {
-  background: var(--white); padding: 30px 24px; text-align: center;
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-.credential-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-.credential-num { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; font-size: clamp(1.35rem, 1.9vw, 1.75rem); letter-spacing: 0.01em; color: var(--red); line-height: 1.1; margin-bottom: 8px; }
-.credential-label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-sec); }
-.credentials-caption { text-align: center; font-size: 12px; color: var(--text-sec); margin-top: 24px; }
 /* Filter bar: identical on desktop; horizontal chip rails on phones */
 .filter-secondary { display: contents; }
 #libraryMap, #detailMap { background: var(--card-bg); }
@@ -1885,24 +1794,29 @@ button.gate-magic-link:hover { color: var(--red); }
 /* ============================================================
    INSIGHTS PAGE
    ============================================================ */
-.insights-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-.insight-card { background: var(--white); border: 1px solid var(--border); padding: 28px; display: flex; flex-direction: column; gap: 10px; }
-.insight-type { font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); }
-.insight-title { font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; color: var(--navy); line-height: 1.2; }
-.insight-date { font-size: 11.5px; color: var(--text-sec); }
-.insight-summary { font-size: 14px; color: var(--text-sec); line-height: 1.7; flex: 1; }
-.insight-card .btn { align-self: flex-start; }
-.insight-sample { font-size: 10.5px; color: var(--amber); }
-.insights-note { font-size: 12.5px; color: var(--text-sec); margin-top: 28px; max-width: 65ch; }
-@media (max-width: 1100px) { .insights-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 768px)  { .insights-grid { grid-template-columns: 1fr; } }
+/* Two-up grid of research reports, mirroring landsterling.com/market-research:
+   cover, title, summary, then the Download Now button. Covers have different
+   proportions, so every cover gets the same 3:2 frame anchored to the left,
+   where the report title sits, and only trims the right or the top and bottom. */
+.reports-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.report-card { background: var(--white); border: 1px solid var(--border); display: flex; flex-direction: column; min-width: 0; }
+.report-cover { aspect-ratio: 3 / 2; width: 100%; background: var(--card-bg); overflow: hidden; }
+.report-cover img { width: 100%; height: 100%; object-fit: cover; object-position: left center; display: block; }
+.report-body { padding: 24px 28px 28px; display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
+.report-title { font-family: var(--font-serif); font-weight: 500; font-size: 1.5rem; color: var(--navy); line-height: 1.2; margin: 0; }
+.report-summary { font-size: 14px; color: var(--text-sec); line-height: 1.7; flex: 1; margin: 0; }
+.report-card .btn { align-self: flex-start; margin-top: 6px; }
+@media (max-width: 768px) {
+  .reports-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .report-body { padding: 20px 20px 24px; }
+}
 
 /* ============================================================
    TYPE SYSTEM — reading measure, one heading spec, label floor
    ============================================================ */
-.intro-right p, .about-intro-right p, .detail-summary p, .analysis-narrative p { font-size: 15px; line-height: 1.8; max-width: 65ch; }
+.intro-right p, .detail-summary p, .analysis-narrative p { font-size: 15px; line-height: 1.8; max-width: 65ch; }
 .detail-footer-note { max-width: 65ch; font-size: 12.5px; }
-.intro-left h2, .about-intro-left h2, .about-pillars-header h2, .about-team-header h2,
+.intro-left h2, .about-why-head h2,
 .detail-summary h2, .detail-highlights h2, .detail-analysis h2, .detail-location-map h2 {
   font-size: clamp(1.75rem, 2.6vw, 2.4rem); font-weight: 400; line-height: 1.12; max-width: 22ch; text-wrap: balance;
 }
@@ -1923,7 +1837,7 @@ button.gate-magic-link:hover { color: var(--red); }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
-  .metrics-grid, .credentials-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .metrics-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .opps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .detail-grid { grid-template-columns: 1fr; }
   .metrics-panel { position: static; padding: 24px; }
@@ -1948,7 +1862,7 @@ button.gate-magic-link:hover { color: var(--red); }
   .nav-logo-sub { display: none; }
 
   .hero { padding: 72px 0 64px; }
-  .metrics-grid, .credentials-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .metrics-bridge { display: none; } /* keep the dark band tight on phones; kicker+heading still frame it */
   .intro-inner { grid-template-columns: 1fr; gap: 32px; }
   .opps-grid { grid-template-columns: minmax(0, 1fr); }
@@ -1960,8 +1874,8 @@ button.gate-magic-link:hover { color: var(--red); }
   .modal { padding: 36px 24px; }
 }
 @media (max-width: 480px) {
-  .metrics-grid, .credentials-grid { grid-template-columns: 1fr; }
-  .metric-card, .credential-card { clip-path: none; } /* the folded corner reads as a glitch on full-width, short cards */
+  .metrics-grid { grid-template-columns: 1fr; }
+  .metric-card { clip-path: none; } /* the folded corner reads as a glitch on full-width, short cards */
   .hero-btns { flex-direction: column; align-items: stretch; }
   .hero-btns .btn { justify-content: center; }
   .gate-card { padding: 40px 28px; }
@@ -2228,35 +2142,9 @@ button.gate-magic-link:hover { color: var(--red); }
             <span class="primary-line">Behind Every Opportunity</span>
           </h2>
           <span class="metrics-rule"></span>
-          <p class="metrics-bridge">Figures update in real time from our live opportunity set — benchmarked against seventeen years of institutional track record below.</p>
+          <p class="metrics-bridge">Figures update in real time from our live opportunity set.</p>
         </div>
         <div class="metrics-grid" id="metricsGrid"></div>
-      </div>
-    </section>
-
-    <!-- Firm credibility / proof points -->
-    <section class="proof-band">
-      <div class="container">
-        <span class="label credentials-kicker">The Firm Behind The Numbers</span>
-        <div class="credentials-grid">
-          <div class="credential-card">
-            <div class="credential-num">6</div>
-            <div class="credential-label">International Offices</div>
-          </div>
-          <div class="credential-card">
-            <div class="credential-num">RICS · IVSC</div>
-            <div class="credential-label">Accredited Advisory</div>
-          </div>
-          <div class="credential-card">
-            <div class="credential-num">17 yrs</div>
-            <div class="credential-label">In Business</div>
-          </div>
-          <div class="credential-card">
-            <div class="credential-num">AED 30B+</div>
-            <div class="credential-label">Advised On</div>
-          </div>
-        </div>
-        <p class="credentials-caption">A global real estate solutions provider across Abu Dhabi, Algiers, Dubai, Leeds, London &amp; Riyadh.</p>
       </div>
     </section>
 
@@ -2446,8 +2334,12 @@ button.gate-magic-link:hover { color: var(--red); }
     </div>
     <div class="about-body">
       <div class="container">
-        <div class="insights-grid" id="insightsGrid"></div>
-        <p class="insights-note" id="insightsNote"></p>
+        <div class="section-header">
+          <span class="label">Market Research</span>
+          <span class="section-rule"></span>
+          <h2>Stay tuned to the latest market research by our seasoned specialists</h2>
+        </div>
+        <div class="reports-grid" id="insightsGrid"></div>
       </div>
     </div>
   </div>
@@ -2460,127 +2352,36 @@ button.gate-magic-link:hover { color: var(--red); }
         <span class="label">Land Sterling Investment Advisory</span>
         <span class="section-rule"></span>
         <h1>About Us</h1>
-        <p>Specialist investment advisory practice focused on structuring and presenting institutional-grade UAE real estate opportunities for informed capital.</p>
+        <p>Your trusted partner in making informed property decisions.</p>
       </div>
     </div>
     <div class="about-body">
       <div class="container">
 
-        <div class="about-intro">
-          <div class="about-intro-left">
-            <span class="label">Who We Are</span>
-            <span class="section-rule"></span>
-            <h2>Investment advisory for informed capital</h2>
-          </div>
-          <div class="about-intro-right">
-            <p>Land Sterling Investment Advisory is a specialist real estate investment advisory practice operating across the UAE. We structure and present curated investment opportunities across stabilised income assets, value-add strategies and development-led acquisitions, with a focus on presenting clear metrics, market context and investment rationale to private capital, family offices and institutional investors.</p>
-            <p>The Land Sterling Investment Portal is our proprietary platform for presenting controlled-access investment opportunities to a qualified investor base. Each opportunity is reviewed through an advisory lens before it reaches the portal, with emphasis on pricing discipline, income credibility, tenure clarity and exit optionality.</p>
-            <p>Full company profile, team biographies and advisory credentials will be published here shortly. If you wish to discuss an opportunity or introduce capital before that content is available, please contact Cameron Kerr directly.</p>
-            <div class="about-holding" style="margin-top: 24px;">
-              Full About Us content is being prepared and will be published shortly. In the meantime, please contact the Investment Advisory team for further information on Land Sterling and our advisory practice.
-            </div>
-          </div>
+        <div class="about-copy">
+          <p>Land Sterling is a market leader in real estate consultancy based in UAE, Saudi and UK. Backed with qualified experts with over 100 years of cumulative experience, Land Sterling provides professional property expertise cutting through various regions, including the Middle East, North Africa &amp; Europe. We help our clients with analytical and research-based advice to make informed property decisions, reduce risk and improve overall success. Land Sterling offers a full range of property consultancy services in accordance with RICS and International Valuation Standards across different industries.</p>
+          <p>In the last 15 years, Land Sterling has accomplished the valuation of 200 billion dirhams worth of properties, has surveyed over 600 freehold buildings including the iconic Burj Khalifa and has served the biggest names in the industry such as Aldar, Emaar, Damac, First Abu Dhabi Bank and other prominent local and international faculties.</p>
         </div>
 
-        <div class="about-stats">
-          <div class="about-stat">
-            <div class="about-stat-num">17</div>
-            <div class="about-stat-label">Years in Business</div>
+        <section class="about-why" aria-labelledby="whyDifferent">
+          <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="icon-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol></svg>
+          <div>
+            <div class="about-why-head"><h2 id="whyDifferent">Why we are different?</h2></div>
+            <ul class="why-list">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span><strong>15 years</strong> of excellence</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span><strong>10,000</strong> completed assignments</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span><strong>US$ 200B+</strong> worth of projects valued</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span><strong>30+</strong> major banks accept our reports in the GCC region</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span>Recognized by Middle East’s <strong>big 4</strong> auditing firms</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span><strong>Top 3</strong> firms specialising in techno-commercial</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span>Projects completed in 12 countries across Middle East, Africa, &amp; Europe</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span><strong>Surveyed Over 600</strong> freehold buildings from the region’s leading developers</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span>Employing the <strong>Best Minds</strong> in the Industry</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#icon-check"/></svg><span><strong>ISO Certified</strong> – ISO 9001, ISO 14001, and ISO 18001</span></li>
+            </ul>
           </div>
-          <div class="about-stat">
-            <div class="about-stat-num">6</div>
-            <div class="about-stat-label">Offices Around the World</div>
-          </div>
-          <div class="about-stat">
-            <div class="about-stat-num">10k+</div>
-            <div class="about-stat-label">Completed Assignments</div>
-          </div>
-          <div class="about-stat">
-            <div class="about-stat-num">RICS</div>
-            <div class="about-stat-label">Regulated Practice</div>
-          </div>
-        </div>
-
-        <div class="about-testimonials" style="margin:56px 0;">
-          <span class="label">Track Record</span>
-          <span class="section-rule"></span>
-          <h2>Trusted by clients across the region</h2>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:28px;">
-            <blockquote style="margin:0;background:var(--card-bg);border-left:3px solid var(--red);padding:22px 24px;border-radius:2px;">
-              <p style="font-family:var(--font-serif);font-size:1.15rem;line-height:1.5;color:var(--text);font-style:italic;margin-bottom:14px;">“Professional, responsive and thorough across every stage of the valuation and advisory process.”</p>
-              <footer style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-sec);">Client testimonial — attribution to confirm</footer>
-            </blockquote>
-            <blockquote style="margin:0;background:var(--card-bg);border-left:3px solid var(--red);padding:22px 24px;border-radius:2px;">
-              <p style="font-family:var(--font-serif);font-size:1.15rem;line-height:1.5;color:var(--text);font-style:italic;margin-bottom:14px;">“Clear market evidence and a disciplined approach to pricing gave us real confidence in the numbers.”</p>
-              <footer style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-sec);">Client testimonial — attribution to confirm</footer>
-            </blockquote>
-            <blockquote style="margin:0;background:var(--card-bg);border-left:3px solid var(--red);padding:22px 24px;border-radius:2px;">
-              <p style="font-family:var(--font-serif);font-size:1.15rem;line-height:1.5;color:var(--text);font-style:italic;margin-bottom:14px;">“A trusted advisory partner — knowledgeable, well-connected and genuinely client-focused.”</p>
-              <footer style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-sec);">Client testimonial — attribution to confirm</footer>
-            </blockquote>
-          </div>
-          <p style="font-size:11px;color:var(--text-sec);margin-top:16px;">Land Sterling holds 13+ documented client testimonials across its advisory practice — final quotes and attributions to be confirmed for the portal.</p>
-        </div>
-
-        <div class="about-pillars">
-          <div class="about-pillars-header">
-            <span class="label">Our Approach</span>
-            <span class="section-rule"></span>
-            <h2>How we operate</h2>
-          </div>
-          <div class="pillars-grid">
-            <div class="pillar-item">
-              <span class="pillar-num">01</span>
-              <div class="pillar-title">Opportunity Curation</div>
-              <p class="pillar-desc">Each opportunity presented through the portal is assessed against clear advisory criteria before it reaches investors — including pricing benchmarks, income quality, tenure structure and market comparables.</p>
-            </div>
-            <div class="pillar-item">
-              <span class="pillar-num">02</span>
-              <div class="pillar-title">Data-Led Presentation</div>
-              <p class="pillar-desc">We present investment opportunities with the rigour of an investment bank advisory note — structured metrics, DLD-registered market evidence, yield analysis and clearly articulated investment rationale.</p>
-            </div>
-            <div class="pillar-item">
-              <span class="pillar-num">03</span>
-              <div class="pillar-title">Controlled Market Access</div>
-              <p class="pillar-desc">The portal provides structured access to opportunities across stabilised income, value-add and development strategies — off-market and controlled-market assets presented to qualified investors only.</p>
-            </div>
-            <div class="pillar-item">
-              <span class="pillar-num">04</span>
-              <div class="pillar-title">Advisory-Led Transactions</div>
-              <p class="pillar-desc">We act as investment advisory throughout the transaction process — from initial structuring and investor presentation through to negotiation, documentation and completion.</p>
-            </div>
-            <div class="pillar-item">
-              <span class="pillar-num">05</span>
-              <div class="pillar-title">Sectors Covered</div>
-              <p class="pillar-desc">Commercial, residential, land and mixed-use assets across the UAE — with particular expertise in Dubai's primary investment submarkets including DIFC, TECOM, Al Sufouh and established freehold residential districts.</p>
-            </div>
-            <div class="pillar-item">
-              <span class="pillar-num">06</span>
-              <div class="pillar-title">Investor Focus</div>
-              <p class="pillar-desc">Our advisory practice is oriented toward private capital, family offices, regional institutional investors and HNWIs seeking structured access to credible UAE real estate investment opportunities with clear metrics and defined exit routes.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="about-team">
-          <div class="about-team-header">
-            <span class="label">Advisory Team</span>
-            <span class="section-rule"></span>
-            <h2>Point of contact</h2>
-          </div>
-          <div class="team-card">
-            <div class="team-card-initials">CK</div>
-            <div>
-              <div class="team-card-name">Cameron Kerr</div>
-              <span class="team-card-title">Associate Director, Investment Advisory</span>
-              <p class="team-card-bio">Cameron leads investment advisory at Land Sterling, structuring and presenting acquisition opportunities to private capital, family offices and institutional investors across the UAE. He focuses on income-producing assets, value-add commercial and development-led residential acquisitions. Full biography to follow.</p>
-              <div class="team-card-contact">
-                <a href="tel:+971509005736">+971 50 900 5736</a>
-                <a href="mailto:Cameron.k@landsterling.com">Cameron.k@landsterling.com</a>
-              </div>
-            </div>
-          </div>
-        </div>
+          <figure class="about-why-photo"><img src="https://landsterling.com/wp-content/uploads/2023/01/shutterstock_2066106263.jpg" alt="" loading="lazy" decoding="async"></figure>
+        </section>
 
       </div>
     </div>
@@ -2676,6 +2477,45 @@ button.gate-magic-link:hover { color: var(--red); }
       <p>Thank you for requesting further details. Our team will get back to you shortly.</p>
       <div class="form-success-contact-row" id="enqSuccessContact"></div>
       <button type="button" class="btn btn-secondary btn-sm" style="margin-top:14px;" onclick="closeModal('enquireModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Report download modal (Insights) -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('reportModal')">✕</button>
+    <h3>Download report</h3>
+    <p class="modal-sub">Leave your details to receive the report.</p>
+    <div class="modal-opp-tag" id="reportTag"></div>
+    <form id="reportForm" onsubmit="handleReportSubmit(event)">
+      <div class="form-grid">
+        <div class="form-identity-known" id="repIdentityKnown" hidden></div>
+        <div class="form-contact-fields" id="repContactFields">
+          <div class="form-row">
+            <div class="form-field"><label for="repName">Full Name *</label><input id="repName" type="text" required placeholder="Your full name" autocomplete="name"></div>
+            <div class="form-field"><label for="repEmail">Email Address *</label><input id="repEmail" type="email" required placeholder="your@email.com" autocomplete="email"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="repPhone">Phone *</label><input id="repPhone" type="tel" inputmode="tel" required placeholder="+971 ..." autocomplete="tel"></div>
+            <div class="form-field"><label for="repCompany">Company</label><input id="repCompany" type="text" placeholder="Organisation" autocomplete="organization"></div>
+          </div>
+        </div>
+        <div class="form-consent" id="repConsentWrap">
+          <input type="checkbox" id="reportConsent" required>
+          <label for="reportConsent">I agree to be contacted by Land Sterling Investment Advisory about this report and related research.</label>
+        </div>
+        <p class="form-error" id="reportError" role="alert"></p>
+        <p class="form-reassure">Your details are held in confidence and used only to respond to this request.</p>
+        <button type="submit" class="form-submit">Download Now</button>
+      </div>
+    </form>
+    <div class="form-success" id="reportSuccess">
+      <div class="success-icon">✓</div>
+      <h4>Request Received</h4>
+      <p id="reportSuccessBody"></p>
+      <div id="reportDownloadWrap"></div>
+      <button type="button" class="btn btn-secondary btn-sm" style="margin-top:14px;" onclick="closeModal('reportModal')">Close</button>
     </div>
   </div>
 </div>
@@ -3628,38 +3468,65 @@ function handleTeaserCardClick(slug) {
    FILTERS
    ============================================================ */
 /* ============================================================
-   INSIGHTS — Land Sterling research. Replace the sample entries
-   with real pieces (title, type, date, summary, url to the PDF/page).
+   INSIGHTS — Land Sterling market research, newest first. The page lists the
+   current year's reports (2026); earlier editions stay on landsterling.com.
+   To add a report, put it at the top of REPORTS. `file` is the PDF (a path on
+   this site or a full URL). While `file` is empty, the Download Now form saves
+   the request as a lead and the team emails the report; once `file` is set the
+   visitor can download it straight after leaving their details.
+   Covers are served from landsterling.com.
    ============================================================ */
-const INSIGHTS = [
-  { title: 'Dubai Office Market — H1 2026', type: 'Market Report', date: 'July 2026',
-    summary: 'Prime and Grade A rental evidence across DIC, DMC and DIFC, with vacancy, absorption and the freehold premium.', url: '', sample: true },
-  { title: 'Dubai Islands: Off-Plan Pricing Evidence', type: 'Research Note', date: 'June 2026',
-    summary: 'Registered Island A transactions by unit type and the implied entry discount available on forward purchases.', url: '', sample: true },
-  { title: 'UAE Residential Yield Map — Q2 2026', type: 'Data Release', date: 'May 2026',
-    summary: 'Gross and net yield ranges by community, and the drivers of the current spread between prime and value locations.', url: '', sample: true }
+const REPORT_COVERS = 'https://landsterling.com/wp-content/uploads/';
+const REPORTS = [
+  { id: 'abu-dhabi-property-watch-q3-2026', title: 'Abu Dhabi Property Watch Q3 2026',
+    cover: '2026/10/Abu-Dhabi-Q3-2026-Property-Watch-1024x726.png', file: '',
+    summary: 'Abu Dhabi’s property market evolved in Q3 2026, with villa sales increasing by 76% year-on-year and apartment prices continuing to rise despite softer sales volumes. Transaction values remained concentrated in prime island and waterfront communities, while the office sector recorded strong growth in sales and prices. A substantial pipeline of homes expected in Q4 places greater focus on how quickly new supply will be absorbed. Land Sterling’s Q3 2026 Property Watch examines these developments alongside changing buyer preferences and financing options, providing a detailed assessment of the capital’s residential and commercial markets. The report helps investors, developers and property owners understand where demand is strengthening and which trends may shape the next quarter.' },
+  { id: 'dubai-property-watch-q3-2026', title: 'Dubai Property Watch Q3 2026',
+    cover: '2026/10/Dubai-Q3-2026-Property-Watch-1024x728.png', file: '',
+    summary: 'Dubai’s property market showed signs of rebalancing in Q3 2026, with residential sales cooling and prices easing slightly as new supply increased. Apartment deliveries rose by 23% year-on-year, while off-plan properties continued to dominate, accounting for around 70% of residential transactions. Rental demand remained firm, with villa leasing growing faster than apartment leasing. The office sector also gained momentum, supported by rising sales prices and premium rents. Land Sterling’s Q3 2026 Property Watch examines these shifts across sales, leasing and supply, highlighting how changing demand and more flexible developer payment plans are shaping the market. The report provides investors, developers and property owners with a detailed view of the trends to monitor in Q4.' },
+  { id: 'abu-dhabi-property-watch-q2-2026', title: 'Abu Dhabi Property Watch Q2 2026',
+    cover: '2026/07/Abu-Dhabi-BG-1024x658.jpg', file: '',
+    summary: 'Abu Dhabi’s residential market continued its strong performance in Q2 2026, recording 7,348 sales transactions valued at AED 30 billion, supported by sustained investor confidence and strong off-plan activity. More than 29,000 residential units remain under construction, reflecting a healthy long-term development pipeline. The commercial office sector demonstrated resilience, with capital values and rental rates increasing year-on-year amid limited supply of quality office space and sustained occupier demand. Retail and industrial markets also recorded positive leasing activity, supported by improving business confidence and steady demand across key sectors, reinforcing Abu Dhabi’s position as a stable and attractive real estate investment destination.' },
+  { id: 'northern-emirates-property-watch-h1-2026', title: 'Northern Emirates Property Watch H1 2026',
+    cover: '2026/07/Northern-Emirate-H1-2026-Property-Watch-pdf-1-1024x724.jpg', file: '',
+    summary: 'The Northern Emirates’ residential market remained resilient in H1 2026, supported by improving connectivity, sustained end-user demand, and the growing appeal of master-planned communities. Sharjah led the market with over 59,400 transactions worth AED 29.5 billion, driven by strong residential sales and expanding international investor interest. Ajman maintained solid momentum with more than 6,800 transactions valued at over AED 10.8 billion, supported by first-time homebuyers and Golden Residence Visa investors. Meanwhile, Ras Al Khaimah continued to strengthen its investment appeal through robust off-plan activity, resilient rental performance, and the expansion of branded waterfront developments. Emerging opportunities in Umm Al Quwain and Fujairah, supported by large-scale developments and improved transport connectivity, further reinforce the Northern Emirates’ positive long-term outlook.' },
+  { id: 'dubai-property-watch-q2-2026', title: 'Dubai Property Watch Q2 2026',
+    cover: '2026/07/Q2-20626-BG-1024x674.jpg', file: '',
+    summary: 'Dubai’s residential market experienced a moderate correction in Q2 2026, recording over 36,500 transactions with a total value exceeding AED 87 billion. While transaction volumes and values declined year-on-year, the off-plan segment remained the dominant driver of activity, accounting for 76% of total sales, supported by continued investor confidence, new project launches, and attractive developer payment plans. Capital values remained broadly resilient despite a slowdown in price appreciation, with apartment and villa prices increasing by 1% and 6% year-on-year, respectively. More than 9,200 residential units were delivered during the quarter, reflecting a measured pace of supply that continues to support long-term market fundamentals.' },
+  { id: 'dubai-property-watch-q1-2026', title: 'Dubai Property Watch Q1 2026',
+    cover: '2026/04/Dubai-Q1-2026-Property-Watch-1024x576.jpg', file: '',
+    summary: 'Dubai’s residential market sustained its growth trajectory in Q1 2026, recording over 45,000 transactions with a total value exceeding AED 136 billion. Transaction volumes and values increased by 4% and 18% year-on-year, supported by strong off-plan activity and continued investor demand. Capital values remained on an upward trend, with apartment and villa prices rising by 8% and 12% respectively. More than 8,000 units were delivered during the quarter, reflecting steady supply and underlying market resilience.' }
 ];
-function openInsightRequest(index) {
-  const it = INSIGHTS[index]; if (!it) return;
-  openEnquireModal(null);
-  document.getElementById('enquireOppTag').textContent = 'Research: ' + it.title;
-  window.LS_ENQ_TYPE = 'research';
-}
+
 function renderInsights() {
-  const g = document.getElementById('insightsGrid'), note = document.getElementById('insightsNote');
+  const g = document.getElementById('insightsGrid');
   if (!g) return;
-  g.innerHTML = INSIGHTS.map((it, i) => `
-    <article class="insight-card">
-      <span class="insight-type">${it.type}</span>
-      <h3 class="insight-title">${it.title}</h3>
-      <span class="insight-date">${it.date}</span>
-      <p class="insight-summary">${it.summary}</p>
-      ${it.url
-        ? `<a class="btn btn-secondary btn-sm" href="${it.url}" target="_blank" rel="noopener">Read the report</a>`
-        : `<button class="btn btn-secondary btn-sm" onclick="openInsightRequest(${i})">Request this report</button>`}
-      ${it.sample ? '<span class="insight-sample">Sample entry — replace with your latest research</span>' : ''}
+  g.innerHTML = REPORTS.map((r, i) => `
+    <article class="report-card">
+      <div class="report-cover"><img src="${REPORT_COVERS}${r.cover}" alt="${r.title} cover" loading="lazy" decoding="async"></div>
+      <div class="report-body">
+        <h3 class="report-title">${r.title}</h3>
+        <p class="report-summary">${r.summary}</p>
+        <button type="button" class="btn btn-primary btn-sm" onclick="openReportModal(${i})">Download Now</button>
+      </div>
     </article>`).join('');
-  if (note) note.textContent = 'Research is issued to portal members on request and, where indicated, under the confidentiality agreement.';
+}
+
+// "Download Now" opens a short details form (prefilled and one-click for
+// signed-in members) that is saved as a research lead — database record,
+// email to Cameron and CRM entry, the same pipeline as every other enquiry.
+let currentReport = null;
+function openReportModal(index) {
+  const r = REPORTS[index]; if (!r) return;
+  currentReport = r;
+  document.getElementById('reportTag').textContent = r.title;
+  document.getElementById('reportForm').style.display = '';
+  document.getElementById('reportSuccess').style.display = 'none';
+  document.getElementById('reportError').style.display = 'none';
+  document.getElementById('reportConsent').checked = false;
+  prefillIdentity('rep', document.getElementById('reportForm'));
+  if (window.LS_API && LS_API.logActivity) LS_API.logActivity('report_download_click', r.id);
+  openModalDialog('reportModal');
 }
 
 function setFilter(dimension, value, btn) {
@@ -4447,7 +4314,7 @@ function successContactRow(opportunityName) {
     '<a class="btn btn-secondary btn-sm" href="tel:' + telHref() + '">Call Now</a>';
 }
 
-async function submitLead(form, errorId, successId, payload) {
+async function submitLead(form, errorId, successId, payload, onSuccess) {
   const btn   = form.querySelector('button[type="submit"]');
   const errEl = document.getElementById(errorId);
   const label = btn.textContent;
@@ -4463,6 +4330,7 @@ async function submitLead(form, errorId, successId, payload) {
     ok.style.display = 'block';
     const contactRow = ok.querySelector('.form-success-contact-row');
     if (contactRow) contactRow.innerHTML = successContactRow(payload.opportunity_name);
+    if (onSuccess) onSuccess(payload);
     const h = ok.querySelector('h4');
     if (h) { h.setAttribute('tabindex', '-1'); h.focus(); }
   } catch (err) {
@@ -4491,6 +4359,35 @@ function handleEnquireSubmit(e) {
     target_location: document.getElementById('enqLocation').value.trim() || null,
     message: document.getElementById('enqMessage').value.trim(),
     consent: document.getElementById('enquireConsent').checked
+  });
+}
+
+function handleReportSubmit(e) {
+  e.preventDefault();
+  const r = currentReport; if (!r) return;
+  submitLead(e.target, 'reportError', 'reportSuccess', {
+    type: 'research',
+    opportunity_slug: null,
+    opportunity_name: 'Research: ' + r.title,
+    name:    document.getElementById('repName').value.trim(),
+    email:   document.getElementById('repEmail').value.trim(),
+    phone:   document.getElementById('repPhone').value.trim(),
+    company: document.getElementById('repCompany').value.trim(),
+    message: 'Requested the report: ' + r.title,
+    consent: document.getElementById('reportConsent').checked
+  }, payload => {
+    const body = document.getElementById('reportSuccessBody');
+    const dl = document.getElementById('reportDownloadWrap');
+    dl.innerHTML = '';
+    if (r.file) {
+      body.textContent = 'Thank you. Your report is ready to download.';
+      const a = document.createElement('a');
+      a.className = 'btn btn-primary btn-sm'; a.style.marginTop = '14px';
+      a.href = r.file; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Download PDF';
+      dl.append(a);
+    } else {
+      body.textContent = 'Thank you. We will email the report to ' + payload.email + ' shortly.';
+    }
   });
 }
 
@@ -4532,7 +4429,7 @@ const revealObserver = ('IntersectionObserver' in window)
 
 function applyReveal() {
   if (!revealObserver) return;
-  document.querySelectorAll('.opp-card, .metric-card, .pillar-item, .about-stat').forEach((el, i) => {
+  document.querySelectorAll('.opp-card, .metric-card').forEach((el, i) => {
     if (el.classList.contains('reveal')) return;
     el.classList.add('reveal');
     el.style.transitionDelay = (i % 6) * 60 + 'ms';

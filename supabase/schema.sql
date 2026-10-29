@@ -445,6 +445,23 @@ revoke all on function public.get_public_opportunity_teasers() from public;
 grant execute on function public.get_public_opportunity_teasers() to anon, authenticated;
 
 -- ============================================================================
+--  PHASE 10 ADDITIONS (public enquiries — Home, Insights, the Asset Library
+--  teaser and shared opportunity links are all public now, so a visitor who is
+--  not signed in must be able to submit an enquiry or request a report.
+--  The original policy required auth.uid() is not null, which made every
+--  anonymous submission fail with a row-level-security error (the Formspree
+--  email still went out, but no database record or CRM entry was created).
+-- ============================================================================
+
+-- 20. Anyone may INSERT an enquiry. The check still stops anyone attributing a
+--     row to somebody else's account: user_id must be null, or the caller's own.
+--     Reading and updating enquiries stay admin-only, unchanged.
+drop policy if exists "auth insert enquiries"   on public.enquiries;
+drop policy if exists "anyone insert enquiries" on public.enquiries;
+create policy "anyone insert enquiries" on public.enquiries
+  for insert with check ( user_id is null or user_id = auth.uid() );
+
+-- ============================================================================
 --  DONE. Next: create your own login, then promote yourself to admin with the
 --  one-line command in SETUP.md (Step 6).
 -- ============================================================================

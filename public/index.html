@@ -1740,12 +1740,19 @@ footer {
 .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 @keyframes menuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 /* Menu-button takeover. The full row (logo, label, five links, "Request
-   Further Details", WhatsApp) needs ~1211px when signed in — 1240px leaves a
-   cushion for the scrollbar. Below that the links used to be squeezed until
-   their labels wrapped ("Asset / Library", "About / Us", "Sign / Out"); they
-   now collapse into the menu instead, so a label can never break onto two
-   lines at any width. */
-@media (max-width: 1240px) {
+   Further Details", WhatsApp) needs ~1211px when signed in. From 1111px to
+   1240px the small "Investment Portal" label is dropped so the same bar still
+   fits (~1080px needed, scrollbar cushion included in the breakpoint). Below
+   1111px the links collapse into the menu instead. Before this the links were
+   squeezed until their labels wrapped ("Asset / Library", "About / Us",
+   "Sign / Out"); now a label can never break onto two lines at any width. */
+@media (min-width: 1111px) and (max-width: 1240px) {
+  .nav-logo-sub { display: none; }
+}
+/* 1110.98px, not 1110px: a fractional viewport width (zoomed or scaled
+   screens) would otherwise fall in the gap between this rule and the
+   min-width:1111px one above, leaving the bar overflowing. */
+@media (max-width: 1110.98px) {
   .nav-links, .nav-cta { display: none; }
   .nav-hamburger { display: block; }
   .nav-links.open {

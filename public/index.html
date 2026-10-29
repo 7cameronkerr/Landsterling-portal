@@ -301,7 +301,7 @@ h4 { font-size: 1.15rem; }
   padding: 0 32px;
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 28px;
 }
 .nav-logo {
   flex-shrink: 0;
@@ -332,14 +332,18 @@ h4 { font-size: 1.15rem; }
   font-weight: 400;
   border-left: 1px solid var(--divider);
   padding-left: 12px;
+  white-space: nowrap;
 }
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 26px;
   flex: 1;
   justify-content: center;
 }
+/* nowrap: a nav label must never break onto a second line ("Asset / Library").
+   If the row runs out of room the menu button takes over (see the
+   max-width:1180px block below) rather than the text wrapping. */
 .nav-link {
   font-size: 11px;
   font-weight: 500;
@@ -348,14 +352,17 @@ h4 { font-size: 1.15rem; }
   color: var(--text-sec);
   transition: color var(--transition);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .nav-link:hover, .nav-link.active { color: var(--text); }
 .nav-cta { flex-shrink: 0; }
+.nav-cta .btn { white-space: nowrap; }
 /* Sign Out is intentionally lower-weight than the primary nav links it sits
    after — smaller, muted, pushed to the far edge — so it reads as a
    secondary account action, never competing with Home/Library/Insights/About. */
 .nav-link-signout {
-  margin-left: 24px; padding-left: 24px; border-left: 1px solid var(--border);
+  margin-left: 12px; padding-left: 20px; border-left: 1px solid var(--border);
   font-size: 10px; font-weight: 400; letter-spacing: 0.06em; color: var(--text-sec); opacity: 0.75;
 }
 .nav-link-signout:hover { opacity: 1; color: var(--text-sec); }
@@ -1732,7 +1739,34 @@ footer {
 .nav-hamburger.open span:nth-child(2) { opacity: 0; }
 .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 @keyframes menuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-@media (max-width: 768px) { .nav-links.open { animation: menuIn 0.22s ease; } }
+/* Menu-button takeover. The full row (logo, label, five links, "Request
+   Further Details", WhatsApp) needs ~1211px when signed in — 1240px leaves a
+   cushion for the scrollbar. Below that the links used to be squeezed until
+   their labels wrapped ("Asset / Library", "About / Us", "Sign / Out"); they
+   now collapse into the menu instead, so a label can never break onto two
+   lines at any width. */
+@media (max-width: 1240px) {
+  .nav-links, .nav-cta { display: none; }
+  .nav-hamburger { display: block; }
+  .nav-links.open {
+    display: flex;
+    position: fixed;
+    top: var(--nav-h);
+    left: 0; right: 0;
+    background: var(--white);
+    flex-direction: column;
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--divider);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    gap: 4px;
+    animation: menuIn 0.22s ease;
+  }
+  .nav-links.open .nav-link { padding: 10px 0; font-size: 12px; }
+  .nav-links.open .nav-link-cta { display: block; margin-top: 14px; }
+  .nav-links.open .nav-link-signout {
+    margin: 14px 0 0; padding: 14px 0 0; border-left: none; border-top: 1px solid var(--divider);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .sk, .hero.hero-in .hero-label, .hero.hero-in h1, .hero.hero-in .hero-portal, .hero.hero-in .hero-rule,
   .hero.hero-in .hero-tagline, .hero.hero-in .hero-desc, .hero.hero-in .hero-btns, .nav-links.open { animation: none; }
@@ -1895,34 +1929,16 @@ button.gate-magic-link:hover { color: var(--red); }
   .analysis-metric-grid { grid-template-columns: 1fr; }
   .analysis-table { font-size: 12px; }
   .analysis-table thead th, .analysis-table tbody td { padding: 9px 10px; }
-  .nav-links, .nav-cta { display: none; }
-  .nav-hamburger { display: block; }
   /* The logo image's own source file is a wide wordmark (242px at the
      22px desktop height) — combined with the un-reduced 32px side padding,
      the "Investment Portal" subtitle and the WhatsApp/hamburger buttons,
      the nav bar overflowed its container by ~130px on a 375px phone,
      pushing the hamburger button off-screen. Tightened every dimension in
-     this row, not just one, since no single change closes that much gap. */
+     this row, not just one, since no single change closes that much gap.
+     (The menu-button switch itself now happens at 1240px — see below.) */
   .nav-inner { gap: 12px; padding: 0 16px; }
   .nav-logo-img { height: 18px; }
   .nav-logo-sub { display: none; }
-  .nav-links.open {
-    display: flex;
-    position: fixed;
-    top: var(--nav-h);
-    left: 0; right: 0;
-    background: var(--white);
-    flex-direction: column;
-    padding: 24px 20px;
-    border-bottom: 1px solid var(--divider);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-    gap: 4px;
-  }
-  .nav-links.open .nav-link { padding: 10px 0; font-size: 12px; }
-  .nav-links.open .nav-link-cta { display: block; margin-top: 14px; }
-  .nav-links.open .nav-link-signout {
-    margin: 14px 0 0; padding: 14px 0 0; border-left: none; border-top: 1px solid var(--divider);
-  }
 
   .hero { padding: 72px 0 64px; }
   .metrics-grid, .credentials-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
